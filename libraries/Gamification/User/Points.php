@@ -3,13 +3,12 @@
  * @package         Gamification\User
  * @subpackage      Points
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Gamification\User;
 
-use Joomla\Utilities\ArrayHelper;
 use Prism\Database\TableObservable;
 
 defined('JPATH_PLATFORM') or die;
@@ -21,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification\User
  * @subpackage      Points
  */
-class Points extends TableObservable implements \JObservableInterface
+class Points extends TableObservable
 {
     /**
      * Users points ID.
@@ -37,65 +36,14 @@ class Points extends TableObservable implements \JObservableInterface
     protected $points_id;
     protected $points = 0;
 
-    protected static $instances = array();
-
-    /**
-     * Create an object and load user level.
-     *
-     * <code>
-     * // Create and initialize the object using points ID.
-     * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
-     * );
-     * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo(), $keys);
-     *
-     * // Create and initialize the object using abbreviation.
-     * $keys = array(
-     *       "user_id"  => 1,
-     *       "abbr"     => "P"
-     * );
-     * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo(), $keys);
-     * </code>
-     *
-     * @param  \JDatabaseDriver $db
-     * @param  array $keys
-     * @param  array $options
-     *
-     * @return null|self
-     */
-    public static function getInstance(\JDatabaseDriver $db, array $keys, array $options = array())
-    {
-        $userId   = ArrayHelper::getValue($keys, "user_id");
-        $pointsId = ArrayHelper::getValue($keys, "points_id");
-        $abbr     = ArrayHelper::getValue($keys, "abbr");
-
-        $index = null;
-
-        if (!empty($pointsId)) {
-            $index = md5($userId . ":" . $pointsId);
-        } elseif (!empty($abbr)) {
-            $index = md5($userId . ":" . $abbr);
-        }
-
-        if (!isset(self::$instances[$index])) {
-            $item = new Points($db);
-            $item->load($keys, $options);
-
-            self::$instances[$index] = $item;
-        }
-
-        return self::$instances[$index];
-    }
-
     /**
      * Load user points using some indexes - user_id, abbr or points_id.
      *
      * <code>
      * // Load data by points ID.
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints    = new Gamification\User\Points(JFactory::getDbo());
@@ -103,8 +51,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * // Load data by abbreviation.
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "abbr"     => "P"
+     *       'user_id'  => 1,
+     *       'abbr'     => 'P'
      * );
      *
      * $userPoints    = new Gamification\User\Points(JFactory::getDbo());
@@ -114,24 +62,24 @@ class Points extends TableObservable implements \JObservableInterface
      * @param array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                "a.id, a.points, a.points_id, a.user_id," .
-                "b.title, b.abbr, b.group_id"
+                'a.id, a.points, a.points_id, a.user_id,' .
+                'b.title, b.abbr, b.group_id'
             )
-            ->from($this->db->quoteName("#__gfy_userpoints", "a"))
-            ->rightJoin($this->db->quoteName("#__gfy_points", "b") . " ON a.points_id = b.id");
+            ->from($this->db->quoteName('#__gfy_userpoints', 'a'))
+            ->rightJoin($this->db->quoteName('#__gfy_points', 'b') . ' ON a.points_id = b.id');
 
         // Prepare keys.
         if (is_array($keys)) {
             foreach ($keys as $column => $value) {
-                $query->where($this->db->quoteName("a.".$column) . " = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$column) . ' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
@@ -145,12 +93,12 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $options = array(
-     *    "context" = "com_user.registration"
+     *    'context' = 'com_user.registration'
      * );
      *
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints   = new Gamification\User\Points(JFactory::getDbo());
@@ -163,7 +111,7 @@ class Points extends TableObservable implements \JObservableInterface
      * @param int $value Number of points.
      * @param array $options Options that provides additional data or settings. Those options will be forwarded to observer objects.
      */
-    public function increase($value, $options = array())
+    public function increase($value, array $options = array())
     {
         // Implement JObservableInterface: Pre-processing by observers
         $this->observers->update('onBeforePointsIncrease', array(&$this, &$options));
@@ -180,12 +128,12 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $options = array(
-     *    "context" = "com_user.registration"
+     *    'context' = 'com_user.registration'
      * );
      *
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints   = new Gamification\User\Points(JFactory::getDbo());
@@ -198,7 +146,7 @@ class Points extends TableObservable implements \JObservableInterface
      * @param int $value The number of points.
      * @param array $options Options that provides additional data or settings. Those options will be forwarded to observer objects.
      */
-    public function decrease($value, $options = array())
+    public function decrease($value, array $options = array())
     {
         // Implement JObservableInterface: Pre-processing by observers
         $this->observers->update('onBeforePointsDecrease', array(&$this, &$options));
@@ -216,9 +164,9 @@ class Points extends TableObservable implements \JObservableInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->update($this->db->quoteName("#__gfy_userpoints"))
-            ->set($this->db->quoteName("points") ." = " . (int)$this->points)
-            ->where($this->db->quoteName("id") ." = " . (int)$this->id);
+            ->update($this->db->quoteName('#__gfy_userpoints'))
+            ->set($this->db->quoteName('points') .' = ' . (int)$this->points)
+            ->where($this->db->quoteName('id') .' = ' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -230,10 +178,10 @@ class Points extends TableObservable implements \JObservableInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->insert($this->db->quoteName("#__gfy_userpoints"))
-            ->set($this->db->quoteName("points") . " = " . (int)$this->points)
-            ->set($this->db->quoteName("user_id") . " = " . (int)$this->user_id)
-            ->set($this->db->quoteName("points_id") ." = " . (int)$this->points_id);
+            ->insert($this->db->quoteName('#__gfy_userpoints'))
+            ->set($this->db->quoteName('points') . ' = ' . (int)$this->points)
+            ->set($this->db->quoteName('user_id') . ' = ' . (int)$this->user_id)
+            ->set($this->db->quoteName('points_id') .' = ' . (int)$this->points_id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -246,8 +194,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints   = new Gamification\User\Points(JFactory::getDbo());
@@ -271,8 +219,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints  = new Gamification\User\Points(JFactory::getDbo());
@@ -288,7 +236,7 @@ class Points extends TableObservable implements \JObservableInterface
      */
     public function __toString()
     {
-        return $this->points . " " . $this->abbr;
+        return $this->points . ' ' . $this->abbr;
     }
 
     /**
@@ -296,8 +244,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints  = new Gamification\User\Points(JFactory::getDbo());
@@ -319,8 +267,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints  = new Gamification\User\Points(JFactory::getDbo());
@@ -341,8 +289,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints   = new Gamification\User\Points(JFactory::getDbo());
@@ -363,8 +311,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints  = new Gamification\User\Points(JFactory::getDbo());
@@ -385,8 +333,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints  = new Gamification\User\Points(JFactory::getDbo());
@@ -395,11 +343,11 @@ class Points extends TableObservable implements \JObservableInterface
      * $userId = $userPoints->getUserId();
      * </code>
      *
-     * @return string
+     * @return int
      */
     public function getUserId()
     {
-        return $this->user_id;
+        return (int)$this->user_id;
     }
 
     /**
@@ -407,8 +355,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints  = new Gamification\User\Points(JFactory::getDbo());
@@ -417,11 +365,11 @@ class Points extends TableObservable implements \JObservableInterface
      * $groupId = $userPoints->getGroupId();
      * </code>
      *
-     * @return string
+     * @return int
      */
     public function getGroupId()
     {
-        return $this->group_id;
+        return (int)$this->group_id;
     }
 
     /**
@@ -429,8 +377,8 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      *
      * $userPoints  = new Gamification\User\Points(JFactory::getDbo());
@@ -439,11 +387,11 @@ class Points extends TableObservable implements \JObservableInterface
      * $pointsId = $userPoints->getPointsId();
      * </code>
      *
-     * @return string
+     * @return int
      */
     public function getPointsId()
     {
-        return $this->points_id;
+        return (int)$this->points_id;
     }
 
     /**
@@ -451,14 +399,14 @@ class Points extends TableObservable implements \JObservableInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $data = array(
-     *     "user_id"  => 1,
-     *     "group_id" => 2,
-     *     "level_id" => 3
+     *     'user_id'  => 1,
+     *     'group_id' => 2,
+     *     'level_id' => 3
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());
@@ -468,15 +416,17 @@ class Points extends TableObservable implements \JObservableInterface
      * </code>
      *
      * @param array $data
+     *
+     * @throws \InvalidArgumentException
      */
     public function startCollectingPoints(array $data = array())
     {
-        if (empty($data["user_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID"));
+        if (empty($data['user_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID'));
         }
 
-        if (empty($data["points_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_POINTS_ID"));
+        if (empty($data['points_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_POINTS_ID'));
         }
 
         $this->bind($data);
@@ -484,8 +434,8 @@ class Points extends TableObservable implements \JObservableInterface
 
         // Load data
         $keys = array(
-            "user_id"   => $data["user_id"],
-            "points_id" => $data["points_id"]
+            'user_id'   => $data['user_id'],
+            'points_id' => $data['points_id']
         );
 
         $this->load($keys);

@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   Utilities
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -35,7 +35,7 @@ abstract class DateHelper
     {
         $dateFormat = '';
 
-        switch($format) {
+        switch ($format) {
             case 'Y-m-d':
                 $dateFormat = 'YYYY-MM-DD';
                 break;

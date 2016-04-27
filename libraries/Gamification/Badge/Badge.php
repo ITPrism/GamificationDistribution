@@ -3,7 +3,7 @@
  * @package         Gamification
  * @subpackage      Badges
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -11,7 +11,6 @@ namespace Gamification\Badge;
 
 use Prism\Database\Table;
 use Gamification\Mechanic;
-use Joomla\String\String;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -56,7 +55,7 @@ class Badge extends Table implements Mechanic\PointsInterface
      */
     public static function getInstance($db, $id)
     {
-        if (!isset(self::$instances[$id])) {
+        if (!array_key_exists($id, self::$instances)) {
             $item   = new Badge($db);
             $item->load($id);
             
@@ -116,7 +115,7 @@ class Badge extends Table implements Mechanic\PointsInterface
      */
     public function getPointsId()
     {
-        return $this->points_id;
+        return (int)$this->points_id;
     }
 
     /**
@@ -172,11 +171,11 @@ class Badge extends Table implements Mechanic\PointsInterface
      */
     public function getDescription(array $data = array())
     {
-        if (!empty($data)) {
+        if (count($data) > 0) {
             $result = $this->description;
 
             foreach ($data as $placeholder => $value) {
-                $placeholder = "{".String::strtoupper($placeholder)."}";
+                $placeholder = '{'.strtoupper($placeholder).'}';
                 $result = str_replace($placeholder, $value, $result);
             }
 
@@ -241,61 +240,28 @@ class Badge extends Table implements Mechanic\PointsInterface
      * @param int|array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         // Create a new query object.
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id, a.title, a.description, a.points, a.image, a.note, a.published, a.points_id, a.group_id")
-            ->from($this->db->quoteName("#__gfy_badges", "a"));
+            ->select('a.id, a.title, a.description, a.points, a.image, a.note, a.published, a.points_id, a.group_id')
+            ->from($this->db->quoteName('#__gfy_badges', 'a'));
 
         // Prepare keys.
         if (is_array($keys)) {
             foreach ($keys as $column => $value) {
-                $query->where($this->db->quoteName("a.".$column) . " = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$column) . ' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
 
-        if (!empty($result)) {
-            $this->bind($result);
-        }
-    }
-
-    /**
-     * Set the data to the object parameters.
-     *
-     * <code>
-     * $data = array(
-     *        "title"    => "......",
-     *        "description"    => "......",
-     *        "points"    => 100,
-     *        "image"    => "picture.png",
-     *        "note"    => "......",
-     *        "published" => 1,
-     *        "points_id" => 2,
-     *        "group_id"  => 3
-     * );
-     *
-     * $badge   = new Gamification\Badge\Badge(\JFactory::getDbo());
-     * $badge->bind($data);
-     * </code>
-     *
-     * @param array $data
-     * @param array $ignored
-     */
-    public function bind($data, $ignored = array())
-    {
-        foreach ($data as $key => $value) {
-            if (!in_array($key, $ignored)) {
-                $this->$key = $value;
-            }
-        }
+        $this->bind($result);
     }
 
     /**
@@ -336,16 +302,16 @@ class Badge extends Table implements Mechanic\PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->update($this->db->quoteName("#__gfy_badges"))
-            ->set($this->db->quoteName("title") . "  = " . $this->db->quote($this->title))
-            ->set($this->db->quoteName("points") . "  = " . $this->db->quote($this->points))
-            ->set($this->db->quoteName("image") . "  = " . $this->db->quote($this->image))
-            ->set($this->db->quoteName("note") . "  = " . $note)
-            ->set($this->db->quoteName("description") . "  = " . $description)
-            ->set($this->db->quoteName("published") . "  = " . (int)$this->published)
-            ->set($this->db->quoteName("points_id") . "  = " . (int)$this->points_id)
-            ->set($this->db->quoteName("group_id") . "  = " . (int)$this->group_id)
-            ->where($this->db->quoteName("id") . "  = " . (int)$this->id);
+            ->update($this->db->quoteName('#__gfy_badges'))
+            ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
+            ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
+            ->set($this->db->quoteName('image') . '  = ' . $this->db->quote($this->image))
+            ->set($this->db->quoteName('note') . '  = ' . $note)
+            ->set($this->db->quoteName('description') . '  = ' . $description)
+            ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
+            ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
+            ->set($this->db->quoteName('group_id') . '  = ' . (int)$this->group_id)
+            ->where($this->db->quoteName('id') . '  = ' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -357,20 +323,20 @@ class Badge extends Table implements Mechanic\PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->insert($this->db->quoteName("#__gfy_badges"))
-            ->set($this->db->quoteName("title") . "  = " . $this->db->quote($this->title))
-            ->set($this->db->quoteName("points") . "  = " . $this->db->quote($this->points))
-            ->set($this->db->quoteName("image") . "  = " . $this->db->quote($this->image))
-            ->set($this->db->quoteName("published") . "  = " . (int)$this->published)
-            ->set($this->db->quoteName("points_id") . "  = " . (int)$this->points_id)
-            ->set($this->db->quoteName("group_id") . "  = " . (int)$this->group_id);
+            ->insert($this->db->quoteName('#__gfy_badges'))
+            ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
+            ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
+            ->set($this->db->quoteName('image') . '  = ' . $this->db->quote($this->image))
+            ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
+            ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
+            ->set($this->db->quoteName('group_id') . '  = ' . (int)$this->group_id);
 
-        if (!empty($this->note)) {
-            $query->set($this->db->quoteName("note") . " = " . $this->db->quote($this->note));
+        if ($this->note !== null and $this->note !== '') {
+            $query->set($this->db->quoteName('note') . ' = ' . $this->db->quote($this->note));
         }
 
-        if (!empty($this->description)) {
-            $query->set($this->db->quoteName("description") . " = " . $this->db->quote($this->description));
+        if ($this->description !== null and $this->description !== '') {
+            $query->set($this->db->quoteName('description') . ' = ' . $this->db->quote($this->description));
         }
 
         $this->db->setQuery($query);

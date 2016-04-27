@@ -10,8 +10,8 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport("Prism.init");
-jimport("Gamification.init");
+jimport('Prism.init');
+jimport('Gamification.init');
 
 /**
  * This plugin calculates and updates the game mechanics.
@@ -48,38 +48,38 @@ class plgSystemGamification extends JPlugin
         /** @var $document JDocumentHTML */
 
         $type = $document->getType();
-        if (strcmp("html", $type) != 0) {
+        if (strcmp('html', $type) !== 0) {
             return;
         }
 
         // Register Observers
 
         // Register observer for leveling when system increase points value.
-        if ($this->params->get("enable_leveling", 0)) {
+        if ($this->params->get('enable_leveling', 0)) {
             $options = array(
                 'typeAlias' => 'com_gamification.leveling',
-                'send_notification' => $this->params->get("leveling_send_notification", 0),
-                'store_activity' => $this->params->get("leveling_store_activity", 0)
+                'send_notification' => $this->params->get('leveling_send_notification', 0),
+                'store_activity' => $this->params->get('leveling_store_activity', 0)
             );
 
             JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Leveling', 'Gamification\\User\\Points', $options);
         }
 
-        if ($this->params->get("enable_badging", 0)) {
+        if ($this->params->get('enable_badging', 0)) {
             $options = array(
                 'typeAlias' => 'com_gamification.badging',
-                'send_notification' => $this->params->get("badging_send_notification", 0),
-                'store_activity' => $this->params->get("badging_store_activity", 0)
+                'send_notification' => $this->params->get('badging_send_notification', 0),
+                'store_activity' => $this->params->get('badging_store_activity', 0)
             );
 
             JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Badging', 'Gamification\\User\\Points', $options);
         }
 
-        if ($this->params->get("enable_ranking", 0)) {
+        if ($this->params->get('enable_ranking', 0)) {
             $options = array(
                 'typeAlias' => 'com_gamification.ranking',
-                'send_notification' => $this->params->get("ranking_send_notification", 0),
-                'store_activity' => $this->params->get("ranking_store_activity", 0)
+                'send_notification' => $this->params->get('ranking_send_notification', 0),
+                'store_activity' => $this->params->get('ranking_store_activity', 0)
             );
 
             JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Ranking', 'Gamification\\User\\Points', $options);

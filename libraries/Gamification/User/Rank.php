@@ -3,14 +3,13 @@
  * @package         Gamification
  * @subpackage      GamificationLibrary
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Gamification\User;
 
 use Joomla\Utilities\ArrayHelper;
-use Joomla\String\String;
 use Prism\Database\TableObservable;
 use Gamification\Mechanic\PointsInterface;
 
@@ -25,7 +24,7 @@ defined('JPATH_PLATFORM') or die;
 class Rank extends TableObservable implements PointsInterface
 {
     /**
-     * The ID of database record in table "#__gfy_userranks".
+     * The ID of database record in table '#__gfy_userranks'.
      *
      * @var integer
      */
@@ -44,7 +43,7 @@ class Rank extends TableObservable implements PointsInterface
     protected $published;
 
     /**
-     * This is the ID of the rank record in table "#__gfy_ranks".
+     * This is the ID of the rank record in table '#__gfy_ranks'.
      *
      * @var integer
      */
@@ -55,49 +54,13 @@ class Rank extends TableObservable implements PointsInterface
 
     protected $points_id;
 
-    protected static $instances = array();
-
-    /**
-     * Create and initialize the object.
-     *
-     * <code>
-     * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
-     * );
-     * $userRank    = Gamification\User\Rank::getInstance(\JFactory::getDbo(), $keys);
-     * </code>
-     *
-     * @param \JDatabaseDriver $db
-     * @param  array $keys
-     * @param  array $options
-     *
-     * @return null|self
-     */
-    public static function getInstance(\JDatabaseDriver $db, array $keys, array $options = array())
-    {
-        $userId  = ArrayHelper::getValue($keys, "user_id");
-        $groupId = ArrayHelper::getValue($keys, "group_id");
-
-        $index = md5($userId . ":" . $groupId);
-
-        if (!isset(self::$instances[$index])) {
-            $item = new Rank($db, $options);
-            $item->load($keys);
-
-            self::$instances[$index] = $item;
-        }
-
-        return self::$instances[$index];
-    }
-
     /**
      * Load user rank data.
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userRank     = new Gamification\User\Rank(\JFactory::getDbo());
@@ -107,25 +70,25 @@ class Rank extends TableObservable implements PointsInterface
      * @param array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         // Create a new query object.
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                "a.id, a.rank_id, a.user_id, a.group_id, " .
-                "b.title, b.description, b.points, b.image, b.published, b.points_id"
+                'a.id, a.rank_id, a.user_id, a.group_id, ' .
+                'b.title, b.description, b.points, b.image, b.published, b.points_id'
             )
-            ->from($this->db->quoteName("#__gfy_userranks", "a"))
-            ->leftJoin($this->db->quoteName("#__gfy_ranks", "b") . ' ON a.rank_id = b.id');
+            ->from($this->db->quoteName('#__gfy_userranks', 'a'))
+            ->leftJoin($this->db->quoteName('#__gfy_ranks', 'b') . ' ON a.rank_id = b.id');
 
         // Prepare keys.
         if (is_array($keys)) {
             foreach ($keys as $column => $value) {
-                $query->where($this->db->quoteName("a.".$column) . " = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$column) . ' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
@@ -139,9 +102,9 @@ class Rank extends TableObservable implements PointsInterface
      *
      * <code>
      * $data = array(
-     *        "user_id"   => 2,
-     *        "group_id"  => 3,
-     *        "rank_id"   => 4
+     *        'user_id'   => 2,
+     *        'group_id'  => 3,
+     *        'rank_id'   => 4
      * );
      *
      * $userRank   = new Gamification\User\Rank(\JFactory::getDbo());
@@ -165,9 +128,9 @@ class Rank extends TableObservable implements PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->update($this->db->quoteName("#__gfy_userranks"))
-            ->set($this->db->quoteName("rank_id") . " = " . (int)$this->rank_id)
-            ->where($this->db->quoteName("id") ." = " . (int)$this->id);
+            ->update($this->db->quoteName('#__gfy_userranks'))
+            ->set($this->db->quoteName('rank_id') . ' = ' . (int)$this->rank_id)
+            ->where($this->db->quoteName('id') .' = ' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -179,10 +142,10 @@ class Rank extends TableObservable implements PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->insert($this->db->quoteName("#__gfy_userranks"))
-            ->set($this->db->quoteName("user_id")  . " = " . (int)$this->user_id)
-            ->set($this->db->quoteName("group_id") . " = " . (int)$this->group_id)
-            ->set($this->db->quoteName("rank_id")  . " = " . (int)$this->rank_id);
+            ->insert($this->db->quoteName('#__gfy_userranks'))
+            ->set($this->db->quoteName('user_id')  . ' = ' . (int)$this->user_id)
+            ->set($this->db->quoteName('group_id') . ' = ' . (int)$this->group_id)
+            ->set($this->db->quoteName('rank_id')  . ' = ' . (int)$this->rank_id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -195,8 +158,8 @@ class Rank extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userRank   = new Gamification\User\Rank(\JFactory::getDbo());
@@ -219,8 +182,8 @@ class Rank extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userRank   = new Gamification\User\Rank(\JFactory::getDbo());
@@ -241,8 +204,8 @@ class Rank extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userRank      = new Gamification\User\Rank(\JFactory::getDbo());
@@ -263,8 +226,8 @@ class Rank extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userRank      = new Gamification\User\Rank(\JFactory::getDbo());
@@ -273,11 +236,11 @@ class Rank extends TableObservable implements PointsInterface
      * $pointsId   = $userRank->getPointsId();
      * </code>
      *
-     * @return integer
+     * @return int
      */
     public function getPointsId()
     {
-        return $this->points_id;
+        return (int)$this->points_id;
     }
 
     /**
@@ -285,8 +248,8 @@ class Rank extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userRank   = new Gamification\User\Rank(\JFactory::getDbo());
@@ -295,11 +258,11 @@ class Rank extends TableObservable implements PointsInterface
      * $rankId      = $userRank->getRankId();
      * </code>
      *
-     * @return string
+     * @return int
      */
     public function getRankId()
     {
-        return $this->rank_id;
+        return (int)$this->rank_id;
     }
 
     /**
@@ -307,8 +270,8 @@ class Rank extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userRank   = new Gamification\User\Rank(\JFactory::getDbo());
@@ -329,8 +292,8 @@ class Rank extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $rankId     = 1;
@@ -355,9 +318,9 @@ class Rank extends TableObservable implements PointsInterface
      *
      * </code>
      * $data = array(
-     *     "user_id"  => $userId, // Mandatory
-     *     "group_id" => $groupId, // Mandatory
-     *     "rank_id" => $rankId // Mandatory
+     *     'user_id'  => $userId, // Mandatory
+     *     'group_id' => $groupId, // Mandatory
+     *     'rank_id' => $rankId // Mandatory
      * );
      *
      * $userRank   = new Gamification\User\Rank();
@@ -365,19 +328,21 @@ class Rank extends TableObservable implements PointsInterface
      * <code>
      *
      * @param array $data
+     *
+     * @throws \InvalidArgumentException
      */
     public function startRanking(array $data = array())
     {
-        if (empty($data["user_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID"));
+        if (empty($data['user_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID'));
         }
 
-        if (empty($data["group_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_GROUP_ID"));
+        if (empty($data['group_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_GROUP_ID'));
         }
 
-        if (empty($data["rank_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_RANK_ID"));
+        if (empty($data['rank_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_RANK_ID'));
         }
         
         $this->bind($data);
@@ -393,8 +358,8 @@ class Rank extends TableObservable implements PointsInterface
      * $badge      = new Gamification\Badge\Badge(\JFactory::getDbo());
      *
      * $data = array(
-     *     "name" => "John Dow",
-     *     "title" => "..."
+     *     'name' => 'John Dow',
+     *     'title' => '...'
      * );
      *
      * echo $badge->getDescription($data);
@@ -405,11 +370,11 @@ class Rank extends TableObservable implements PointsInterface
      */
     public function getDescription(array $data = array())
     {
-        if (!empty($data)) {
+        if (count($data) > 0) {
             $result = $this->description;
 
             foreach ($data as $placeholder => $value) {
-                $placeholder = "{".String::strtoupper($placeholder)."}";
+                $placeholder = '{'.strtoupper($placeholder).'}';
                 $result = str_replace($placeholder, $value, $result);
             }
 

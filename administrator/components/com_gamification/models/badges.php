@@ -3,7 +3,7 @@
  * @package      Gamification Platform
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -114,9 +114,9 @@ class GamificationModelBadges extends JModelList
         $query->innerJoin($db->quoteName('#__gfy_groups', 'b') . ' ON a.group_id = b.id');
         $query->leftJoin($db->quoteName('#__gfy_points', 'c') . ' ON a.points_id = c.id');
 
-        // Filter by state
-        $group = $this->getState('filter.group');
-        if (!empty($group)) {
+        // Filter by group.
+        $group = (int)$this->getState('filter.group');
+        if ($group > 0) {
             $query->where('a.group_id = ' . (int)$group);
         }
 
@@ -129,13 +129,13 @@ class GamificationModelBadges extends JModelList
         }
 
         // Filter by search in title
-        $search = $this->getState('filter.search');
-        if (!empty($search)) {
+        $search = (string)$this->getState('filter.search');
+        if ($search !== '') {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = ' . (int)substr($search, 3));
             } else {
                 $escaped = $db->escape($search, true);
-                $quoted  = $db->quote("%" . $escaped . "%", false);
+                $quoted  = $db->quote('%' . $escaped . '%', false);
                 $query->where('a.title LIKE ' . $quoted);
             }
         }
@@ -154,8 +154,8 @@ class GamificationModelBadges extends JModelList
 
         $orderString = $orderCol . ' ' . $orderDirn;
 
-        if (strcmp("b.name", $orderCol) == 0) {
-            $orderString .= ", a.points ASC";
+        if (strcmp('b.name', $orderCol) === 0) {
+            $orderString .= ', a.points ASC';
         }
 
         return $orderString;

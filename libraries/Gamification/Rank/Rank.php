@@ -3,7 +3,7 @@
  * @package         Gamification
  * @subpackage      Ranks
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -54,7 +54,7 @@ class Rank extends Table implements PointsInterface
      */
     public static function getInstance(\JDatabaseDriver $db, $id)
     {
-        if (empty(self::$instances[$id])) {
+        if (!array_key_exists($id, self::$instances)) {
             $item   = new Rank($db);
             $item->load($id);
             
@@ -117,7 +117,7 @@ class Rank extends Table implements PointsInterface
      */
     public function getPointsId()
     {
-        return $this->points_id;
+        return (int)$this->points_id;
     }
 
     /**
@@ -154,30 +154,28 @@ class Rank extends Table implements PointsInterface
      * @param int|array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         // Create a new query object.
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id, a.title, a.points, a.image, a.note, a.published, a.points_id, a.group_id")
-            ->from($this->db->quoteName("#__gfy_ranks", "a"));
+            ->select('a.id, a.title, a.points, a.image, a.note, a.published, a.points_id, a.group_id')
+            ->from($this->db->quoteName('#__gfy_ranks', 'a'));
 
         // Prepare keys.
         if (is_array($keys)) {
             foreach ($keys as $column => $value) {
-                $query->where($this->db->quoteName("a.".$column) . " = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$column) . ' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
 
-        if (!empty($result)) {
-            $this->bind($result);
-        }
+        $this->bind($result);
     }
 
     /**
@@ -185,13 +183,13 @@ class Rank extends Table implements PointsInterface
      *
      * <code>
      * $data = array(
-     *        "title"    => "......",
-     *        "points"    => 100,
-     *        "image"    => "....",
-     *        "note"    => "....",
-     *        "published" => 1,
-     *        "points_id" => 2,
-     *        "group_id"  => 4
+     *        'title'    => '......',
+     *        'points'    => 100,
+     *        'image'    => '....',
+     *        'note'    => '....',
+     *        'published' => 1,
+     *        'points_id' => 2,
+     *        'group_id'  => 4
      * );
      *
      * $rank   = new Gamification\Rank\Rank(\JFactory::getDbo());
@@ -216,15 +214,15 @@ class Rank extends Table implements PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->update($this->db->quoteName("#__gfy_ranks"))
-            ->set($this->db->quoteName("title") . "  = " . $this->db->quote($this->title))
-            ->set($this->db->quoteName("points") . "  = " . $this->db->quote($this->points))
-            ->set($this->db->quoteName("image") . "  = " . $this->db->quote($this->image))
-            ->set($this->db->quoteName("note") . "  = " . $note)
-            ->set($this->db->quoteName("published") . "  = " . (int)$this->published)
-            ->set($this->db->quoteName("points_id") . "  = " . (int)$this->points_id)
-            ->set($this->db->quoteName("group_id") . "  = " . (int)$this->group_id)
-            ->where($this->db->quoteName("id") . "  = " . (int)$this->id);
+            ->update($this->db->quoteName('#__gfy_ranks'))
+            ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
+            ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
+            ->set($this->db->quoteName('image') . '  = ' . $this->db->quote($this->image))
+            ->set($this->db->quoteName('note') . '  = ' . $note)
+            ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
+            ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
+            ->set($this->db->quoteName('group_id') . '  = ' . (int)$this->group_id)
+            ->where($this->db->quoteName('id') . '  = ' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -236,16 +234,16 @@ class Rank extends Table implements PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->insert($this->db->quoteName("#__gfy_ranks"))
-            ->set($this->db->quoteName("title") . "  = " . $this->db->quote($this->title))
-            ->set($this->db->quoteName("points") . "  = " . $this->db->quote($this->points))
-            ->set($this->db->quoteName("image") . "  = " . $this->db->quote($this->image))
-            ->set($this->db->quoteName("published") . "  = " . (int)$this->published)
-            ->set($this->db->quoteName("points_id") . "  = " . (int)$this->points_id)
-            ->set($this->db->quoteName("group_id") . "  = " . (int)$this->group_id);
+            ->insert($this->db->quoteName('#__gfy_ranks'))
+            ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
+            ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
+            ->set($this->db->quoteName('image') . '  = ' . $this->db->quote($this->image))
+            ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
+            ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
+            ->set($this->db->quoteName('group_id') . '  = ' . (int)$this->group_id);
 
-        if (!empty($this->note)) {
-            $query->set($this->db->quoteName("note") . "  = " . $this->db->quote($this->note));
+        if ($this->note !== null and $this->note !== '') {
+            $query->set($this->db->quoteName('note') . '  = ' . $this->db->quote($this->note));
         }
 
         $this->db->setQuery($query);

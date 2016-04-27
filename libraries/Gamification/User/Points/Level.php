@@ -3,7 +3,7 @@
  * @package         Gamification\User
  * @subpackage      Points\Levels
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -90,9 +90,9 @@ class Level extends User\Level
 
             // Load data
             $keys = array(
-                "user_id"  => $this->userPoints->getUserId(),
-                "group_id" => $this->userPoints->getGroupId(),
-                "level_id" => $actualLevelId,
+                'user_id'  => $this->userPoints->getUserId(),
+                'group_id' => $this->userPoints->getGroupId(),
+                'level_id' => $actualLevelId,
             );
 
             $this->bind($keys);
@@ -116,7 +116,7 @@ class Level extends User\Level
     /**
      * Find the level that has to be reached by the user.
      *
-     * @return null|integer
+     * @return int
      */
     protected function findActualLevelId()
     {
@@ -124,51 +124,49 @@ class Level extends User\Level
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id, a.points")
-            ->from($this->db->quoteName("#__gfy_levels", "a"))
-            ->where("a.points_id = " . (int)$this->userPoints->getPointsId());
+            ->select('a.id, a.points')
+            ->from($this->db->quoteName('#__gfy_levels', 'a'))
+            ->where('a.points_id = ' . (int)$this->userPoints->getPointsId());
 
         $this->db->setQuery($query);
-        $results = $this->db->loadObjectList();
+        $results = $this->db->loadAssocList();
 
-        $levelId = null;
+        $levelId = 0;
         for ($i = 0, $max = count($results); $i < $max; $i++) {
 
             // Get current item
-            $current = (isset($results[$i])) ? $results[$i] : null;
-            /** @var $current object */
+            $current = (isset($results[$i])) ? $results[$i] : array();
+            /** @var $current array */
 
             // Get next item
             $n    = abs($i + 1);
-            $next = (isset($results[$n])) ? $results[$n] : null;
-            /** @var $next object */
+            $next = (isset($results[$n])) ? $results[$n] : array();
+            /** @var $next array */
 
-            if (!empty($next)) {
+            if (count($next) > 0) {
 
                 // Check for coincidence with next item
-                if ($this->userPoints->getPoints() == $next->points) {
-                    $levelId = $next->id;
+                if ((int)$this->userPoints->getPoints() === (int)$next['points']) {
+                    $levelId = (int)$next['id'];
                     break;
                 }
 
                 // Check for coincidence with current item
-                if (($this->userPoints->getPoints() >= $current->points)
+                if (((int)$this->userPoints->getPoints() >= (int)$current['points'])
                     and
-                    ($this->userPoints->getPoints() < $next->points)
+                    ((int)$this->userPoints->getPoints() < (int)$next['points'])
                 ) {
-                    $levelId = $current->id;
+                    $levelId = (int)$current['id'];
                     break;
                 }
 
             } else { // If there is not next item, we compare with last (current).
 
-                if ($this->userPoints->getPoints() >= $current->points) {
-                    $levelId = $current->id;
+                if ((int)$this->userPoints->getPoints() >= (int)$current['points']) {
+                    $levelId = (int)$current['id'];
                     break;
                 }
-
             }
-
         }
 
         return $levelId;
@@ -179,8 +177,8 @@ class Level extends User\Level
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * // Get user points
@@ -192,8 +190,8 @@ class Level extends User\Level
      *
      * if(!$level->getId()) {
      *    $data = array(
-     *        "user_id"  => 1,
-     *        "group_id" => 2
+     *        'user_id'  => 1,
+     *        'group_id' => 2
      *    );
      *
      *    $level->startLeveling($data);
@@ -201,19 +199,21 @@ class Level extends User\Level
      * </code>
      *
      * @param array $data
+     *
+     * @throws \InvalidArgumentException
      */
     public function startLeveling(array $data = array())
     {
-        if (empty($data["user_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID"));
+        if (empty($data['user_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID'));
         }
 
-        if (empty($data["group_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_GROUP_ID"));
+        if (empty($data['group_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_GROUP_ID'));
         }
 
-        if (empty($data["level_id"])) {
-            $data["level_id"] = $this->findActualLevelId();
+        if (empty($data['level_id'])) {
+            $data['level_id'] = $this->findActualLevelId();
         }
 
         $this->bind($data);
@@ -221,8 +221,8 @@ class Level extends User\Level
 
         // Load data
         $keys = array(
-            "user_id"  => $data["user_id"],
-            "group_id" => $data["group_id"]
+            'user_id'  => $data['user_id'],
+            'group_id' => $data['group_id']
         );
 
         $this->load($keys);

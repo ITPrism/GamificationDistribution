@@ -3,14 +3,12 @@
  * @package         Gamification\User
  * @subpackage      Badges
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Gamification\User;
 
-use Joomla\Utilities\ArrayHelper;
-use Joomla\String\String;
 use Prism\Database\TableObservable;
 use Gamification\Mechanic\PointsInterface;
 
@@ -25,14 +23,14 @@ defined('JPATH_PLATFORM') or die;
 class Badge extends TableObservable implements PointsInterface
 {
     /**
-     * The ID of database record in table "#__gfy_userbadges".
+     * The ID of database record in table '#__gfy_userbadges'.
      *
      * @var integer
      */
     protected $id;
 
     /**
-     * This is the ID of the badge record in table "#__gfy_badges".
+     * This is the ID of the badge record in table '#__gfy_badges'.
      *
      * @var integer
      */
@@ -55,49 +53,13 @@ class Badge extends TableObservable implements PointsInterface
     protected $published;
     protected $points_id;
 
-    protected static $instances = array();
-
-    /**
-     * Create an object and load user badge.
-     *
-     * <code>
-     * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
-     * );
-     * $userBadge    = Gamification\User\Badge::getInstance(\JFactory::getDbo(), $keys);
-     * </code>
-     *
-     * @param  \JDatabaseDriver $db
-     * @param  array $keys
-     * @param  array $options
-     *
-     * @return null|self
-     */
-    public static function getInstance(\JDatabaseDriver $db, array $keys, array $options = array())
-    {
-        $userId  = ArrayHelper::getValue($keys, "user_id");
-        $groupId = ArrayHelper::getValue($keys, "group_id");
-
-        $index = md5($userId . ":" . $groupId);
-
-        if (!isset(self::$instances[$index])) {
-            $item   = new Badge($db);
-            $item->load($keys, $options);
-
-            self::$instances[$index] = $item;
-        }
-
-        return self::$instances[$index];
-    }
-
     /**
      * Load user badge data.
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userBadge     = new Gamification\User\Badge(\JFactory::getDbo());
@@ -107,23 +69,23 @@ class Badge extends TableObservable implements PointsInterface
      * @param array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         // Create a new query object.
         $query = $this->db->getQuery(true);
         $query
-            ->select("a.id, a.badge_id, a.user_id, a.group_id")
-            ->select("b.title, b.description, b.points, b.image, b.published, b.points_id")
-            ->from($this->db->quoteName("#__gfy_userbadges", "a"))
-            ->leftJoin($this->db->quoteName("#__gfy_badges", "b") . ' ON a.badge_id = b.id');
+            ->select('a.id, a.badge_id, a.user_id, a.group_id')
+            ->select('b.title, b.description, b.points, b.image, b.published, b.points_id')
+            ->from($this->db->quoteName('#__gfy_userbadges', 'a'))
+            ->leftJoin($this->db->quoteName('#__gfy_badges', 'b') . ' ON a.badge_id = b.id');
 
         // Prepare keys.
         if (is_array($keys)) {
             foreach ($keys as $column => $value) {
-                $query->where($this->db->quoteName("a.".$column) . " = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$column) . ' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
@@ -138,11 +100,11 @@ class Badge extends TableObservable implements PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->update($this->db->quoteName("#__gfy_userbadges"))
-            ->set($this->db->quoteName("user_id")  . "=" . (int)$this->user_id)
-            ->set($this->db->quoteName("group_id") . "=" . (int)$this->group_id)
-            ->set($this->db->quoteName("badge_id") . "=" . (int)$this->badge_id)
-            ->where($this->db->quoteName("id") . "=" . (int)$this->id);
+            ->update($this->db->quoteName('#__gfy_userbadges'))
+            ->set($this->db->quoteName('user_id')  . '=' . (int)$this->user_id)
+            ->set($this->db->quoteName('group_id') . '=' . (int)$this->group_id)
+            ->set($this->db->quoteName('badge_id') . '=' . (int)$this->badge_id)
+            ->where($this->db->quoteName('id') . '=' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -154,10 +116,10 @@ class Badge extends TableObservable implements PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->insert($this->db->quoteName("#__gfy_userbadges"))
-            ->set($this->db->quoteName("user_id")  . "=" . (int)$this->user_id)
-            ->set($this->db->quoteName("group_id") . "=" . (int)$this->group_id)
-            ->set($this->db->quoteName("badge_id") . "=" . (int)$this->badge_id);
+            ->insert($this->db->quoteName('#__gfy_userbadges'))
+            ->set($this->db->quoteName('user_id')  . '=' . (int)$this->user_id)
+            ->set($this->db->quoteName('group_id') . '=' . (int)$this->group_id)
+            ->set($this->db->quoteName('badge_id') . '=' . (int)$this->badge_id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -170,9 +132,9 @@ class Badge extends TableObservable implements PointsInterface
      *
      * <code>
      * $data = array(
-     *        "user_id"   => 3,
-     *        "group_id"  => 4,
-     *        "badge_id"  => 2
+     *        'user_id'   => 3,
+     *        'group_id'  => 4,
+     *        'badge_id'  => 2
      * );
      *
      * $userBadge   = new Gamification\User\Badge(\JFactory::getDbo());
@@ -194,8 +156,8 @@ class Badge extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userBadge   = new Gamification\User\Badge(\JFactory::getDbo());
@@ -218,8 +180,8 @@ class Badge extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userBadge   = new Gamification\User\Badge(\JFactory::getDbo());
@@ -240,8 +202,8 @@ class Badge extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userBadge      = new Gamification\User\Badge(\JFactory::getDbo());
@@ -262,8 +224,8 @@ class Badge extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userBadge  = new Gamification\User\Badge(\JFactory::getDbo());
@@ -276,7 +238,7 @@ class Badge extends TableObservable implements PointsInterface
      */
     public function getPointsId()
     {
-        return $this->points_id;
+        return (int)$this->points_id;
     }
 
     /**
@@ -284,8 +246,8 @@ class Badge extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userBadge   = new Gamification\User\Badge(\JFactory::getDbo());
@@ -310,8 +272,8 @@ class Badge extends TableObservable implements PointsInterface
      * $badge      = new Gamification\Badge\User\Badge(\JFactory::getDbo());
      *
      * $data = array(
-     *     "name" => "John Dow",
-     *     "title" => "..."
+     *     'name' => 'John Dow',
+     *     'title' => '...'
      * );
      *
      * echo $badge->getDescription($data);
@@ -322,11 +284,11 @@ class Badge extends TableObservable implements PointsInterface
      */
     public function getDescription(array $data = array())
     {
-        if (!empty($data)) {
+        if (count($data) > 0) {
             $result = $this->description;
 
             foreach ($data as $placeholder => $value) {
-                $placeholder = "{".String::strtoupper($placeholder)."}";
+                $placeholder = '{'.strtoupper($placeholder).'}';
                 $result = str_replace($placeholder, $value, $result);
             }
 

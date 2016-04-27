@@ -3,13 +3,12 @@
  * @package         Gamification\User
  * @subpackage      Levels
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Gamification\User;
 
-use Joomla\Utilities\ArrayHelper;
 use Prism\Database\TableObservable;
 use Gamification\Mechanic\PointsInterface;
 use Gamification\Rank\Rank;
@@ -66,49 +65,13 @@ class Level extends TableObservable implements PointsInterface
      */
     protected $rank;
 
-    protected static $instances = array();
-
-    /**
-     * Create an object and load user level.
-     *
-     * <code>
-     * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
-     * );
-     * $userLevel    = Gamification\User\Level::getInstance($keys);
-     * </code>
-     *
-     * @param  \JDatabaseDriver $db
-     * @param  array $keys
-     * @param  array $options
-     *
-     * @return null|self
-     */
-    public static function getInstance(\JDatabaseDriver $db, array $keys, array $options = array())
-    {
-        $userId  = ArrayHelper::getValue($keys, "user_id");
-        $groupId = ArrayHelper::getValue($keys, "group_id");
-
-        $index = md5($userId . ":" . $groupId);
-
-        if (!isset(self::$instances[$index])) {
-            $item   = new Level($db, $options);
-            $item->load($keys);
-
-            self::$instances[$index] = $item;
-        }
-
-        return self::$instances[$index];
-    }
-
     /**
      * Load user level data.
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel     = new Gamification\User\Level(JFactory::getDbo());
@@ -119,23 +82,23 @@ class Level extends TableObservable implements PointsInterface
      * @param array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         // Create a new query object.
         $query = $this->db->getQuery(true);
         $query
-            ->select("a.id, a.level_id, a.user_id, a.group_id")
-            ->select("b.title, b.points, b.value, b.published, b.points_id, b.rank_id")
-            ->from($this->db->quoteName("#__gfy_userlevels", "a"))
-            ->leftJoin($this->db->quoteName("#__gfy_levels", "b") . ' ON a.level_id = b.id');
+            ->select('a.id, a.level_id, a.user_id, a.group_id')
+            ->select('b.title, b.points, b.value, b.published, b.points_id, b.rank_id')
+            ->from($this->db->quoteName('#__gfy_userlevels', 'a'))
+            ->leftJoin($this->db->quoteName('#__gfy_levels', 'b') . ' ON a.level_id = b.id');
 
         // Prepare keys.
         if (is_array($keys)) {
             foreach ($keys as $column => $value) {
-                $query->where($this->db->quoteName("a.".$column) . " = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$column) . ' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
@@ -150,9 +113,9 @@ class Level extends TableObservable implements PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->update($this->db->quoteName("#__gfy_userlevels"))
-            ->set($this->db->quoteName("level_id") ." = " . (int)$this->level_id)
-            ->where($this->db->quoteName("id") ." = " . (int)$this->id);
+            ->update($this->db->quoteName('#__gfy_userlevels'))
+            ->set($this->db->quoteName('level_id') .' = ' . (int)$this->level_id)
+            ->where($this->db->quoteName('id') .' = ' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -164,10 +127,10 @@ class Level extends TableObservable implements PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->insert($this->db->quoteName("#__gfy_userlevels"))
-            ->set($this->db->quoteName("user_id")  ." = " . (int)$this->user_id)
-            ->set($this->db->quoteName("group_id") ." = " . (int)$this->group_id)
-            ->set($this->db->quoteName("level_id") ." = " . (int)$this->level_id);
+            ->insert($this->db->quoteName('#__gfy_userlevels'))
+            ->set($this->db->quoteName('user_id')  .' = ' . (int)$this->user_id)
+            ->set($this->db->quoteName('group_id') .' = ' . (int)$this->group_id)
+            ->set($this->db->quoteName('level_id') .' = ' . (int)$this->level_id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -180,9 +143,9 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $data = array(
-     *        "user_id"   => 2,
-     *        "group_id"  => 3,
-     *        "level_id"  => 4
+     *        'user_id'   => 2,
+     *        'group_id'  => 3,
+     *        'level_id'  => 4
      * );
      *
      * $userLevel   = new GamificationUserLevel($keys);
@@ -206,8 +169,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());
@@ -230,8 +193,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());
@@ -252,8 +215,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());
@@ -274,8 +237,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $level      = new Gamification\Level(\JFactory::getDbo());
@@ -296,8 +259,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());
@@ -318,8 +281,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());
@@ -340,8 +303,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());
@@ -362,8 +325,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $levelId     = 1;
@@ -386,8 +349,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());
@@ -396,9 +359,9 @@ class Level extends TableObservable implements PointsInterface
      * if (!$userLevel->getId()) {
      *
      *      $data = array(
-     *          "user_id"  => 1,
-     *          "group_id" => 2,
-     *          "level_id" => 3
+     *          'user_id'  => 1,
+     *          'group_id' => 2,
+     *          'level_id' => 3
      *      );
      *
      *      $userLevel->startLeveling($data);
@@ -406,19 +369,21 @@ class Level extends TableObservable implements PointsInterface
      * </code>
      *
      * @param array $data
+     *
+     * @throws \InvalidArgumentException
      */
     public function startLeveling(array $data = array())
     {
-        if (empty($data["user_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID"));
+        if (empty($data['user_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID'));
         }
 
-        if (empty($data["group_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_GROUP_ID"));
+        if (empty($data['group_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_GROUP_ID'));
         }
 
-        if (empty($data["level_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_LEVEL_ID"));
+        if (empty($data['level_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_LEVEL_ID'));
         }
 
         $this->bind($data);
@@ -426,8 +391,8 @@ class Level extends TableObservable implements PointsInterface
 
         // Load data
         $keys = array(
-            "user_id"  => $data["user_id"],
-            "group_id" => $data["group_id"]
+            'user_id'  => $data['user_id'],
+            'group_id' => $data['group_id']
         );
 
         $this->load($keys);
@@ -438,8 +403,8 @@ class Level extends TableObservable implements PointsInterface
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userLevel   = new Gamification\User\Level(JFactory::getDbo());

@@ -3,7 +3,7 @@
  * @package      Gamification
  * @subpackage   Observers
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -35,7 +35,7 @@ class Ranking extends PointsObserver
      *
      * @var array
      */
-    protected $allowedContext = array("com_user.registration", "com_content.article");
+    protected $allowedContext = array('com_user.registration', 'com_content.article');
 
     /**
      * The pattern for this table's TypeAlias
@@ -50,7 +50,7 @@ class Ranking extends PointsObserver
 
     /**
      * Creates the associated observer instance and attaches it to the $observableObject
-     * $typeAlias can be of the form "{variableName}.type", automatically replacing {variableName} with table-instance variables variableName
+     * $typeAlias can be of the form '{variableName}.type', automatically replacing {variableName} with table-instance variables variableName
      *
      * @param   \JObservableInterface $observableObject The subject object to be observed
      * @param   array                $params           ( 'typeAlias' => $typeAlias )
@@ -63,8 +63,8 @@ class Ranking extends PointsObserver
     {
         $observer = new self($observableObject);
         $observer->typeAliasPattern = ArrayHelper::getValue($params, 'typeAlias');
-        $observer->sendNotification = ArrayHelper::getValue($params, 'send_notification', false, "bool");
-        $observer->storeActivity    = ArrayHelper::getValue($params, 'store_activity', false, "bool");
+        $observer->sendNotification = ArrayHelper::getValue($params, 'send_notification', false, 'bool');
+        $observer->storeActivity    = ArrayHelper::getValue($params, 'store_activity', false, 'bool');
 
         return $observer;
     }
@@ -80,16 +80,16 @@ class Ranking extends PointsObserver
     public function onAfterPointsIncrease($userPoints, $options = array())
     {
         // Get the context.
-        $alias = (isset($options["context"])) ? $options["context"] : "";
+        $alias = (array_key_exists('context', $options)) ? $options['context'] : '';
 
         // Check for allowed context.
-        if (!in_array($alias, $this->allowedContext)) {
+        if (!in_array($alias, $this->allowedContext, true)) {
             return;
         }
 
         $keys = array(
-            "user_id"  => $userPoints->getUserId(),
-            "group_id" => $userPoints->getGroupId()
+            'user_id'  => $userPoints->getUserId(),
+            'group_id' => $userPoints->getGroupId()
         );
 
         // Get user rank.
@@ -104,30 +104,30 @@ class Ranking extends PointsObserver
 
             if ($rank->giveRank($options) and ($this->storeActivity or $this->sendNotification)) {
 
-                $params = \JComponentHelper::getParams("com_gamification");
+                $params = \JComponentHelper::getParams('com_gamification');
 
                 $user = \JFactory::getUser($userPoints->getUserId());
 
                 $optionsActivitiesNotifications = array(
-                    "social_platform" => "",
-                    "user_id" => $user->get("id"),
-                    "context_id" => $user->get("id"),
-                    "app" => "gamification.rank"
+                    'social_platform' => '',
+                    'user_id' => $user->get('id'),
+                    'context_id' => $user->get('id'),
+                    'app' => 'gamification.rank'
                 );
 
-                $activityService = $params->get("integration_activities");
+                $activityService = $params->get('integration_activities');
                 if ($this->storeActivity and $activityService) {
-                    $optionsActivitiesNotifications["social_platform"] = $activityService;
+                    $optionsActivitiesNotifications['social_platform'] = $activityService;
 
-                    $message = \JText::sprintf("LIB_GAMIFICATION_RANKING_REACH_NEW_RANK", $user->get("name"), $rank->getTitle());
+                    $message = \JText::sprintf('LIB_GAMIFICATION_RANKING_REACH_NEW_RANK', $user->get('name'), $rank->getTitle());
                     Helper::storeActivity($message, $optionsActivitiesNotifications);
                 }
 
-                $notificationService = $params->get("integration_notifications");
+                $notificationService = $params->get('integration_notifications');
                 if ($this->sendNotification and $notificationService) {
-                    $optionsActivitiesNotifications["social_platform"] = $notificationService;
+                    $optionsActivitiesNotifications['social_platform'] = $notificationService;
 
-                    $message = \JText::sprintf("LIB_GAMIFICATION_RANKING_NOTIFICATION", $rank->getTitle());
+                    $message = \JText::sprintf('LIB_GAMIFICATION_RANKING_NOTIFICATION', $rank->getTitle());
                     Helper::sendNotification($message, $optionsActivitiesNotifications);
                 }
 

@@ -3,7 +3,7 @@
  * @package         Gamification\User
  * @subpackage      Points\Rank
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -33,8 +33,8 @@ class Rank extends User\Rank
      *
      * <code>
      * $keys = array(
-     *       "user_id" => 1,
-     *       "group_id" => 2
+     *       'user_id' => 1,
+     *       'group_id' => 2
      * );
      *
      * // Get user points.
@@ -57,12 +57,12 @@ class Rank extends User\Rank
      *
      * <code>
      * $options = array(
-     *    "context" = "com_user.registration"
+     *    'context' = 'com_user.registration'
      * );
      *
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * // Get user points.
@@ -79,19 +79,19 @@ class Rank extends User\Rank
      *
      * @param array $options
      *
-     * @return boolean TRUE if rank has been given. FALSE if rank has not been given.
+     * @return bool TRUE if rank has been given. FALSE if rank has not been given.
      */
     public function giveRank(array $options = array())
     {
         // Get next rank
         $actualRankId = $this->findActualRankId();
 
-        if (!empty($actualRankId) and ($actualRankId != $this->rank_id)) {
+        if ($actualRankId > 0 and ((int)$actualRankId !== (int)$this->rank_id)) {
 
             $keys = array(
-                "rank_id"  => $actualRankId,
-                "user_id"  => $this->userPoints->getUserId(),
-                "group_id" => $this->userPoints->getGroupId()
+                'rank_id'  => $actualRankId,
+                'user_id'  => $this->userPoints->getUserId(),
+                'group_id' => $this->userPoints->getGroupId()
             );
 
             $this->bind($keys);
@@ -115,7 +115,7 @@ class Rank extends User\Rank
     /**
      * Find a rank that actual have to be.
      *
-     * @return null|int Rank ID
+     * @return int Rank ID
      */
     protected function findActualRankId()
     {
@@ -123,46 +123,46 @@ class Rank extends User\Rank
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id, a.points")
-            ->from($this->db->quoteName("#__gfy_ranks", "a"))
-            ->where("a.points_id = " . (int)$this->userPoints->getPointsId());
+            ->select('a.id, a.points')
+            ->from($this->db->quoteName('#__gfy_ranks', 'a'))
+            ->where('a.points_id = ' . (int)$this->userPoints->getPointsId());
 
         $this->db->setQuery($query);
         $results = $this->db->loadAssocList();
 
-        $rankId = null;
+        $rankId = 0;
         for ($i = 0, $max = count($results); $i < $max; $i++) {
 
             // Get current item
-            $current = (isset($results[$i])) ? $results[$i] : null;
-            /** @var $current object */
+            $current = (isset($results[$i])) ? $results[$i] : array();
+            /** @var $current array */
 
             // Get next item
             $n    = abs($i + 1);
-            $next = (isset($results[$n])) ? $results[$n] : null;
-            /** @var $next object */
+            $next = (isset($results[$n])) ? $results[$n] : array();
+            /** @var $next array */
 
-            if (!empty($next)) {
+            if (count($next) > 0) {
 
                 // Check for coincidence with next item
-                if ($next["points"] == $this->userPoints->getPoints()) {
-                    $rankId = $next["id"];
+                if ((int)$next['points'] === $this->userPoints->getPoints()) {
+                    $rankId = (int)$next['id'];
                     break;
                 }
 
                 // Check for coincidence with current item
-                if (($current["points"] <= $this->userPoints->getPoints())
+                if (((int)$current['points'] <= $this->userPoints->getPoints())
                     and
-                    ($next["points"] > $this->userPoints->getPoints())
+                    ((int)$next['points'] > $this->userPoints->getPoints())
                 ) {
-                    $rankId = $current["id"];
+                    $rankId = (int)$current['id'];
                     break;
                 }
 
             } else { // If there is not next item, we compare it with last (current one).
 
-                if ($current["points"] <= $this->userPoints->getPoints()) {
-                    $rankId = $current["id"];
+                if ((int)$current['points'] <= $this->userPoints->getPoints()) {
+                    $rankId = (int)$current['id'];
                     break;
                 }
             }
@@ -176,8 +176,8 @@ class Rank extends User\Rank
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * // Get user points.
@@ -189,8 +189,8 @@ class Rank extends User\Rank
      * 
      * if(!$rank->getId()) {
      *      $data = array(
-     *           "user_id"  => $userId,
-     *           "group_id" => $groupId
+     *           'user_id'  => $userId,
+     *           'group_id' => $groupId
      *      );
      *
      *      $rank->startRanking($data);
@@ -198,19 +198,21 @@ class Rank extends User\Rank
      * </code>
      *
      * @param array $data
+     *
+     * @throws \InvalidArgumentException
      */
     public function startRanking(array $data = array())
     {
-        if (empty($data["user_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID"));
+        if (empty($data['user_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_USER_ID'));
         }
 
-        if (empty($data["group_id"])) {
-            throw new \InvalidArgumentException(\JText::_("LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_GROUP_ID"));
+        if (empty($data['group_id'])) {
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_GROUP_ID'));
         }
 
-        if (empty($data["rank_id"])) {
-            $data["rank_id"] = $this->findActualRankId();
+        if (empty($data['rank_id'])) {
+            $data['rank_id'] = $this->findActualRankId();
         }
 
         $this->bind($data);
@@ -218,8 +220,8 @@ class Rank extends User\Rank
 
         // Load data
         $keys = array(
-            "user_id"  => $data["user_id"],
-            "group_id" => $data["group_id"]
+            'user_id'  => $data['user_id'],
+            'group_id' => $data['group_id']
         );
 
         $this->load($keys);

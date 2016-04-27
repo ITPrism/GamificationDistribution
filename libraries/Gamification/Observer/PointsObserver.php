@@ -3,7 +3,7 @@
  * @package         Gamification
  * @subpackage      Observers
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -22,7 +22,7 @@ abstract class PointsObserver implements \JObserverInterface
     /**
      * The observed object.
      *
-     * @var    object
+     * @var    \JObservableInterface
      * @since  3.1.2
      */
     protected $unit;
