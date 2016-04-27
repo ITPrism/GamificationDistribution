@@ -3,13 +3,13 @@
  * @package         Gamification
  * @subpackage      Points
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Gamification\Points;
 
-use Prism\Database\ArrayObject;
+use Prism\Database\Collection;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification
  * @subpackage      Points
  */
-class PointsItems extends ArrayObject
+class PointsItems extends Collection
 {
     /**
      * Load points data from database.
@@ -33,14 +33,14 @@ class PointsItems extends ArrayObject
      *
      * @param array $options  Options that will be used for filtering results.
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         // Create a new query object.
         $query = $this->db->getQuery(true);
         $query
-            ->select("a.id, a.title, a.abbr")
-            ->from($this->db->quoteName("#__gfy_points", "a"))
-            ->order("a.title ASC");
+            ->select('a.id, a.title, a.abbr')
+            ->from($this->db->quoteName('#__gfy_points', 'a'))
+            ->order('a.title ASC');
 
         $this->db->setQuery($query);
         $this->items = (array)$this->db->loadAssocList();

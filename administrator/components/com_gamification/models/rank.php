@@ -3,7 +3,7 @@
  * @package      Gamification Platform
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -40,7 +40,7 @@ class GamificationModelRank extends JModelAdmin
     {
         // Get the form.
         $form = $this->loadForm($this->option . '.rank', 'rank', array('control' => 'jform', 'load_data' => $loadData));
-        if (empty($form)) {
+        if (!$form) {
             return false;
         }
 
@@ -57,7 +57,7 @@ class GamificationModelRank extends JModelAdmin
     {
         // Check the session for previously entered form data.
         $data = JFactory::getApplication()->getUserState($this->option . '.edit.rank.data', array());
-        if (empty($data)) {
+        if (!$data) {
             $data = $this->getItem();
         }
 
@@ -73,14 +73,14 @@ class GamificationModelRank extends JModelAdmin
      */
     public function save($data)
     {
-        $id        = Joomla\Utilities\ArrayHelper::getValue($data, "id");
-        $title     = Joomla\Utilities\ArrayHelper::getValue($data, "title");
-        $points    = Joomla\Utilities\ArrayHelper::getValue($data, "points");
-        $pointsId  = Joomla\Utilities\ArrayHelper::getValue($data, "points_id");
-        $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, "group_id");
-        $published = Joomla\Utilities\ArrayHelper::getValue($data, "published");
-        $note      = Joomla\Utilities\ArrayHelper::getValue($data, "note");
-        $description      = Joomla\Utilities\ArrayHelper::getValue($data, "description");
+        $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
+        $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
+        $points    = Joomla\Utilities\ArrayHelper::getValue($data, 'points');
+        $pointsId  = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id');
+        $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id');
+        $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published');
+        $note      = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
+        $description      = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
 
         if (!$note) {
             $note = null;
@@ -96,20 +96,19 @@ class GamificationModelRank extends JModelAdmin
 
         $row->load($id);
 
-        $row->set("title", $title);
-        $row->set("points", $points);
-        $row->set("points_id", $pointsId);
-        $row->set("group_id", $groupId);
-        $row->set("published", $published);
-        $row->set("note", $note);
-        $row->set("description", $description);
+        $row->set('title', $title);
+        $row->set('points', $points);
+        $row->set('points_id', $pointsId);
+        $row->set('group_id', $groupId);
+        $row->set('published', $published);
+        $row->set('note', $note);
+        $row->set('description', $description);
 
         $this->prepareImage($row, $data);
 
         $row->store(true);
 
-        return $row->get("id");
-
+        return $row->get('id');
     }
 
     /**
@@ -122,20 +121,20 @@ class GamificationModelRank extends JModelAdmin
      */
     protected function prepareImage($table, $data)
     {
-        if (!empty($data["image"])) {
+        if (!empty($data['image'])) {
             // Delete old image if I upload the new one
             if (!empty($table->image)) {
 
                 $params     = JComponentHelper::getParams($this->option);
                 /** @var  $params Joomla\Registry\Registry */
 
-                $file = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get("images_directory", "images/gamification"). DIRECTORY_SEPARATOR . $table->image);
+                $file = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/gamification'). DIRECTORY_SEPARATOR . $table->image);
 
                 if (JFile::exists($file)) {
                     JFile::delete($file);
                 }
             }
-            $table->set("image", $data["image"]);
+            $table->set('image', $data['image']);
         }
     }
 
@@ -150,14 +149,14 @@ class GamificationModelRank extends JModelAdmin
             $params     = JComponentHelper::getParams($this->option);
             /** @var  $params Joomla\Registry\Registry */
 
-            $file = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get("images_directory", "images/gamification"). DIRECTORY_SEPARATOR . $row->image);
+            $file = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/gamification'). DIRECTORY_SEPARATOR . $row->image);
 
             if (JFile::exists($file)) {
                 JFile::delete($file);
             }
         }
 
-        $row->set("image", "");
+        $row->set('image', '');
         $row->store();
     }
 
@@ -180,17 +179,17 @@ class GamificationModelRank extends JModelAdmin
         $params     = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
 
-        $destinationFolder = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get("images_directory", "images/gamification"));
+        $destinationFolder = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/gamification'));
 
         // Joomla! media extension parameters
-        $mediaParams = JComponentHelper::getParams("com_media");
+        $mediaParams = JComponentHelper::getParams('com_media');
 
         $file = new Prism\File\File();
 
         // Prepare size validator.
         $KB            = 1024 * 1024;
         $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
-        $uploadMaxSize = $mediaParams->get("upload_maxsize") * $KB;
+        $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         // Prepare file validators.
         $sizeValidator   = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);
@@ -198,11 +197,11 @@ class GamificationModelRank extends JModelAdmin
         $imageValidator  = new Prism\File\Validator\Image($uploadedFile, $uploadedName);
 
         // Get allowed mime types from media manager options
-        $mimeTypes = explode(",", $mediaParams->get("upload_mime"));
+        $mimeTypes = explode(',', $mediaParams->get('upload_mime'));
         $imageValidator->setMimeTypes($mimeTypes);
 
         // Get allowed image extensions from media manager options
-        $imageExtensions = explode(",", $mediaParams->get("image_extensions"));
+        $imageExtensions = explode(',', $mediaParams->get('image_extensions'));
         $imageValidator->setImageExtensions($imageExtensions);
 
         $file
@@ -216,12 +215,11 @@ class GamificationModelRank extends JModelAdmin
         }
 
         // Generate temporary file name
-        $ext = Joomla\String\String::strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
+        $ext = JString::strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
 
-        $generatedName = new Prism\String();
-        $generatedName->generateRandomString(16);
+        $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
 
-        $imageName   = $generatedName . "_rank." . $ext;
+        $imageName   = $generatedName . '_rank.' . $ext;
         $destination = JPath::clean($destinationFolder . DIRECTORY_SEPARATOR . $imageName);
 
         // Prepare uploader object.

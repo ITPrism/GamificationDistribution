@@ -3,7 +3,7 @@
  * @package         Gamification
  * @subpackage      Profiles
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -41,29 +41,27 @@ class Profile extends TableImmutable
      * @param int|array $keys User ID
      * @param array   $options This options are used for specifying the things for loading.
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         // Create a new query object.
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id, a.name, a.username")
-            ->from($this->db->quoteName("#__users", "a"));
+            ->select('a.id, a.name, a.username')
+            ->from($this->db->quoteName('#__users', 'a'));
 
         // Prepare keys.
         if (is_array($keys)) {
             foreach ($keys as $column => $value) {
-                $query->where($this->db->quoteName("a.".$column) . " = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$column) . ' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
-        $result = $this->db->loadAssoc();
+        $result = (array)$this->db->loadAssoc();
 
-        if (!empty($result)) {
-            $this->bind($result);
-        }
+        $this->bind($result);
     }
 }

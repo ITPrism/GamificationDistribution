@@ -3,7 +3,7 @@
  * @package      Gamification
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -52,7 +52,7 @@ abstract class JHtmlGamification
 
             $classes[] = "hasTooltip";
 
-            $description  = strip_tags(Joomla\String\String::trim($rank->getDescription($placeholders)));
+            $description  = strip_tags(JString::trim($rank->getDescription($placeholders)));
             $title = ' title="' . htmlspecialchars($description, ENT_QUOTES, "UTF-8") . '"';
 
         }
@@ -63,7 +63,7 @@ abstract class JHtmlGamification
         }
 
         // Prepare alt property
-        $alt = strip_tags(Joomla\String\String::trim($rank->getTitle()));
+        $alt = strip_tags(JString::trim($rank->getTitle()));
         if (!empty($alt)) {
             $alt = ' alt="' . htmlspecialchars($alt, ENT_QUOTES, "UTF-8") . '"';
         }
@@ -85,7 +85,7 @@ abstract class JHtmlGamification
 
             $classes[] = "hasTooltip";
 
-            $description  = strip_tags(Joomla\String\String::trim($badge->getDescription($placeholders)));
+            $description  = strip_tags(JString::trim($badge->getDescription($placeholders)));
             $title = ' title="' . htmlspecialchars($description, ENT_QUOTES, "UTF-8") . '"';
 
         }
@@ -96,7 +96,7 @@ abstract class JHtmlGamification
         }
 
         // Prepare alt property
-        $alt = strip_tags(Joomla\String\String::trim($badge->getTitle()));
+        $alt = strip_tags(JString::trim($badge->getTitle()));
         if (!empty($alt)) {
             $alt = ' alt="' . htmlspecialchars($alt, ENT_QUOTES, "UTF-8") . '"';
         }

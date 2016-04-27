@@ -3,14 +3,14 @@
  * @package         Gamification\User
  * @subpackage      Badges
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Gamification\User;
 
 use Joomla\Utilities\ArrayHelper;
-use Prism\Database\ArrayObject;
+use Prism\Database\Collection;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -20,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification\User
  * @subpackage      Badges
  */
-class Badges extends ArrayObject
+class Badges extends Collection
 {
     /**
      * User ID.
@@ -36,49 +36,14 @@ class Badges extends ArrayObject
      */
     protected $groupId;
 
-    protected static $instances = array();
-
-    /**
-     * Create an object and load user badges.
-     *
-     * <code>
-     * $options = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
-     * );
-     * $userBadges    = GamificationUserBadges::getInstance(\JFactory::getDbo(), $options);
-     * </code>
-     *
-     * @param  \JDatabaseDriver $db
-     * @param  array $options
-     *
-     * @return null|self
-     */
-    public static function getInstance(\JDatabaseDriver $db, array $options = array())
-    {
-        $userId  = ArrayHelper::getValue($options, "user_id");
-        $groupId = ArrayHelper::getValue($options, "group_id");
-
-        $index = md5($userId . ":" . $groupId);
-
-        if (!isset(self::$instances[$index])) {
-            $item = new Badges($db);
-            $item->load($options);
-            
-            self::$instances[$index] = $item;
-        }
-
-        return self::$instances[$index];
-    }
-
     /**
      * Load all user badges and set them to group index.
      * Every user can have only one badge for a group.
      *
      * <code>
      * $options = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userBadges     = new Gamification\User\Badges(\JFactory::getDbo())
@@ -87,34 +52,34 @@ class Badges extends ArrayObject
      *
      * @param array $options
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
-        $userId  = ArrayHelper::getValue($options, "user_id");
-        $groupId = ArrayHelper::getValue($options, "group_id");
+        $userId  = $this->getOptionId($options, 'user_id');
+        $groupId = $this->getOptionId($options, 'group_id');
 
         // Create a new query object.
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                "a.id, a.badge_id, a.user_id, a.group_id, " .
-                "b.title, b.description, b.points, b.image, b.published, b.points_id, b.group_id"
+                'a.id, a.badge_id, a.user_id, a.group_id, ' .
+                'b.title, b.description, b.points, b.image, b.published, b.points_id, b.group_id'
             )
-            ->from($this->db->quoteName("#__gfy_userbadges", "a"))
-            ->innerJoin($this->db->quoteName("#__gfy_badges", "b") . ' ON a.badge_id = b.id')
-            ->where("a.user_id = " . (int)$userId);
+            ->from($this->db->quoteName('#__gfy_userbadges', 'a'))
+            ->innerJoin($this->db->quoteName('#__gfy_badges', 'b') . ' ON a.badge_id = b.id')
+            ->where('a.user_id = ' . (int)$userId);
 
-        if (!empty($groupId)) {
-            $query->where("a.group_id = " . (int)$groupId);
+        if ($groupId > 0) {
+            $query->where('a.group_id = ' . (int)$groupId);
         }
 
         $this->db->setQuery($query);
         $results = (array)$this->db->loadAssocList();
 
-        if (!empty($results)) {
+        if (count($results) > 0) {
 
             $this->userId = $userId;
 
-            if (!empty($groupId)) {
+            if ($groupId > 0) {
                 $this->groupId = $groupId;
             }
 
@@ -122,7 +87,7 @@ class Badges extends ArrayObject
                 $badge = new Badge(\JFactory::getDbo());
                 $badge->bind($result);
 
-                $this->items[$result["group_id"]][$result["badge_id"]] = $badge;
+                $this->items[$result['group_id']][$result['badge_id']] = $badge;
             }
         }
     }
@@ -132,8 +97,8 @@ class Badges extends ArrayObject
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $userBadges  = new GamificationUserBadges(\JFactory::getDbo());
@@ -146,9 +111,9 @@ class Badges extends ArrayObject
      *
      * @return array
      */
-    public function getBadges($groupId = null)
+    public function getBadges($groupId = 0)
     {
-        return (!is_null($groupId)) ? ArrayHelper::getValue($this->items, $groupId, array()) : $this->items;
+        return ($groupId > 0 and array_key_exists($groupId, $this->items)) ? (array)$this->items[$groupId] : (array)$this->items;
     }
 
     /**
@@ -156,8 +121,8 @@ class Badges extends ArrayObject
      *
      * <code>
      * $keys = array(
-     *       "user_id"  => 1,
-     *       "group_id" => 2
+     *       'user_id'  => 1,
+     *       'group_id' => 2
      * );
      *
      * $badgeId     = 1;
@@ -168,21 +133,21 @@ class Badges extends ArrayObject
      * $badge       = $userBadges->getBadge($badgeId);
      * </code>
      *
-     * @param integer $badgeId
-     * @param integer $groupId
+     * @param int $badgeId
+     * @param int $groupId
      *
      * @return null|Badge
      */
-    public function getBadge($badgeId, $groupId = null)
+    public function getBadge($badgeId, $groupId = 0)
     {
         $item = null;
 
-        if (!empty($groupId)) { // Get an item from a specific group
-            $item = (!isset($this->items[$groupId])) ? null : ArrayHelper::getValue($this->items[$groupId], $badgeId);
+        if ($groupId > 0) { // Get an item from a specific group
+            $item = (!array_key_exists($groupId, $this->items)) ? null : ArrayHelper::getValue($this->items[$groupId], $badgeId);
         } else { // Look in all groups
             foreach ($this->items as $group) {
                 $item = ArrayHelper::getValue($group, $badgeId);
-                if (!empty($item) and $item->getId()) {
+                if ($item !== null and ($item instanceof Badge) and $item->getId()) {
                     break;
                 } else {
                     $item = null;

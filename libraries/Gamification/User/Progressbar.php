@@ -3,13 +3,16 @@
  * @package         Gamification\User
  * @subpackage      Progressbars
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Gamification\User;
 
 use Gamification\Mechanic\PointsInterface;
+use Gamification\User\Level as UserLevel;
+use Gamification\User\Rank as UserRank;
+use Gamification\User\Badge as UserBadge;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -71,15 +74,15 @@ class Progressbar
      * <code>
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * 
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      * 
      * $progressBar->build($gameMechanic);
      * </code>
@@ -101,21 +104,21 @@ class Progressbar
     public function build($gameMechanic)
     {
         $keys = array(
-            "user_id"  => $this->points->getUserId(),
-            "group_id" => $this->points->getGroupId()
+            'user_id'  => $this->points->getUserId(),
+            'group_id' => $this->points->getGroupId()
         );
 
         switch ($gameMechanic) {
 
-            case "levels":
+            case 'levels':
                 $this->prepareLevels($keys);
                 break;
 
-            case "ranks":
+            case 'ranks':
                 $this->prepareRanks($keys);
                 break;
 
-            case "badges":
+            case 'badges':
                 $this->prepareBadges($keys);
                 break;
         }
@@ -130,7 +133,8 @@ class Progressbar
      */
     protected function prepareLevels($keys)
     {
-        $this->currentUnit = Level::getInstance($this->db, $keys);
+        $this->currentUnit = new UserLevel($this->db);
+        $this->currentUnit->load($keys);
 
         $userPoints = $this->points->getPoints();
 
@@ -138,15 +142,15 @@ class Progressbar
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id, a.title, a.points, a.value, a.published, a.points_id, a.rank_id, a.group_id")
-            ->from($this->db->quoteName("#__gfy_levels", "a"))
-            ->where("a.points_id = " . (int)$this->points->getPointsId())
-            ->where("a.points > " . (int)$userPoints);
+            ->select('a.id, a.title, a.points, a.value, a.published, a.points_id, a.rank_id, a.group_id')
+            ->from($this->db->quoteName('#__gfy_levels', 'a'))
+            ->where('a.points_id = ' . (int)$this->points->getPointsId())
+            ->where('a.points > ' . (int)$userPoints);
 
         $this->db->setQuery($query, 0, 1);
-        $result = $this->db->loadObject();
+        $result = (array)$this->db->loadAssoc();
 
-        if (!empty($result)) {
+        if (count($result) > 0) {
 
             $this->nextUnit    = new \Gamification\Level\Level($this->db);
             $this->nextUnit->bind($result);
@@ -167,7 +171,8 @@ class Progressbar
      */
     protected function prepareRanks($keys)
     {
-        $this->currentUnit = Rank::getInstance($this->db, $keys);
+        $this->currentUnit = new UserRank($this->db);
+        $this->currentUnit->load($keys);
 
         $userPoints = $this->points->getPoints();
 
@@ -175,16 +180,16 @@ class Progressbar
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id, a.title, a.points, a.image, a.published, a.points_id, a.group_id")
-            ->from($this->db->quoteName("#__gfy_ranks", "a"))
-            ->where("a.points_id = " . (int)$this->points->getPointsId())
-            ->where("a.published = 1")
-            ->where("a.points > " . (int)$userPoints);
+            ->select('a.id, a.title, a.points, a.image, a.published, a.points_id, a.group_id')
+            ->from($this->db->quoteName('#__gfy_ranks', 'a'))
+            ->where('a.points_id = ' . (int)$this->points->getPointsId())
+            ->where('a.published = 1')
+            ->where('a.points > ' . (int)$userPoints);
 
         $this->db->setQuery($query, 0, 1);
-        $result = $this->db->loadObject();
+        $result = (array)$this->db->loadObject();
 
-        if (!empty($result)) {
+        if (count($result) > 0) {
             $this->nextUnit    = new \Gamification\Rank\Rank($this->db);
             $this->nextUnit->bind($result);
 
@@ -204,7 +209,8 @@ class Progressbar
      */
     protected function prepareBadges($keys)
     {
-        $this->currentUnit = Badge::getInstance($this->db, $keys);
+        $this->currentUnit = new Badge($this->db);
+        $this->currentUnit->load($keys);
 
         $userPoints = $this->points->getPoints();
 
@@ -212,16 +218,16 @@ class Progressbar
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id, a.title, a.points, a.image, a.note, a.published, a.points_id, a.group_id")
-            ->from($this->db->quoteName("#__gfy_badges", "a"))
-            ->where("a.points_id = " . (int)$this->points->getPointsId())
-            ->where("a.published = 1")
-            ->where("a.points > " . (int)$userPoints);
+            ->select('a.id, a.title, a.points, a.image, a.note, a.published, a.points_id, a.group_id')
+            ->from($this->db->quoteName('#__gfy_badges', 'a'))
+            ->where('a.points_id = ' . (int)$this->points->getPointsId())
+            ->where('a.published = 1')
+            ->where('a.points > ' . (int)$userPoints);
 
         $this->db->setQuery($query, 0, 1);
-        $result = $this->db->loadObject();
+        $result = (array)$this->db->loadAssoc();
 
-        if (!empty($result)) {
+        if (count($result) > 0) {
             $this->nextUnit    = new \Gamification\Badge\Badge($this->db);
             $this->nextUnit->bind($result);
 
@@ -247,13 +253,13 @@ class Progressbar
      *
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * $progressBar->build($gameMechanic);
@@ -274,13 +280,13 @@ class Progressbar
      * <code>
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * $progressBar->build($gameMechanic);
@@ -301,13 +307,13 @@ class Progressbar
      * <code>
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * $progressBar->build($gameMechanic);
@@ -328,13 +334,13 @@ class Progressbar
      * <code>
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * $progressBar->build($gameMechanic);
@@ -355,13 +361,13 @@ class Progressbar
      * <code>
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * $progressBar->build($gameMechanic);
@@ -369,11 +375,11 @@ class Progressbar
      * $points        = $progressBar->getPoints();
      * </code>
      *
-     * @return integer
+     * @return int
      */
     public function getPoints()
     {
-        return (!empty($this->points)) ? $this->points->getPoints() : 0;
+        return ($this->points !== null and ($this->points instanceof Points)) ? $this->points->getPoints() : 0;
     }
 
     /**
@@ -382,13 +388,13 @@ class Progressbar
      * <code>
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * $progressBar->build($gameMechanic);
@@ -400,7 +406,7 @@ class Progressbar
      */
     public function getTitleCurrent()
     {
-        return (!empty($this->currentUnit)) ? $this->currentUnit->getTitle() : null;
+        return ($this->currentUnit !== null) ? $this->currentUnit->getTitle() : null;
     }
 
     /**
@@ -412,13 +418,13 @@ class Progressbar
      *
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * $points        = $progressBar->getPointsCurrent();
@@ -429,7 +435,7 @@ class Progressbar
      */
     public function getPointsCurrent()
     {
-        return (!empty($this->currentUnit)) ? $this->currentUnit->getPoints() : null;
+        return ($this->currentUnit !== null) ? $this->currentUnit->getPoints() : null;
     }
 
     /**
@@ -438,13 +444,13 @@ class Progressbar
      * <code>
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    = Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * if(!$progressBar->hasNext()) {
@@ -452,11 +458,11 @@ class Progressbar
      * }
      * </code>
      *
-     * @return boolean
+     * @return bool
      */
     public function hasNext()
     {
-        return (!empty($this->nextUnit)) ? true : false;
+        return (bool)($this->nextUnit !== null);
     }
 
     /**
@@ -466,18 +472,18 @@ class Progressbar
      *
      * // Get user points
      * $keys = array(
-     *       "user_id"   => 1,
-     *       "points_id" => 2
+     *       'user_id'   => 1,
+     *       'points_id' => 2
      * );
      * $userPoints    =Gamification\User\Points::getInstance(\JFactory::getDbo, $keys);
      *
      * // A game mechanic - levels, ranks, badges,...
-     * $gameMechanic  = "levels";
+     * $gameMechanic  = 'levels';
      *
      * $progressBar   = new Gamification\User\ProgressBar(\JFactory::getDbo, $userPoints);
      * $progressBar->build($gameMechanic);
      *
-     * if ("levels" == $progressBar->getGameMechanic()) {
+     * if ('levels' == $progressBar->getGameMechanic()) {
      * ...
      * }
      * </code>

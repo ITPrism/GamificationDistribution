@@ -3,7 +3,7 @@
  * @package      Gamification Platform
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -53,12 +53,12 @@ class GamificationControllerNotifications extends Admin
         $value = ArrayHelper::getValue($data, $task, 0, 'int');
 
         $redirectOptions = array(
-            "view" => "notifications"
+            'view' => 'notifications'
         );
 
         // Make sure the item ids are integers
-        ArrayHelper::toInteger($cid);
-        if (empty($cid)) {
+        $cid = ArrayHelper::toInteger($cid);
+        if (!$cid) {
             $this->displayNotice(JText::_($this->text_prefix . '_NO_ITEM_SELECTED'), $redirectOptions);
             return;
         }

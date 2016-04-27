@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   Utilities
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -18,7 +18,7 @@ defined('JPATH_PLATFORM') or die;
  * @package     Prism
  * @subpackage  Utilities
  */
-class MathHelper
+abstract class MathHelper
 {
     /**
      * Calculate percentage from two values.

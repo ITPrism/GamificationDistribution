@@ -3,7 +3,7 @@
  * @package         Gamification\User
  * @subpackage      Points\Badges
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -81,7 +81,7 @@ class Badge extends User\Badge
      *
      * @param array $options
      *
-     * @return null|int NULL if badge not given; Badge ID if a badge has been given.
+     * @return bool NULL if badge not given; Badge ID if a badge has been given.
      */
     public function giveBadge(array $options = array())
     {
@@ -89,24 +89,23 @@ class Badge extends User\Badge
         $actualBadge = $this->findActualBadge();
 
         // Check for existing badge
-        if (!empty($actualBadge["badge_id"])) {
+        if ($actualBadge and !empty($actualBadge['badge_id'])) {
             $query = $this->db->getQuery(true);
             $query
-                ->select("COUNT(*)")
-                ->from($this->db->quoteName("#__gfy_userbadges", "a"))
-                ->where("a.badge_id = ". (int)$actualBadge["badge_id"])
-                ->where("a.user_id = ". (int)$this->userPoints->getUserId())
-                ->where("a.group_id = ". (int)$this->userPoints->getGroupId());
+                ->select('COUNT(*)')
+                ->from($this->db->quoteName('#__gfy_userbadges', 'a'))
+                ->where('a.badge_id = '. (int)$actualBadge['badge_id'])
+                ->where('a.user_id = '. (int)$this->userPoints->getUserId())
+                ->where('a.group_id = '. (int)$this->userPoints->getGroupId());
 
             $this->db->setQuery($query, 0, 1);
             $badgeExists = (bool)$this->db->loadResult();
 
             if (!$badgeExists) {
-
                 $keys = array(
-                    "badge_id" => $actualBadge["badge_id"],
-                    "group_id" => $this->userPoints->getGroupId(),
-                    "user_id" => $this->userPoints->getUserId(),
+                    'badge_id' => $actualBadge['badge_id'],
+                    'group_id' => $this->userPoints->getGroupId(),
+                    'user_id' => $this->userPoints->getUserId(),
                 );
 
                 $this->bind($keys);
@@ -130,7 +129,7 @@ class Badge extends User\Badge
     /**
      * Find a badge that has to be given to the user.
      *
-     * @return null|array
+     * @return array
      */
     protected function findActualBadge()
     {
@@ -138,38 +137,38 @@ class Badge extends User\Badge
         $query = $this->db->getQuery(true);
 
         $query
-            ->select("a.id AS badge_id, a.title, a.points")
-            ->from($this->db->quoteName("#__gfy_badges", "a"))
-            ->where("a.points_id = " . (int)$this->userPoints->getPointsId())
-            ->where("a.published = " . (int)Constants::PUBLISHED);
+            ->select('a.id AS badge_id, a.title, a.points')
+            ->from($this->db->quoteName('#__gfy_badges', 'a'))
+            ->where('a.points_id = ' . (int)$this->userPoints->getPointsId())
+            ->where('a.published = ' . (int)Constants::PUBLISHED);
 
         $this->db->setQuery($query);
         $results = $this->db->loadAssocList();
 
-        $badge = null;
+        $badge = 0;
         for ($i = 0, $max = count($results); $i < $max; $i++) {
 
             // Get current item
-            $current = (isset($results[$i])) ? $results[$i] : null;
-            /** @var $current object */
+            $current = (isset($results[$i])) ? $results[$i] : array();
+            /** @var $current array */
 
             // Get next item
             $n    = abs($i + 1);
-            $next = (isset($results[$n])) ? $results[$n] : null;
-            /** @var $next object */
+            $next = (isset($results[$n])) ? $results[$n] : array();
+            /** @var $next array */
 
-            if (!empty($next)) {
+            if (count($next) > 0) {
 
                 // Check for coincidence with next item.
-                if ($next["points"] == $this->userPoints->getPoints()) {
+                if ((int)$next['points'] === $this->userPoints->getPoints()) {
                     $badge = $next;
                     break;
                 }
 
                 // Check for coincidence with current item.
-                if (($current["points"] <= $this->userPoints->getPoints())
+                if (((int)$current['points'] <= $this->userPoints->getPoints())
                     and
-                    ($next["points"] > $this->userPoints->getPoints())
+                    ((int)$next['points'] > $this->userPoints->getPoints())
                 ) {
                     $badge = $current;
                     break;
@@ -177,11 +176,10 @@ class Badge extends User\Badge
 
             } else { // If there is not next item, we compare it with last (current one).
 
-                if ($current["points"] <= $this->userPoints->getPoints()) {
+                if ((int)$current['points'] <= $this->userPoints->getPoints()) {
                     $badge = $current;
                     break;
                 }
-
             }
         }
 

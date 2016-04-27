@@ -3,7 +3,7 @@
  * @package      Gamification
  * @subpackage   Helpers
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -50,8 +50,8 @@ abstract class Helper
         $query = $db->getQuery(true);
 
         $query
-            ->select("a.id AS value, a.name AS text")
-            ->from($db->quoteName("#__gfy_groups", "a"));
+            ->select('a.id AS value, a.name AS text')
+            ->from($db->quoteName('#__gfy_groups', 'a'));
 
         $db->setQuery($query);
         $results = $db->loadAssocList();
@@ -69,8 +69,8 @@ abstract class Helper
         $query = $db->getQuery(true);
 
         $query
-            ->select("a.id AS value, a.title AS text")
-            ->from($db->quoteName("#__gfy_ranks", "a"));
+            ->select('a.id AS value, a.title AS text')
+            ->from($db->quoteName('#__gfy_ranks', 'a'));
 
         $db->setQuery($query);
         $results = $db->loadAssocList();

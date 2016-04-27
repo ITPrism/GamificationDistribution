@@ -3,7 +3,7 @@
  * @package      Gamification Platform
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 defined('JPATH_BASE') or die;
@@ -45,7 +45,7 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
             ->select('a.id AS value, CONCAT(a.title, " [", a.abbr, "] ") AS text')
             ->from($db->quoteName('#__gfy_points', 'a'))
             ->where('a.published = ' . (int)Prism\Constants::PUBLISHED)
-            ->order("a.title ASC");
+            ->order('a.title ASC');
 
         // Get the options.
         $db->setQuery($query);
@@ -98,7 +98,6 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
 
                 $html[] = '<label for="' . $elementId . '">' . $option->text . '</label>';
                 $html[] = '<input type="text" value="' . $value . '" id="' . $elementId . '" data-id="' . $option->value . '" ' . $attr . ' style="margin-bottom: 15px;"/>';
-
             }
 
             $html[] = '</div>';
@@ -108,9 +107,9 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
         $html[] = '<input type="hidden" name="' . $this->name . '" value=\'' . $this->value . '\' id="' . $this->id . '" />';
 
         // Scripts
-        JHtml::_("behavior.framework");
+        JHtml::_('behavior.framework');
         $doc = JFactory::getDocument();
-        $doc->addScript(JURI::root() . "media/com_gamification/js/admin/fields/pointstypes.js");
+        $doc->addScript(JURI::root() . 'media/com_gamification/js/admin/fields/pointstypes.js');
 
         return implode($html);
 
