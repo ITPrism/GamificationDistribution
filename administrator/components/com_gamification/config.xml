@@ -13,6 +13,7 @@
             <option value="easysocial">COM_GAMIFICATION_EASYSOCIAL</option>
             <option value="kunena">COM_GAMIFICATION_KUNENA</option>
             <option value="easyprofile">COM_GAMIFICATION_EASYPROFILE</option>
+            <option value="communitybuilder">COM_GAMIFICATION_COMMUNITY_BUILDER</option>
         </field>
         <field name="integration_avatars_size" type="list" default="small" label="COM_GAMIFICATION_AVATARS_SIZE" description="COM_GAMIFICATION_AVATARS_SIZE_DESC" >
             <option value="icon">COM_GAMIFICATION_ICON</option>
@@ -20,7 +21,7 @@
             <option value="medium">COM_GAMIFICATION_MEDIUM</option>
             <option value="large">COM_GAMIFICATION_LARGE</option>
         </field>
-        <field name="integration_avatars_default" type="text" default="/media/com_gamification/images/no-profile.png" label="COM_GAMIFICATION_AVATARS_DEFAULT" description="COM_GAMIFICATION_AVATARS_DEFAULT_DESC" class="span6"/>
+        <field name="integration_avatars_default" type="text" default="/media/com_gamification/images/profile_50x50.png" label="COM_GAMIFICATION_AVATARS_DEFAULT" description="COM_GAMIFICATION_AVATARS_DEFAULT_DESC" class="span6"/>
 
         <field name="integration_notifications" type="list" default="" label="COM_GAMIFICATION_NOTIFICATIONS" description="COM_GAMIFICATION_INTEGRATION_NOTIFICATIONS_DESC">
             <option value="">COM_GAMIFICATION_NONE</option>
