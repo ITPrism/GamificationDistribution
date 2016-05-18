@@ -43,7 +43,7 @@ class GamificationViewLevels extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
+        $this->option     = JFactory::getApplication()->input->get('option');
         
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
@@ -123,6 +123,6 @@ class GamificationViewLevels extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/'.JString::strtolower($this->getName()).'.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/'.strtolower($this->getName()).'.js');
     }
 }

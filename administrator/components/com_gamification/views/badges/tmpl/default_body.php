@@ -16,17 +16,17 @@ defined('_JEXEC') or die;
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
         <td class="center">
-            <?php echo JHtml::_('jgrid.published', $item->published, $i, "badges."); ?>
+            <?php echo JHtml::_('jgrid.published', $item->published, $i, 'badges.'); ?>
         </td>
         <td class="has-context">
-            <a href="<?php echo JRoute::_("index.php?option=com_gamification&view=badge&layout=edit&id=" . $item->id); ?>"><?php echo $this->escape($item->title); ?></a>
-            <?php echo JHtml::_("gamification.helptip", $item->note); ?>
+            <a href="<?php echo JRoute::_('index.php?option=com_gamification&view=badge&layout=edit&id=' . $item->id); ?>"><?php echo $this->escape($item->title); ?></a>
+            <?php echo JHtml::_('gamificationbackend.helptip', $item->note); ?>
             <div class="small">
-                <?php echo JText::sprintf("COM_CROWDFUNDING_GROUP_S", $this->escape($item->group_name)); ?>
+                <?php echo JText::sprintf('COM_CROWDFUNDING_GROUP_S', $this->escape($item->group_name)); ?>
             </div>
         </td>
         <td class="center hidden-phone">
-            <?php echo JHtml::_("gamification.points", $item->points, $item->points_name, $item->points_type); ?>
+            <?php echo JHtml::_('gamification.points', $item->points, $item->points_name, $item->points_type); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->id; ?>

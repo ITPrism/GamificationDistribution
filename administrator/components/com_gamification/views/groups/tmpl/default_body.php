@@ -16,8 +16,8 @@ defined('_JEXEC') or die;
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
         <td>
-            <a href="<?php echo JRoute::_("index.php?option=com_gamification&view=group&layout=edit&id=" . (int)$item->id); ?>"><?php echo $this->escape($item->name); ?></a>
-            <?php echo JHtml::_("gamification.helptip", $item->note); ?>
+            <a href="<?php echo JRoute::_('index.php?option=com_gamification&view=group&layout=edit&id=' . (int)$item->id); ?>"><?php echo $this->escape($item->name); ?></a>
+            <?php echo JHtml::_('gamificationbackend.helptip', $item->note); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->id; ?>

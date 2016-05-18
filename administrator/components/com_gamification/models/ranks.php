@@ -37,7 +37,6 @@ class GamificationModelRanks extends JModelList
 
     protected function populateState($ordering = null, $direction = null)
     {
-
         // Load the component parameters.
         $params = JComponentHelper::getParams($this->option);
         $this->setState('params', $params);
@@ -101,7 +100,7 @@ class GamificationModelRanks extends JModelList
             )
         );
         $query->from($db->quoteName('#__gfy_ranks', 'a'));
-        $query->innerJoin($db->quoteName('#__gfy_groups', 'b') . 'ON a.group_id = b.id');
+        $query->innerJoin($db->quoteName('#__gfy_groups', 'b') . ' ON a.group_id = b.id');
         $query->leftJoin($db->quoteName('#__gfy_points', 'c') . ' ON a.points_id = c.id');
 
         // Filter by state

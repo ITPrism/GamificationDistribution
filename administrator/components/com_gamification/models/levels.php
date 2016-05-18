@@ -106,10 +106,10 @@ class GamificationModelLevels extends JModelList
                 'd.title AS rank_title'
             )
         );
-        $query->from($db->quoteName('#__gfy_levels') . ' AS a');
-        $query->innerJoin($db->quoteName('#__gfy_groups') . ' AS b ON a.group_id = b.id');
-        $query->innerJoin($db->quoteName('#__gfy_points') . ' AS c ON a.points_id = c.id');
-        $query->leftJoin($db->quoteName('#__gfy_ranks') . ' AS d ON a.rank_id = d.id');
+        $query->from($db->quoteName('#__gfy_levels', 'a'));
+        $query->innerJoin($db->quoteName('#__gfy_groups', 'b') . ' ON a.group_id = b.id');
+        $query->innerJoin($db->quoteName('#__gfy_points', 'c') . ' ON a.points_id = c.id');
+        $query->leftJoin($db->quoteName('#__gfy_ranks', 'd') . ' ON a.rank_id = d.id');
 
         // Filter by group id
         $groupId = (int)$this->getState('filter.group');
@@ -156,7 +156,11 @@ class GamificationModelLevels extends JModelList
         $orderDirn = $this->getState('list.direction');
 
         if ($orderCol === 'a.value') {
-            $orderCol = 'd.title ' . $orderDirn . ', a.value';
+            $orderCol = 'd.points ' . $orderDirn . ', a.value';
+        }
+
+        if ($orderCol === 'a.points') {
+            $orderCol = 'd.points ' . $orderDirn . ', a.points';
         }
 
         return $orderCol . ' ' . $orderDirn;
