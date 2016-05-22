@@ -92,6 +92,6 @@ class GamificationViewBadge extends JViewLegacy
         JHtml::_('behavior.tooltip');
         JHtml::_('behavior.formvalidation');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

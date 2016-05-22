@@ -81,12 +81,12 @@ class pkg_gamificationInstallerScript
         jimport('Gamification.init');
 
         $params       = JComponentHelper::getParams('com_gamification');
-        $imagesFolder = JFolder::makeSafe($params->get('images_directory', 'images/gamification'));
-        $imagesPath   = JPath::clean(JPATH_SITE . DIRECTORY_SEPARATOR . $imagesFolder);
+        $mediaFolder  = JFolder::makeSafe($params->get('local_media_folder', 'media/gamification'));
+        $mediaPath    = JPath::clean(JPATH_SITE .DIRECTORY_SEPARATOR. $mediaFolder);
 
         // Create images folder
-        if (!JFolder::exists($imagesPath)) {
-            GamificationInstallHelper::createFolder($imagesPath);
+        if (!JFolder::exists($mediaPath)) {
+            GamificationInstallHelper::createFolder($mediaPath);
         }
 
         // Start table with the information
@@ -96,9 +96,9 @@ class pkg_gamificationInstallerScript
         GamificationInstallHelper::addRowHeading(JText::_('COM_GAMIFICATION_MINIMUM_REQUIREMENTS'));
 
         // Display result about verification for existing folder
-        $title = JText::_('COM_GAMIFICATION_IMAGE_FOLDER');
-        $info  = $imagesFolder;
-        if (!is_dir($imagesPath)) {
+        $title = JText::_('COM_GAMIFICATION_MEDIA_FOLDER');
+        $info  = $mediaPath;
+        if (!is_dir($mediaPath)) {
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
@@ -107,8 +107,8 @@ class pkg_gamificationInstallerScript
 
         // Display result about verification for writable folder
         $title = JText::_('COM_GAMIFICATION_WRITABLE_FOLDER');
-        $info  = $imagesFolder;
-        if (!is_writable($imagesPath)) {
+        $info  = $mediaPath;
+        if (!is_writable($mediaPath)) {
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));

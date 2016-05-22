@@ -115,6 +115,6 @@ class GamificationViewNotifications extends JViewLegacy
         JHtml::_('behavior.multiselect');
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/'.JString::strtolower($this->getName()).'.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/'.strtolower($this->getName()).'.js');
     }
 }

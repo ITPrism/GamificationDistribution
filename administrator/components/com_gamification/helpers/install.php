@@ -24,7 +24,7 @@ class GamificationInstallHelper
 
     public static function endTable()
     {
-        echo "</table></div>";
+        echo '</table></div>';
     }
 
     public static function addRowHeading($heading)
@@ -49,11 +49,11 @@ class GamificationInstallHelper
      */
     public static function addRow($title, $result, $info)
     {
-        $outputType = JArrayHelper::getValue($result, "type", "");
-        $outputText = JArrayHelper::getValue($result, "text", "");
+        $outputType = Joomla\Utilities\ArrayHelper::getValue($result, 'type', '');
+        $outputText = Joomla\Utilities\ArrayHelper::getValue($result, 'text', '');
 
-        $output = "";
-        if (!empty($outputType) and !empty($outputText)) {
+        $output = '';
+        if ($outputType !== '' and $outputText !== '') {
             $output = '<span class="label label-' . $outputType . '">' . $outputText . '</span>';
         }
 
@@ -69,14 +69,12 @@ class GamificationInstallHelper
     {
         // Create image folder
         if (true !== JFolder::create($imagesPath)) {
-            JLog::add(JText::sprintf("COM_GAMIFICATION_ERROR_CANNOT_CREATE_FOLDER", $imagesPath));
+            JLog::add(JText::sprintf('COM_GAMIFICATION_ERROR_CANNOT_CREATE_FOLDER', $imagesPath));
         } else {
-
-            // Copy index.html
-            $indexFile = $imagesPath . DIRECTORY_SEPARATOR . "index.html";
+            $indexFile = $imagesPath . DIRECTORY_SEPARATOR . 'index.html';
             $html      = '<html><body style="background-color: #fff"></body></html>';
             if (true !== JFile::write($indexFile, $html)) {
-                JLog::add(JText::sprintf("COM_GAMIFICATION_ERROR_CANNOT_SAVE_FILE", $indexFile));
+                JLog::add(JText::sprintf('COM_GAMIFICATION_ERROR_CANNOT_SAVE_FILE', $indexFile));
             }
         }
     }

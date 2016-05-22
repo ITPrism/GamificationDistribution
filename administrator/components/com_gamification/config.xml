@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-    <fieldset name="images" label="COM_GAMIFICATION_IMAGES" description="COM_GAMIFICATION_IMAGES_PARAMS">
-        <field name="images_directory" type="text" default="images/gamification" size="50" label="COM_GAMIFICATION_IMAGES_DIRECTORY" description="COM_GAMIFICATION_IMAGES_DIRECTORY_DESC"/>
+    <fieldset name="media" label="COM_GAMIFICATION_MEDIA" description="COM_GAMIFICATION_MEDIA_PARAMS">
+        <field name="local_media_folder" type="text" default="media/gamification" label="COM_GAMIFICATION_MEDIA_FOLDER" description="COM_GAMIFICATION_MEDIA_FOLDER_DESC" class="input-xxlarge"/>
     </fieldset>
 
     <fieldset name="integration" label="COM_GAMIFICATION_INTEGRATION" description="COM_GAMIFICATION_INTEGRATION_PARAMS">
@@ -21,7 +21,7 @@
             <option value="medium">COM_GAMIFICATION_MEDIUM</option>
             <option value="large">COM_GAMIFICATION_LARGE</option>
         </field>
-        <field name="integration_avatars_default" type="text" default="/media/com_gamification/images/profile_50x50.png" label="COM_GAMIFICATION_AVATARS_DEFAULT" description="COM_GAMIFICATION_AVATARS_DEFAULT_DESC" class="span6"/>
+        <field name="integration_avatars_default" type="text" default="/media/com_gamification/images/profile_50x50.png" label="COM_GAMIFICATION_AVATARS_DEFAULT" description="COM_GAMIFICATION_AVATARS_DEFAULT_DESC" class="input-xxlarge"/>
 
         <field name="integration_notifications" type="list" default="" label="COM_GAMIFICATION_NOTIFICATIONS" description="COM_GAMIFICATION_INTEGRATION_NOTIFICATIONS_DESC">
             <option value="">COM_GAMIFICATION_NONE</option>

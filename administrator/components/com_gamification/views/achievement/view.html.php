@@ -61,18 +61,18 @@ class GamificationViewBadge extends JViewLegacy
         JFactory::getApplication()->input->set('hidemainmenu', true);
         $isNew = ((int)$this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_GAMIFICATION_NEW_BADGE') : JText::_('COM_GAMIFICATION_EDIT_BADGE');
+        $this->documentTitle = $isNew ? JText::_('COM_GAMIFICATION_NEW_REWARD') : JText::_('COM_GAMIFICATION_EDIT_REWARD');
 
         JToolbarHelper::title($this->documentTitle);
 
-        JToolbarHelper::apply('badge.apply');
-        JToolbarHelper::save2new('badge.save2new');
-        JToolbarHelper::save('badge.save');
+        JToolbarHelper::apply('reward.apply');
+        JToolbarHelper::save2new('reward.save2new');
+        JToolbarHelper::save('reward.save');
 
         if (!$isNew) {
-            JToolbarHelper::cancel('badge.cancel', 'JTOOLBAR_CANCEL');
+            JToolbarHelper::cancel('reward.cancel', 'JTOOLBAR_CANCEL');
         } else {
-            JToolbarHelper::cancel('badge.cancel', 'JTOOLBAR_CLOSE');
+            JToolbarHelper::cancel('reward.cancel', 'JTOOLBAR_CLOSE');
         }
     }
 
@@ -85,13 +85,10 @@ class GamificationViewBadge extends JViewLegacy
     {
         $this->document->setTitle($this->documentTitle);
 
-        // Load language string in JavaScript
-        JText::script('COM_GAMIFICATION_DELETE_IMAGE_QUESTION');
-
         // Add scripts
         JHtml::_('behavior.tooltip');
         JHtml::_('behavior.formvalidation');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

@@ -12,7 +12,7 @@ use Joomla\Registry\Registry;
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationViewBadges extends JViewLegacy
+class GamificationViewRewards extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -40,7 +40,7 @@ class GamificationViewBadges extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
+        $this->option     = JFactory::getApplication()->input->get('option');
         
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
@@ -87,16 +87,16 @@ class GamificationViewBadges extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolbarHelper::title(JText::_('COM_GAMIFICATION_BADGES_MANAGER'));
-        JToolbarHelper::addNew('badge.add');
-        JToolbarHelper::editList('badge.edit');
+        JToolbarHelper::title(JText::_('COM_GAMIFICATION_REWARD_MANAGER'));
+        JToolbarHelper::addNew('reward.add');
+        JToolbarHelper::editList('reward.edit');
         JToolbarHelper::divider();
-        JToolbarHelper::publishList('badges.publish');
-        JToolbarHelper::unpublishList('badges.unpublish');
+        JToolbarHelper::publishList('rewards.publish');
+        JToolbarHelper::unpublishList('rewards.unpublish');
         JToolbarHelper::divider();
-        JToolbarHelper::deleteList(JText::_('COM_GAMIFICATION_DELETE_ITEMS_QUESTION'), 'badges.delete');
+        JToolbarHelper::deleteList(JText::_('COM_GAMIFICATION_DELETE_ITEMS_QUESTION'), 'rewards.delete');
         JToolbarHelper::divider();
-        JToolbarHelper::custom('badges.backToDashboard', 'dashboard', '', JText::_('COM_GAMIFICATION_DASHBOARD'), false);
+        JToolbarHelper::custom('rewards.backToDashboard', 'dashboard', '', JText::_('COM_GAMIFICATION_DASHBOARD'), false);
     }
 
     /**
@@ -106,7 +106,7 @@ class GamificationViewBadges extends JViewLegacy
      */
     protected function setDocument()
     {
-        $this->document->setTitle(JText::_('COM_GAMIFICATION_BADGES_MANAGER'));
+        $this->document->setTitle(JText::_('COM_GAMIFICATION_REWARD_MANAGER'));
 
         // Load language string in JavaScript
         JText::script('COM_GAMIFICATION_SEARCH_IN_TITLE_TOOLTIP');
@@ -117,6 +117,6 @@ class GamificationViewBadges extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/'.JString::strtolower($this->getName()).'.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/'.strtolower($this->getName()).'.js');
     }
 }

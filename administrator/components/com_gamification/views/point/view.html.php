@@ -84,6 +84,6 @@ class GamificationViewPoint extends JViewLegacy
         JHtml::_('behavior.formvalidation');
 
         // Add scripts
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

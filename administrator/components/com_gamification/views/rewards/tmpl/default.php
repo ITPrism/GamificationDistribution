@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<form action="<?php echo JRoute::_('index.php?option=com_gamification&view=badges'); ?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo JRoute::_('index.php?option=com_gamification&view=rewards'); ?>" method="post" name="adminForm" id="adminForm">
     <?php if(!empty( $this->sidebar)): ?>
     <div id="j-sidebar-container" class="span2">
         <?php echo $this->sidebar; ?>
@@ -23,7 +23,7 @@ defined('_JEXEC') or die;
     // Search tools bar
     echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this));
     ?>
-        <table class="table table-striped" id="badgesList">
+        <table class="table table-striped" id="rewardsList">
             <thead><?php echo $this->loadTemplate('head'); ?></thead>
             <tfoot><?php echo $this->loadTemplate('foot'); ?></tfoot>
             <tbody><?php echo $this->loadTemplate('body'); ?></tbody>

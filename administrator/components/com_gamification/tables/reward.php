@@ -7,12 +7,15 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-// no direct access
 defined('_JEXEC') or die;
-?>
-<tr>
-    <td colspan="6">
-        <?php echo $this->pagination->getListFooter(); ?>
-    </td>
-</tr>
-	  
+
+class GamificationTableReward extends JTable
+{
+    /**
+     * @param JDatabaseDriver $db
+     */
+    public function __construct($db)
+    {
+        parent::__construct('#__gfy_rewards', 'id', $db);
+    }
+}
