@@ -69,30 +69,26 @@ class GamificationControllerReward extends Backend
         }
 
         try {
-
             $file = $this->input->files->get('jform', array(), 'array');
             $file = ArrayHelper::getValue($file, 'image');
 
             // Upload picture
             if (!empty($file['name'])) {
-
                 $imageName = $model->uploadImage($file);
                 if (!empty($imageName)) {
                     $validData['image'] = $imageName;
                 }
-
             }
 
             $itemId = $model->save($validData);
 
             $redirectOptions['id'] = $itemId;
-
         } catch (Exception $e) {
             JLog::add($e->getMessage());
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 
-        $this->displayMessage(JText::_('COM_GAMIFICATION_BADGE_SAVED'), $redirectOptions);
+        $this->displayMessage(JText::_('COM_GAMIFICATION_REWARD_SAVED'), $redirectOptions);
     }
 
     public function removeImage()
@@ -102,13 +98,13 @@ class GamificationControllerReward extends Backend
         $itemId = $this->input->get->get('id', 0, 'int');
 
         $redirectOptions = array(
-            'view'   => 'badge',
+            'view'   => 'reward',
             'layout' => 'edit',
             'id'     => $itemId
         );
 
         $model = $this->getModel();
-        /** @var $model GamificationModelBadge */
+        /** @var $model GamificationTableReward */
 
         // Check for errors
         if (!$itemId) {
@@ -117,14 +113,10 @@ class GamificationControllerReward extends Backend
         }
 
         try {
-
             $model->removeImage($itemId);
-
         } catch (Exception $e) {
-
             JLog::add($e->getMessage());
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
-
         }
 
         $this->displayMessage(JText::_('COM_GAMIFICATION_IMAGE_DELETED'), $redirectOptions);

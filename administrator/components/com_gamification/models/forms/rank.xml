@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
     <fieldset>
-
         <field name="title" type="text"
                label="COM_GAMIFICATION_TITLE"
                description="COM_GAMIFICATION_RANK_TITLE_DESC"

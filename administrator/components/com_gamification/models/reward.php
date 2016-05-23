@@ -75,12 +75,13 @@ class GamificationModelReward extends JModelAdmin
     {
         $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
         $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $points    = Joomla\Utilities\ArrayHelper::getValue($data, 'points');
-        $pointsId  = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id');
-        $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id');
-        $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published');
+        $points    = Joomla\Utilities\ArrayHelper::getValue($data, 'points', 0, 'int');
+        $pointsId  = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id', 0, 'int');
+        $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id', 0, 'int');
+        $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
         $note      = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
-        $description      = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
+        $number    = Joomla\Utilities\ArrayHelper::getValue($data, 'number', 0, 'int');
+        $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
 
         if (!$note) {
             $note = null;
@@ -92,7 +93,7 @@ class GamificationModelReward extends JModelAdmin
 
         // Load a record from the database
         $row = $this->getTable();
-        /** @var $row GamificationTableBadge */
+        /** @var $row GamificationTableReward */
 
         $row->load($id);
 
@@ -103,6 +104,7 @@ class GamificationModelReward extends JModelAdmin
         $row->set('published', $published);
         $row->set('note', $note);
         $row->set('description', $description);
+        $row->set('number', $number);
 
         $this->prepareImage($row, $data);
 
@@ -114,7 +116,7 @@ class GamificationModelReward extends JModelAdmin
     /**
      * Prepare and sanitise the table prior to saving.
      *
-     * @param GamificationTableBadge $table
+     * @param GamificationTableReward $table
      * @param array                  $data
      *
      * @since    1.6
@@ -122,14 +124,12 @@ class GamificationModelReward extends JModelAdmin
     protected function prepareImage($table, $data)
     {
         if (!empty($data['image'])) {
-
             // Delete old image if I upload the new one
-            if (!empty($table->image)) {
-
+            if ($table->get('image')) {
                 $params     = JComponentHelper::getParams($this->option);
                 /** @var  $params Joomla\Registry\Registry */
 
-                $file = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/gamification'). DIRECTORY_SEPARATOR . $table->image);
+                $file = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/gamification'). DIRECTORY_SEPARATOR . $table->get('image'));
 
                 if (is_file($file)) {
                     JFile::delete($file);
@@ -146,12 +146,14 @@ class GamificationModelReward extends JModelAdmin
         $row = $this->getTable();
         $row->load($id);
 
-        if (!empty($row->image)) {
-
+        if ($row->get('image')) {
             $params     = JComponentHelper::getParams($this->option);
             /** @var  $params Joomla\Registry\Registry */
 
-            $file = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/gamification'). DIRECTORY_SEPARATOR . $row->image);
+            $filesystemHelper   = new Prism\Filesystem\Helper($params);
+            $mediaFolder        = $filesystemHelper->getMediaFolder();
+
+            $file = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder .DIRECTORY_SEPARATOR. $row->get('image'));
 
             if (JFile::exists($file)) {
                 JFile::delete($file);
@@ -181,7 +183,10 @@ class GamificationModelReward extends JModelAdmin
         $params     = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
 
-        $destinationFolder = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/gamification'));
+        $filesystemHelper   = new Prism\Filesystem\Helper($params);
+        $mediaFolder        = $filesystemHelper->getMediaFolder();
+
+        $destinationFolder  = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder);
 
         // Joomla! media extension parameters
         $mediaParams = JComponentHelper::getParams('com_media');
@@ -218,7 +223,7 @@ class GamificationModelReward extends JModelAdmin
         }
 
         // Generate temporary file name
-        $ext = JString::strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
+        $ext = strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
 
         $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
 

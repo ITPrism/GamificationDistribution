@@ -59,7 +59,7 @@ class Version
      *
      * @var string
      */
-    public $releaseDate = '30 April, 2016';
+    public $releaseDate = '25 May, 2016';
 
     /**
      * A link to license page.
@@ -73,7 +73,7 @@ class Version
      *
      * @var string
      */
-    public $copyright = '&copy; 2015 ITPrism. All rights reserved.';
+    public $copyright = '&copy; 2016 ITPrism. All rights reserved.';
 
     /**
      * URL to extension page.
@@ -101,7 +101,7 @@ class Version
      *
      * @var string
      */
-    public $requiredPrismVersion = '1.11';
+    public $requiredPrismVersion = '1.13';
 
     /**
      *  Build long format of the version text.

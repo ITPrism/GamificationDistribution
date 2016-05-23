@@ -12,7 +12,7 @@ use Joomla\Registry\Registry;
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationViewRewawrd extends JViewLegacy
+class GamificationViewReward extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
