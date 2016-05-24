@@ -31,11 +31,10 @@ defined('_JEXEC') or die;
             <?php echo JHtml::_('gamification.points', $item->points, $item->points_name, $item->points_type); ?>
         </td>
         <td class="center hidden-phone">
-            <?php echo $item->number; ?>
+            <?php echo JHtml::_('gamification.number', $item->number); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->id; ?>
         </td>
     </tr>
 <?php } ?>
-	  

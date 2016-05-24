@@ -8,29 +8,10 @@
                required="true"
                 />
 
-        <field name="points" type="text"
-               label="COM_GAMIFICATION_POINTS"
-               description="COM_GAMIFICATION_BADGE_POINTS_DESC"
-               filter="int"
-                />
-
-        <field name="points_id" type="gfypoints"
-               label="COM_GAMIFICATION_POINTS_TYPE"
-               description="COM_GAMIFICATION_BADGE_POINTS_TYPE_DESC"
-               filter="int"
-                >
-            <option value="0">COM_GAMIFICATION_SELECT_POINTS_TYPE</option>
-        </field>
-
         <field name="image" type="file"
                label="COM_GAMIFICATION_IMAGE"
                description="COM_GAMIFICATION_BADGE_IMAGE_DESC"
                 />
-
-        <field name="number" type="text"
-               label="COM_GAMIFICATION_NUMBER"
-               description="COM_GAMIFICATION_FIELD_NUMBER_DESC"
-        />
 
         <field name="note" type="textarea"
                label="COM_GAMIFICATION_NOTE"

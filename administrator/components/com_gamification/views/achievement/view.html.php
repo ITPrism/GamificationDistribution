@@ -12,7 +12,7 @@ use Joomla\Registry\Registry;
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationViewBadge extends JViewLegacy
+class GamificationViewAchievement extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -30,7 +30,7 @@ class GamificationViewBadge extends JViewLegacy
     protected $documentTitle;
     protected $option;
 
-    protected $imagesFolder;
+    protected $mediaFolder;
     
     public function display($tpl = null)
     {
@@ -42,7 +42,9 @@ class GamificationViewBadge extends JViewLegacy
 
         // Load the component parameters.
         $params             = JComponentHelper::getParams($this->option);
-        $this->imagesFolder = $params->get('images_directory', 'images/gamification');
+
+        $filesystemHelper   = new Prism\Filesystem\Helper($params);
+        $this->mediaFolder  = $filesystemHelper->getMediaFolder();
 
         // Prepare actions, behaviors, scripts and document
         $this->addToolbar();
@@ -61,18 +63,18 @@ class GamificationViewBadge extends JViewLegacy
         JFactory::getApplication()->input->set('hidemainmenu', true);
         $isNew = ((int)$this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_GAMIFICATION_NEW_REWARD') : JText::_('COM_GAMIFICATION_EDIT_REWARD');
+        $this->documentTitle = $isNew ? JText::_('COM_GAMIFICATION_NEW_ACHIEVEMENT') : JText::_('COM_GAMIFICATION_EDIT_ACHIEVEMENT');
 
         JToolbarHelper::title($this->documentTitle);
 
-        JToolbarHelper::apply('reward.apply');
-        JToolbarHelper::save2new('reward.save2new');
-        JToolbarHelper::save('reward.save');
+        JToolbarHelper::apply('achievement.apply');
+        JToolbarHelper::save2new('achievement.save2new');
+        JToolbarHelper::save('achievement.save');
 
         if (!$isNew) {
-            JToolbarHelper::cancel('reward.cancel', 'JTOOLBAR_CANCEL');
+            JToolbarHelper::cancel('achievement.cancel', 'JTOOLBAR_CANCEL');
         } else {
-            JToolbarHelper::cancel('reward.cancel', 'JTOOLBAR_CLOSE');
+            JToolbarHelper::cancel('achievement.cancel', 'JTOOLBAR_CLOSE');
         }
     }
 

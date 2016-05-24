@@ -34,7 +34,6 @@ abstract class JHtmlGamificationbackend
         $html = array();
 
         if ($url) {
-
             $hasTooltip = '';
             if ($title) {
                 $hasTooltip = ' hasTooltip';
@@ -60,5 +59,11 @@ abstract class JHtmlGamificationbackend
         $html[] = '</a>';
 
         return implode($html);
+    }
+
+    public static function goals()
+    {
+
+ 
     }
 }

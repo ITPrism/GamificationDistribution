@@ -47,14 +47,12 @@ abstract class JHtmlGamification
         $classes = array();
 
         if ($tip and $rank->getDescription()) {
-
             JHtml::_('bootstrap.tooltip');
 
             $classes[] = 'hasTooltip';
 
             $description  = strip_tags(trim($rank->getDescription($placeholders)));
             $title = ' title="' . htmlspecialchars($description, ENT_QUOTES, 'UTF-8') . '"';
-
         }
 
         // Prepare class property
@@ -148,7 +146,6 @@ abstract class JHtmlGamification
                 $neededPoints   = abs($nextUnitPoints - $userPoints);
 
                 switch ($gameMechanic) {
-
                     case 'badges':
                         $titleNext = ' title="' . JText::sprintf('MOD_GAMIFICATIONPROFILE_POINTS_BADGES_INFORMATION_REACH', $neededPoints, $nextUnitTitle) . '"';
                         break;
@@ -225,5 +222,14 @@ abstract class JHtmlGamification
         }
 
         return implode($html);
+    }
+
+    public static function number($number)
+    {
+        if ($number === null) {
+            return JText::_('COM_GAMIRIFCATION_UNLIMITED');
+        }
+
+        return (int)$number;
     }
 }

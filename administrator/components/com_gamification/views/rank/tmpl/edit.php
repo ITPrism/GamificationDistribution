@@ -11,7 +11,7 @@
 defined('_JEXEC') or die;
 ?>
 <div class="row-fluid">
-    <div class="span6">
+    <div class="span8">
         <form action="<?php echo JRoute::_('index.php?option=com_gamification'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" enctype="multipart/form-data">
 
             <fieldset class="adminform">
@@ -44,12 +44,12 @@ defined('_JEXEC') or die;
     </div>
 
     <?php if (!empty($this->item->image)) { ?>
-        <div class="span6">
-            <img src="<?php echo "../" . $this->imagesFolder . "/" . $this->item->image; ?>" class="img-polaroid"/>
+        <div class="span4">
+            <img src="<?php echo '../' . $this->imagesFolder . '/' . $this->item->image; ?>" class="img-polaroid"/>
             <br/><br/>
-            <a class="btn btn-danger" href="<?php echo JRoute::_("index.php?option=com_gamification&task=rank.removeimage&id=" . (int)$this->item->id . "&" . JSession::getFormToken() . "=1"); ?>" id="gfy-remove-image">
+            <a class="btn btn-danger" href="<?php echo JRoute::_('index.php?option=com_gamification&task=rank.removeimage&id=' . (int)$this->item->id . '&' . JSession::getFormToken() . '=1'); ?>" id="gfy-remove-image">
                 <i class="icon-trash"></i>
-                <?php echo JText::_("COM_GAMIFICATION_REMOVE_IMAGE"); ?>
+                <?php echo JText::_('COM_GAMIFICATION_REMOVE_IMAGE'); ?>
             </a>
         </div>
     <?php } ?>

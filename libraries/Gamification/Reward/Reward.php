@@ -313,8 +313,9 @@ class Reward extends Table implements Mechanic\PointsInterface
 
     protected function updateObject()
     {
-        $note = (!$this->note) ? null : $this->db->quote($this->note);
+        $note        = (!$this->note) ? null : $this->db->quote($this->note);
         $description = (!$this->description) ? null : $this->db->quote($this->description);
+        $number      = (!is_numeric($this->number) and !$this->number) ? null : $this->db->quote($this->number);
 
         // Create a new query object.
         $query = $this->db->getQuery(true);
@@ -325,7 +326,7 @@ class Reward extends Table implements Mechanic\PointsInterface
             ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
             ->set($this->db->quoteName('image') . '  = ' . $this->db->quote($this->image))
             ->set($this->db->quoteName('note') . '  = ' . $note)
-            ->set($this->db->quoteName('number') . '  = ' . (int)$this->number)
+            ->set($this->db->quoteName('number') . '  = ' . $number)
             ->set($this->db->quoteName('description') . '  = ' . $description)
             ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
             ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
@@ -357,6 +358,10 @@ class Reward extends Table implements Mechanic\PointsInterface
 
         if ($this->description !== null and $this->description !== '') {
             $query->set($this->db->quoteName('description') . ' = ' . $this->db->quote($this->description));
+        }
+
+        if (is_numeric($this->number) and (int)$this->number > 0) {
+            $query->set($this->db->quoteName('number') . ' = ' . (int)$this->number);
         }
 
         $this->db->setQuery($query);
