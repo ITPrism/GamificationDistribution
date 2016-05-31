@@ -75,6 +75,12 @@ class GamificationHelper
         );
 
         JHtmlSidebar::addEntry(
+            JText::_('COM_GAMIFICATION_GOALS'),
+            'index.php?option=' . self::$extension . '&view=goals',
+            $vName === 'goals'
+        );
+
+        JHtmlSidebar::addEntry(
             JText::_('COM_GAMIFICATION_PROFILES'),
             'index.php?option=' . self::$extension . '&view=profiles',
             $vName === 'profiles'

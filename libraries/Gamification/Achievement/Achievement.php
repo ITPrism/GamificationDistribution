@@ -1,78 +1,47 @@
 <?php
 /**
  * @package         Gamification
- * @subpackage      Rewards
+ * @subpackage      Achievements
  * @author          Todor Iliev
  * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Gamification\Reward;
+namespace Gamification\Achievement;
 
 use Prism\Database\Table;
-use Gamification\Mechanic;
 
 defined('JPATH_PLATFORM') or die;
 
 /**
- * This class contains methods that are used for managing a reward.
+ * This class contains methods that are used for managing a achievement.
  *
  * @package         Gamification
- * @subpackage      Rewards
+ * @subpackage      Achievements
  */
-class Reward extends Table implements Mechanic\PointsInterface
+class Achievement extends Table
 {
     /**
-     * Reward ID.
+     * Achievement ID.
      *
-     * @var integer
+     * @var int
      */
     protected $id;
 
     protected $title;
     protected $description;
-    protected $points;
     protected $image;
     protected $note;
-    protected $number;
     protected $published;
-    protected $points_id;
     protected $group_id;
 
-    protected static $instances = array();
-
     /**
-     * Create an instance of the object and load data.
+     * Get achievement title.
      *
      * <code>
-     * $rewardId = 1;
-     * $reward   = Gamification\Reward\Reward::getInstance(\JFactory::getDbo(), $rewardId);
-     * </code>
-     *
-     * @param \JDatabaseDriver $db
-     * @param int $id
-     *
-     * @return null|self
-     */
-    public static function getInstance($db, $id)
-    {
-        if (!array_key_exists($id, self::$instances)) {
-            $item   = new Reward($db);
-            $item->load($id);
-            
-            self::$instances[$id] = $item;
-        }
-
-        return self::$instances[$id];
-    }
-
-    /**
-     * Get reward title.
-     *
-     * <code>
-     * $rewardId    = 1;
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $title      = $reward->getTitle();
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $title       = $achievement->getTitle();
      * </code>
      *
      * @return string
@@ -83,49 +52,12 @@ class Reward extends Table implements Mechanic\PointsInterface
     }
 
     /**
-     * Get reward points.
+     * Get achievement image.
      *
      * <code>
-     * $rewardId    = 1;
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $reward->load($rewardId);
-     *
-     * $points     = $reward->getPoints();
-     * </code>
-     *
-     * @return number
-     */
-    public function getPoints()
-    {
-        return $this->points;
-    }
-
-    /**
-     * Get the points ID used for the reward.
-     *
-     * <code>
-     * $rewardId    = 1;
-     *
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $reward->load($rewardId);
-     *
-     * $pointsId   = $reward->getPointsId();
-     * </code>
-     *
-     * @return int
-     */
-    public function getPointsId()
-    {
-        return (int)$this->points_id;
-    }
-
-    /**
-     * Get reward image.
-     *
-     * <code>
-     * $rewardId    = 1;
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $image      = $reward->getImage();
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $image       = $achievement->getImage();
      * </code>
      *
      * @return string
@@ -136,12 +68,12 @@ class Reward extends Table implements Mechanic\PointsInterface
     }
 
     /**
-     * Get reward note.
+     * Get achievement note.
      *
      * <code>
-     * $rewardId    = 1;
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $note       = $reward->getNote();
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $note       = $achievement->getNote();
      * </code>
      *
      * @return string
@@ -152,35 +84,19 @@ class Reward extends Table implements Mechanic\PointsInterface
     }
 
     /**
-     * Get reward number.
-     *
-     * <code>
-     * $rewardId    = 1;
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $number      = $reward->getNumber();
-     * </code>
-     *
-     * @return int|null
-     */
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
-    /**
-     * Return reward description with possibility
+     * Return achievement description with possibility
      * to replace placeholders with dynamically generated data.
      *
      * <code>
-     * $rewardId    = 1;
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
      *
      * $data = array(
      *     "name" => "John Dow",
      *     "title" => "..."
      * );
      *
-     * echo $reward->getDescription($data);
+     * echo $achievement->getDescription($data);
      * </code>
      *
      * @param array $data
@@ -204,13 +120,13 @@ class Reward extends Table implements Mechanic\PointsInterface
     }
 
     /**
-     * Check for published reward.
+     * Check for published achievement.
      *
      * <code>
-     * $rewardId     = 1;
-     * $reward       = new Gamification\Reward\Reward(\JFactory::getDbo());
+     * $achievementId     = 1;
+     * $achievement       = new Gamification\Achievement\Achievement(\JFactory::getDbo());
      *
-     * if(!$reward->isPublished()) {
+     * if(!$achievement->isPublished()) {
      * ...
      * }
      * </code>
@@ -223,60 +139,35 @@ class Reward extends Table implements Mechanic\PointsInterface
     }
 
     /**
-     * Get the group ID of the reward.
+     * Get the group ID of the achievement.
      *
      * <code>
-     * $rewardId    = 1;
+     * $achievementId    = 1;
      *
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $reward->load($rewardId);
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
      *
-     * $groupId    = $reward->getGroupId();
+     * $groupId    = $achievement->getGroupId();
      * </code>
      *
-     * @return int
+     * @return integer
      */
     public function getGroupId()
     {
-        return (int)$this->group_id;
+        return $this->group_id;
     }
 
     /**
-     * Check for available rewards.
-     *
-     * <code>
-     * $rewardId    = 1;
-     *
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $reward->load($rewardId);
-     *
-     * if ($reward->hasRewards()) {
-     * // ...
-     * }
-     * </code>
-     *
-     * @return bool
-     */
-    public function hasRewards()
-    {
-        if ($this->number === null) {
-            return true;
-        }
-
-        return (bool)(is_numeric($this->number) and  (int)$this->number > 0);
-    }
-
-    /**
-     * Load reward data from database.
+     * Load achievement data from database.
      *
      * <code>
      * $keys = array(
-     *    "group_id" => 1,
-     *    "points_id" => 2
+     *    "id" => 1,
+     *    "group_id" => 2
      * );
      *
-     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $reward->load($keys);
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($keys);
      * </code>
      *
      * @param int|array $keys
@@ -288,8 +179,8 @@ class Reward extends Table implements Mechanic\PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.title, a.description, a.points, a.image, a.note, a.number, a.published, a.points_id, a.group_id')
-            ->from($this->db->quoteName('#__gfy_rewards', 'a'));
+            ->select('a.id, a.title, a.description, a.image, a.note, a.published, a.group_id')
+            ->from($this->db->quoteName('#__gfy_achievements', 'a'));
 
         // Prepare keys.
         if (is_array($keys)) {
@@ -313,18 +204,15 @@ class Reward extends Table implements Mechanic\PointsInterface
      * $data = array(
      *        "title"    => "......",
      *        "description"    => "......",
-     *        "points"    => 100,
      *        "image"    => "picture.png",
      *        "note"    => null,
-     *        "number"    => 10,
      *        "published" => 1,
-     *        "points_id" => 2,
      *        "group_id"  => 3
      * );
      *
-     * $reward   = new Gamification\Reward\Reward(\JFactory::getDbo());
-     * $reward->bind($data);
-     * $reward->store();
+     * $achievement   = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->bind($data);
+     * $achievement->store();
      * </code>
      */
     public function store()
@@ -340,21 +228,17 @@ class Reward extends Table implements Mechanic\PointsInterface
     {
         $note        = (!$this->note) ? null : $this->db->quote($this->note);
         $description = (!$this->description) ? null : $this->db->quote($this->description);
-        $number      = (!is_numeric($this->number) and !$this->number) ? null : $this->db->quote($this->number);
 
         // Create a new query object.
         $query = $this->db->getQuery(true);
 
         $query
-            ->update($this->db->quoteName('#__gfy_rewards'))
+            ->update($this->db->quoteName('#__gfy_achievements'))
             ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
-            ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
             ->set($this->db->quoteName('image') . '  = ' . $this->db->quote($this->image))
             ->set($this->db->quoteName('note') . '  = ' . $note)
-            ->set($this->db->quoteName('number') . '  = ' . $number)
             ->set($this->db->quoteName('description') . '  = ' . $description)
             ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
-            ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
             ->set($this->db->quoteName('group_id') . '  = ' . (int)$this->group_id)
             ->where($this->db->quoteName('id') . '  = ' . (int)$this->id);
 
@@ -368,12 +252,10 @@ class Reward extends Table implements Mechanic\PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->insert($this->db->quoteName('#__gfy_rewards'))
+            ->insert($this->db->quoteName('#__gfy_achievements'))
             ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
-            ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
             ->set($this->db->quoteName('image') . '  = ' . $this->db->quote($this->image))
             ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
-            ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
             ->set($this->db->quoteName('group_id') . '  = ' . (int)$this->group_id);
 
         if ($this->note !== null and $this->note !== '') {
@@ -382,10 +264,6 @@ class Reward extends Table implements Mechanic\PointsInterface
 
         if ($this->description !== null and $this->description !== '') {
             $query->set($this->db->quoteName('description') . ' = ' . $this->db->quote($this->description));
-        }
-
-        if (is_numeric($this->number) and (int)$this->number > 0) {
-            $query->set($this->db->quoteName('number') . ' = ' . (int)$this->number);
         }
 
         $this->db->setQuery($query);
