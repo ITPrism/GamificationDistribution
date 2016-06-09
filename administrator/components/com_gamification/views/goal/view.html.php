@@ -46,6 +46,12 @@ class GamificationViewGoal extends JViewLegacy
         $filesystemHelper   = new Prism\Filesystem\Helper($params);
         $this->mediaFolder  = $filesystemHelper->getMediaFolder();
 
+        // Prepare contexts.
+        $goals = new Gamification\Goal\Goals(JFactory::getDbo());
+        $contexts = $goals->getContexts();
+        $js = 'var gfyContexts = ' . json_encode($contexts). ';';
+        $this->document->addScriptDeclaration($js);
+        
         // Prepare actions, behaviors, scripts and document
         $this->addToolbar();
         $this->setDocument();
@@ -90,6 +96,8 @@ class GamificationViewGoal extends JViewLegacy
         // Add scripts
         JHtml::_('behavior.tooltip');
         JHtml::_('behavior.formvalidation');
+        JHtml::_('bootstrap.framework');
+        JHtml::_('Prism.ui.jQueryAutoComplete');
 
         $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }

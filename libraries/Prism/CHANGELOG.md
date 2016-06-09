@@ -1,6 +1,9 @@
 Prism Library Changelog
 ==========================
 
+###v1.14
+* Added [jQueryAutoComplete](https://github.com/devbridge/jQuery-Autocomplete) to Prism UI.
+
 ###v1.13
 * Added class Money and interface Currency.
 * Added functions to get cURL and OpenSSL version.

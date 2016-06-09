@@ -45,7 +45,7 @@ class GamificationViewGoals extends JViewLegacy
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
-
+        
         // Prepare sorting data
         $this->prepareSorting();
 

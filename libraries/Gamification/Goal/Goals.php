@@ -69,19 +69,18 @@ class Goals extends Collection
     }
 
     /**
-     * Create a currency object and return it.
+     * Create a goal object and return it.
      *
      * <code>
      * $options = array(
-     *     "ids" => array(1,2,3,4,5),
-     *     "codes" => array("USD", "GBP")
+     *     "ids" => array(1,2,3,4,5)
      * );
      *
-     * $goals   = new Crowdfunding\Currencies(\JFactory::getDbo());
+     * $goals   = new Gamification\Goal\Goals(\JFactory::getDbo());
      * $goals->load($options);
      *
-     * $currencyId = 1;
-     * $currency = $goals->getCurrency($currencyId);
+     * $goalId = 1;
+     * $goal = $goals->getGoal($goalId);
      * </code>
      *
      * @param int|string $id Goal ID or Goal context.
@@ -90,22 +89,22 @@ class Goals extends Collection
      */
     public function getGoal($id)
     {
-        $currency = null;
+        $goal = null;
 
         foreach ($this->items as $item) {
             if (is_numeric($id) and (int)$id === (int)$item['id']) {
-                $currency = new Goal($this->db);
-                $currency->bind($this->items[$id]);
+                $goal = new Goal($this->db);
+                $goal->bind($this->items[$id]);
                 break;
 
             } elseif (strcmp($id, $item['context']) === 0) {
-                $currency = new Goal($this->db);
-                $currency->bind($item);
+                $goal = new Goal($this->db);
+                $goal->bind($item);
                 break;
             }
         }
 
-        return $currency;
+        return $goal;
     }
 
     /**
@@ -113,11 +112,10 @@ class Goals extends Collection
      *
      * <code>
      * $options = array(
-     *     "ids" => array(1,2,3,4,5),
-     *     "codes" => array("USD", "GBP")
+     *     "ids" => array(1,2,3,4,5)
      * );
      *
-     * $goals   = new Crowdfunding\Currencies(\JFactory::getDbo());
+     * $goals   = new Gamification\Goal\Goals(\JFactory::getDbo());
      * $goals->load($options);
      *
      * $goals = $goals->getGoals();
@@ -139,5 +137,39 @@ class Goals extends Collection
         }
 
         return $results;
+    }
+
+    /**
+     * Return contexts of the items.
+     *
+     * <code>
+     * $goals   = new Gamification\Goal\Goals(\JFactory::getDbo());
+     * $context = $goals->getContexts();
+     * </code>
+     *
+     * @return array
+     */
+    public function getContexts()
+    {
+        $contexts = array();
+        
+        if (count($this->items) > 0) {
+            foreach ($this->items as $item) {
+                $contexts[] = $item['context'];
+            }
+
+            $contexts = array_unique($contexts);
+        } else {
+            $query = $this->db->getQuery(true);
+
+            $query
+                ->select('DISTINCT a.context')
+                ->from($this->db->quoteName('#__gfy_goals', 'a'));
+
+            $this->db->setQuery($query);
+            $contexts = (array)$this->db->loadColumn();
+        }
+        
+        return $contexts;
     }
 }

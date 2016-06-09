@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification
  * @subpackage      Achievements
  */
-class Rewards extends Collection
+class Achievements extends Collection
 {
     /**
      * Load units from database.
