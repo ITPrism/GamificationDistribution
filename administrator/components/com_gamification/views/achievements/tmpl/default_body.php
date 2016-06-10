@@ -22,15 +22,14 @@ defined('_JEXEC') or die;
             <a href="<?php echo JRoute::_('index.php?option=com_gamification&view=achievement&layout=edit&id=' . $item->id); ?>"><?php echo $this->escape($item->title); ?></a>
             <?php echo JHtml::_('gamificationbackend.helptip', $item->note); ?>
             <div class="small">
-                <?php echo JText::sprintf('COM_CROWDFUNDING_GROUP_S', $this->escape($item->group_name)); ?>
+                <?php echo JText::sprintf('COM_GAMIFICATION_GROUP_S', $this->escape($item->group_name)); ?>
             </div>
         </td>
-        <td class="center hidden-phone">
-            <?php echo JHtml::_('gamificationbackend.goals', 0); ?>
+        <td class="hidden-phone">
+            <?php echo $this->escape($item->context); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->id; ?>
         </td>
     </tr>
 <?php } ?>
-	  

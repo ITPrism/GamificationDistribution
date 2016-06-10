@@ -96,7 +96,7 @@ class pkg_gamificationInstallerScript
         GamificationInstallHelper::addRowHeading(JText::_('COM_GAMIFICATION_MINIMUM_REQUIREMENTS'));
 
         // Display result about verification for existing folder
-        $title = JText::_('COM_GAMIFICATION_MEDIA_FOLDER');
+        $title = JText::_('COM_GAMIFICATION_MEDIA_FOLDER_EXISTS');
         $info  = $mediaPath;
         if (!is_dir($mediaPath)) {
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
@@ -225,7 +225,6 @@ class pkg_gamificationInstallerScript
         if (!class_exists('Prism\\Version')) {
             echo JText::_('COM_GAMIFICATION_MESSAGE_INSTALL_PRISM_LIBRARY');
         } else {
-
             if (class_exists('Gamification\\Version')) {
                 $prismVersion     = new Prism\Version();
                 $componentVersion = new Gamification\Version();

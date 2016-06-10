@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationModelGoals extends JModelList
+class GamificationModelAchievements extends JModelList
 {
     /**
      * Constructor.
@@ -26,7 +26,6 @@ class GamificationModelGoals extends JModelList
             $config['filter_fields'] = array(
                 'id', 'a.id',
                 'title', 'a.title',
-                'context', 'a.context',
                 'group_name', 'b.name',
                 'published', 'a.published'
             );
@@ -105,11 +104,11 @@ class GamificationModelGoals extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.context, a.group_id, a.note, a.published, ' .
+                'a.id, a.title, a.group_id, a.note, a.published, ' .
                 'b.name AS group_name'
             )
         );
-        $query->from($db->quoteName('#__gfy_goals', 'a'));
+        $query->from($db->quoteName('#__gfy_achievements', 'a'));
         $query->innerJoin($db->quoteName('#__gfy_groups', 'b') . ' ON a.group_id = b.id');
 
         // Filter by group.
@@ -150,12 +149,6 @@ class GamificationModelGoals extends JModelList
         $orderCol  = $this->getState('list.ordering');
         $orderDirn = $this->getState('list.direction');
 
-        $orderString = $orderCol . ' ' . $orderDirn;
-
-        if (strcmp('a.context', $orderCol) === 0) {
-            $orderString .= ', b.name ASC';
-        }
-
-        return $orderString;
+        return $orderCol . ' ' . $orderDirn;
     }
 }

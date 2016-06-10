@@ -24,7 +24,7 @@ defined('_JEXEC') or die;
             </a>
             <?php echo JHtml::_('gamificationbackend.helptip', $item->note); ?>
             <div class="small">
-                <?php echo JText::sprintf('COM_CROWDFUNDING_GROUP_S', $this->escape($item->group_name)); ?>
+                <?php echo JText::sprintf('COM_GAMIFICATION_GROUP_S', $this->escape($item->group_name)); ?>
             </div>
         </td>
         <td class="center hidden-phone">

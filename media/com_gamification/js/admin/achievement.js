@@ -15,4 +15,29 @@ jQuery(document).ready(function() {
         }
 
     });
+
+    /*jQuery('#jform_context').typeahead({
+        source: gfyContexts,
+        highlighter: false
+    }); */
+
+    /*var contexts = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        // `states` is an array of state names defined in "The Basics"
+        local: gfyContexts
+    });
+
+    jQuery('#jform_context').typeahead({
+            highlight: true,
+            minLength: 4
+        },
+        {
+            source: contexts
+        });*/
+
+    jQuery('#jform_context').autocomplete({
+        lookup: gfyContexts
+    });
+
 });

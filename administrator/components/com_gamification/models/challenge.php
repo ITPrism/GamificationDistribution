@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationModelGoal extends JModelAdmin
+class GamificationModelAchievement extends JModelAdmin
 {
     /**
      * Returns a reference to the a Table object, always creating it.
@@ -19,10 +19,10 @@ class GamificationModelGoal extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  GamificationTableGoal
+     * @return  GamificationTableAchievement
      * @since   1.6
      */
-    public function getTable($type = 'Goal', $prefix = 'GamificationTable', $config = array())
+    public function getTable($type = 'Achievement', $prefix = 'GamificationTable', $config = array())
     {
         return JTable::getInstance($type, $prefix, $config);
     }
@@ -39,7 +39,7 @@ class GamificationModelGoal extends JModelAdmin
     public function getForm($data = array(), $loadData = true)
     {
         // Get the form.
-        $form = $this->loadForm($this->option . '.goal', 'goal', array('control' => 'jform', 'load_data' => $loadData));
+        $form = $this->loadForm($this->option . '.achievement', 'achievement', array('control' => 'jform', 'load_data' => $loadData));
         if (!$form) {
             return false;
         }
@@ -56,7 +56,7 @@ class GamificationModelGoal extends JModelAdmin
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
-        $data = JFactory::getApplication()->getUserState($this->option . '.edit.goal.data', array());
+        $data = JFactory::getApplication()->getUserState($this->option . '.edit.achievement.data', array());
         if (!$data) {
             $data = $this->getItem();
         }
@@ -75,39 +75,30 @@ class GamificationModelGoal extends JModelAdmin
     {
         $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
         $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $context   = Joomla\Utilities\ArrayHelper::getValue($data, 'context');
         $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id', 0, 'int');
         $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
         $note      = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
-        $params      = Joomla\Utilities\ArrayHelper::getValue($data, 'params', array(), 'array');
         $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
-        $activityText = Joomla\Utilities\ArrayHelper::getValue($data, 'activity_text');
 
-        if (!$note) {$note = null;}
-        if (!$description) {$description = null;}
-        if (!$params) {
-            $params = '{}';
-        } else {
-            $params_ = new Joomla\Registry\Registry;
-            $params_->loadArray($params);
+        if (!$note) {
+            $note = null;
+        }
 
-            $params = $params_->toString();
+        if (!$description) {
+            $description = null;
         }
 
         // Load a record from the database
         $row = $this->getTable();
-        /** @var $row GamificationTableGoal */
+        /** @var $row GamificationTableAchievement */
 
         $row->load($id);
 
         $row->set('title', $title);
-        $row->set('context', $context);
         $row->set('group_id', $groupId);
         $row->set('published', $published);
         $row->set('note', $note);
         $row->set('description', $description);
-        $row->set('activity_text', $activityText);
-        $row->set('params', $params);
 
         $this->prepareImage($row, $data);
 
@@ -119,7 +110,7 @@ class GamificationModelGoal extends JModelAdmin
     /**
      * Prepare and sanitise the table prior to saving.
      *
-     * @param GamificationTableGoal $table
+     * @param GamificationTableAchievement $table
      * @param array                  $data
      *
      * @since    1.6
@@ -233,7 +224,7 @@ class GamificationModelGoal extends JModelAdmin
 
         $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
 
-        $imageName   = $generatedName . '_goal.' . $ext;
+        $imageName   = $generatedName . '_achievement.' . $ext;
         $destination = JPath::clean($destinationFolder .DIRECTORY_SEPARATOR. $imageName);
 
         // Prepare uploader object.

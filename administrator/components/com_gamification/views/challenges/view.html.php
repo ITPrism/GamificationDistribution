@@ -12,7 +12,7 @@ use Joomla\Registry\Registry;
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationViewGoals extends JViewLegacy
+class GamificationViewAchievements extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -45,7 +45,7 @@ class GamificationViewGoals extends JViewLegacy
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
-        
+
         // Prepare sorting data
         $this->prepareSorting();
 
@@ -87,16 +87,16 @@ class GamificationViewGoals extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolbarHelper::title(JText::_('COM_GAMIFICATION_GOAL_MANAGER'));
-        JToolbarHelper::addNew('goal.add');
-        JToolbarHelper::editList('goal.edit');
+        JToolbarHelper::title(JText::_('COM_GAMIFICATION_ACHIEVEMENT_MANAGER'));
+        JToolbarHelper::addNew('achievement.add');
+        JToolbarHelper::editList('achievement.edit');
         JToolbarHelper::divider();
-        JToolbarHelper::publishList('goals.publish');
-        JToolbarHelper::unpublishList('goals.unpublish');
+        JToolbarHelper::publishList('achievements.publish');
+        JToolbarHelper::unpublishList('achievements.unpublish');
         JToolbarHelper::divider();
-        JToolbarHelper::deleteList(JText::_('COM_GAMIFICATION_DELETE_ITEMS_QUESTION'), 'goals.delete');
+        JToolbarHelper::deleteList(JText::_('COM_GAMIFICATION_DELETE_ITEMS_QUESTION'), 'achievements.delete');
         JToolbarHelper::divider();
-        JToolbarHelper::custom('goals.backToDashboard', 'dashboard', '', JText::_('COM_GAMIFICATION_DASHBOARD'), false);
+        JToolbarHelper::custom('achievements.backToDashboard', 'dashboard', '', JText::_('COM_GAMIFICATION_DASHBOARD'), false);
     }
 
     /**
@@ -106,7 +106,7 @@ class GamificationViewGoals extends JViewLegacy
      */
     protected function setDocument()
     {
-        $this->document->setTitle(JText::_('COM_GAMIFICATION_GOAL_MANAGER'));
+        $this->document->setTitle(JText::_('COM_GAMIFICATION_ACHIEVEMENT_MANAGER'));
 
         // Load language string in JavaScript
         JText::script('COM_GAMIFICATION_SEARCH_IN_TITLE_TOOLTIP');

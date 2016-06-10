@@ -26,6 +26,7 @@ class GamificationModelAchievements extends JModelList
             $config['filter_fields'] = array(
                 'id', 'a.id',
                 'title', 'a.title',
+                'context', 'a.context',
                 'group_name', 'b.name',
                 'published', 'a.published'
             );
@@ -104,7 +105,7 @@ class GamificationModelAchievements extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.group_id, a.note, a.published, ' .
+                'a.id, a.title, a.context, a.group_id, a.note, a.published, ' .
                 'b.name AS group_name'
             )
         );
@@ -149,6 +150,12 @@ class GamificationModelAchievements extends JModelList
         $orderCol  = $this->getState('list.ordering');
         $orderDirn = $this->getState('list.direction');
 
-        return $orderCol . ' ' . $orderDirn;
+        $orderString = $orderCol . ' ' . $orderDirn;
+
+        if (strcmp('a.context', $orderCol) === 0) {
+            $orderString .= ', b.name ASC';
+        }
+
+        return $orderString;
     }
 }

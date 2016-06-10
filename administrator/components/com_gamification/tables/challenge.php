@@ -9,13 +9,13 @@
 
 defined('_JEXEC') or die;
 
-class GamificationTableGoal extends JTable
+class GamificationTableChallenge extends JTable
 {
     /**
      * @param JDatabaseDriver $db
      */
     public function __construct($db)
     {
-        parent::__construct('#__gfy_goals', 'id', $db);
+        parent::__construct('#__gfy_challenges', 'id', $db);
     }
 }

@@ -75,9 +75,9 @@ class GamificationHelper
         );
 
         JHtmlSidebar::addEntry(
-            JText::_('COM_GAMIFICATION_GOALS'),
-            'index.php?option=' . self::$extension . '&view=goals',
-            $vName === 'goals'
+            JText::_('COM_GAMIFICATION_CHALLENGES'),
+            'index.php?option=' . self::$extension . '&view=challenges',
+            $vName === 'challenges'
         );
 
         JHtmlSidebar::addEntry(

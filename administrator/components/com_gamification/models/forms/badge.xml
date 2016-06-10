@@ -4,20 +4,20 @@
 
         <field name="title" type="text" class="input-xxlarge"
                label="COM_GAMIFICATION_TITLE"
-               description="COM_GAMIFICATION_BADGE_TITLE_DESC"
+               description="COM_GAMIFICATION_FIELD_TITLE_DESC"
                filter="trim"
                required="true"
                 />
 
         <field name="points" type="text"
                label="COM_GAMIFICATION_POINTS"
-               description="COM_GAMIFICATION_BADGE_POINTS_DESC"
+               description="COM_GAMIFICATION_FIELD_POINTS_DESC"
                filter="int"
                 />
 
         <field name="points_id" type="gfypoints"
                label="COM_GAMIFICATION_POINTS_TYPE"
-               description="COM_GAMIFICATION_BADGE_POINTS_TYPE_DESC"
+               description="COM_GAMIFICATION_FIELD_POINTS_TYPE_DESC"
                filter="int"
                 >
             <option value="0">COM_GAMIFICATION_SELECT_POINTS_TYPE</option>
@@ -25,12 +25,12 @@
 
         <field name="image" type="file"
                label="COM_GAMIFICATION_IMAGE"
-               description="COM_GAMIFICATION_BADGE_IMAGE_DESC"
+               description="COM_GAMIFICATION_FIELD_IMAGE_DESC"
                 />
 
         <field name="group_id" type="gfygroups"
                label="COM_GAMIFICATION_GROUP"
-               description="COM_GAMIFICATION_BADGE_GROUP_DESC"
+               description="COM_GAMIFICATION_FIELD_GROUP_DESC"
                size="1"
                filter="intval"
                required="true"
@@ -49,13 +49,13 @@
 
         <field name="description" type="textarea"
                label="COM_GAMIFICATION_DESCRIPTION"
-               description="COM_GAMIFICATION_DESCRIPTION_DESC"
+               description="COM_GAMIFICATION_FIELD_DESCRIPTION_DESC"
                filter="trim"
                />
 
         <field name="note" type="textarea"
                label="COM_GAMIFICATION_NOTE"
-               description="COM_GAMIFICATION_NOTE_DESC"
+               description="COM_GAMIFICATION_FIELD_NOTE_DESC"
                filter="trim"
                 />
 

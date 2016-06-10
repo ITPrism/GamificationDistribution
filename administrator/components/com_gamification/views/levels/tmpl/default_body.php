@@ -21,7 +21,7 @@ defined('_JEXEC') or die;
         <td class="has-context">
             <a href="<?php echo JRoute::_('index.php?option=com_gamification&view=level&layout=edit&id=' . $item->id); ?>"><?php echo $this->escape($item->title); ?></a>
             <div class="small">
-                <?php echo JText::sprintf('COM_CROWDFUNDING_GROUP_S', $this->escape($item->group_name)); ?>
+                <?php echo JText::sprintf('COM_GAMIFICATION_GROUP_S', $this->escape($item->group_name)); ?>
             </div>
         </td>
         <td class="center hidden-phone">

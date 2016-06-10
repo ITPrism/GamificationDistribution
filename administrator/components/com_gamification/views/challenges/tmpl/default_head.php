@@ -20,8 +20,8 @@ defined('_JEXEC') or die;
     <th class="title">
         <?php echo JHtml::_('searchtools.sort', 'COM_GAMIFICATION_TITLE', 'a.title', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="20%" class="nowrap hidden-phone">
-        <?php echo JHtml::_('searchtools.sort', 'COM_GAMIFICATION_CONTEXT', 'a.context', $this->listDirn, $this->listOrder); ?>
+    <th width="20%" class="nowrap center hidden-phone">
+        <?php echo JText::_('COM_GAMIFICATION_GOALS'); ?>
     </th>
     <th width="3%" class="nowrap center hidden-phone">
         <?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_ID', 'a.id', $this->listDirn, $this->listOrder); ?>

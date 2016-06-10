@@ -14,22 +14,22 @@ use Joomla\Utilities\ArrayHelper;
 defined('_JEXEC') or die;
 
 /**
- * Gamification goal controller class.
+ * Gamification achievement controller class.
  *
  * @package      Gamification Platform
  * @subpackage   Components
  * @since        1.6
  */
-class GamificationControllerGoal extends Backend
+class GamificationControllerAchievement extends Backend
 {
     /**
      * @param string $name
      * @param string $prefix
      * @param array  $config
      *
-     * @return GamificationModelGoal
+     * @return GamificationModelAchievement
      */
-    public function getModel($name = 'Goal', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Achievement', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
         return $model;
@@ -88,7 +88,7 @@ class GamificationControllerGoal extends Backend
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 
-        $this->displayMessage(JText::_('COM_GAMIFICATION_GOAL_SAVED'), $redirectOptions);
+        $this->displayMessage(JText::_('COM_GAMIFICATION_ACHIEVEMENT_SAVED'), $redirectOptions);
     }
 
     public function removeImage()
@@ -98,13 +98,13 @@ class GamificationControllerGoal extends Backend
         $itemId = $this->input->get->get('id', 0, 'int');
 
         $redirectOptions = array(
-            'view'   => 'goal',
+            'view'   => 'achievement',
             'layout' => 'edit',
             'id'     => $itemId
         );
 
         $model = $this->getModel();
-        /** @var $model GamificationModelGoal */
+        /** @var $model GamificationModelAchievement */
 
         // Check for errors
         if (!$itemId) {

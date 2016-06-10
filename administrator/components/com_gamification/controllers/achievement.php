@@ -27,7 +27,7 @@ class GamificationControllerAchievement extends Backend
      * @param string $prefix
      * @param array  $config
      *
-     * @return GamificationModelAchievement
+     * @return GamificationModelGoal
      */
     public function getModel($name = 'Achievement', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
     {
@@ -49,7 +49,7 @@ class GamificationControllerAchievement extends Backend
         );
 
         $model = $this->getModel();
-        /** @var $model GamificationModelReward */
+        /** @var $model GamificationModelAchievement */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */
@@ -74,9 +74,9 @@ class GamificationControllerAchievement extends Backend
 
             // Upload picture
             if (!empty($file['name'])) {
-                $imageName = $model->uploadImage($file);
-                if (!empty($imageName)) {
-                    $validData['image'] = $imageName;
+                $images = $model->uploadImage($file);
+                if (count($images) > 0 and $images['image'] !== '') {
+                    $validData = array_merge($validData, $images);
                 }
             }
 
