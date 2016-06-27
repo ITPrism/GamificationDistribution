@@ -20,7 +20,7 @@ JFormHelper::loadFieldClass('list');
  * @subpackage   Components
  * @since        1.6
  */
-class JFormFieldGfyRanks extends JFormFieldList
+class JFormFieldGfyRewards extends JFormFieldList
 {
     /**
      * The form field type.
@@ -28,7 +28,7 @@ class JFormFieldGfyRanks extends JFormFieldList
      * @var     string
      * @since   1.6
      */
-    protected $type = 'gfyranks';
+    protected $type = 'gfyrewards';
 
     /**
      * Method to get the field options.
@@ -38,10 +38,10 @@ class JFormFieldGfyRanks extends JFormFieldList
      */
     protected function getOptions()
     {
-        $items = new Gamification\Rank\Ranks(JFactory::getDbo());
-        $items->load();
+        $groups = new Gamification\Reward\Rewards(JFactory::getDbo());
+        $groups->load();
 
-        $options = $items->toOptions('id', 'title');
+        $options = $groups->toOptions('id', 'title');
 
         // Merge any additional options in the XML definition.
         $options = array_merge(parent::getOptions(), $options);

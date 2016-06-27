@@ -39,8 +39,7 @@ class GamificationControllerReward extends Backend
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-        $data = $this->input->post->get('jform', array(), 'array');
-
+        $data   = $this->input->post->get('jform', array(), 'array');
         $itemId = ArrayHelper::getValue($data, 'id');
 
         $redirectOptions = array(
@@ -74,9 +73,11 @@ class GamificationControllerReward extends Backend
 
             // Upload picture
             if (!empty($file['name'])) {
-                $imageName = $model->uploadImage($file);
-                if (!empty($imageName)) {
-                    $validData['image'] = $imageName;
+                $resizeImage = ArrayHelper::getValue($data, 'resize_image');
+
+                $images = $model->uploadImage($file, $resizeImage);
+                if (count($images) > 0 and $images['image'] !== '') {
+                    $validData = array_merge($validData, $images);
                 }
             }
 

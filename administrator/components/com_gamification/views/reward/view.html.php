@@ -87,6 +87,9 @@ class GamificationViewReward extends JViewLegacy
     {
         $this->document->setTitle($this->documentTitle);
 
+        // Load language string in JavaScript
+        JText::script('COM_GAMIFICATION_DELETE_IMAGE_QUESTION');
+        
         // Add scripts
         JHtml::_('behavior.tooltip');
         JHtml::_('behavior.formvalidation');

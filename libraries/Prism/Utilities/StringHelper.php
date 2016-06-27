@@ -9,7 +9,7 @@
 
 namespace Prism\Utilities;
 
-use Joomla\Utilities\ArrayHelper;
+use Joomla\Utilities\ArrayHelper as JArrayHelper;
 
 // no direct access
 defined('JPATH_PLATFORM') or die;
@@ -77,10 +77,10 @@ abstract class StringHelper
      */
     public static function getAmount($amount, $currency, array $options = array())
     {
-        $useIntl   = ArrayHelper::getValue($options, 'intl', false, 'bool');
-        $locale    = ArrayHelper::getValue($options, 'locale');
-        $symbol    = ArrayHelper::getValue($options, 'symbol');
-        $position  = ArrayHelper::getValue($options, 'position', 0, 'int');
+        $useIntl   = JArrayHelper::getValue($options, 'intl', false, 'bool');
+        $locale    = JArrayHelper::getValue($options, 'locale');
+        $symbol    = JArrayHelper::getValue($options, 'symbol');
+        $position  = JArrayHelper::getValue($options, 'position', 0, 'int');
 
         // Use PHP Intl library.
         if ($useIntl and extension_loaded('intl')) { // Generate currency string using PHP NumberFormatter ( Internationalization Functions )

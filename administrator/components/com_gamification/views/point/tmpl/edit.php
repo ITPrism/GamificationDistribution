@@ -15,12 +15,12 @@ defined('_JEXEC') or die;
         <form action="<?php echo JRoute::_('index.php?option=com_gamification'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal">
 
             <fieldset class="adminform">
-                <?php echo $this->form->getControlGroup('title'); ?>
-                <?php echo $this->form->getControlGroup('group_id'); ?>
-                <?php echo $this->form->getControlGroup('abbr'); ?>
-                <?php echo $this->form->getControlGroup('published'); ?>
-                <?php echo $this->form->getControlGroup('note'); ?>
-                <?php echo $this->form->getControlGroup('id'); ?>
+                <?php echo $this->form->renderField('title'); ?>
+                <?php echo $this->form->renderField('group_id'); ?>
+                <?php echo $this->form->renderField('abbr'); ?>
+                <?php echo $this->form->renderField('published'); ?>
+                <?php echo $this->form->renderField('note'); ?>
+                <?php echo $this->form->renderField('id'); ?>
             </fieldset>
 
             <input type="hidden" name="task" value=""/>

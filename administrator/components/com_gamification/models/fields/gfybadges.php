@@ -20,7 +20,7 @@ JFormHelper::loadFieldClass('list');
  * @subpackage   Components
  * @since        1.6
  */
-class JFormFieldGfyRanks extends JFormFieldList
+class JFormFieldGfyBadges extends JFormFieldList
 {
     /**
      * The form field type.
@@ -28,7 +28,7 @@ class JFormFieldGfyRanks extends JFormFieldList
      * @var     string
      * @since   1.6
      */
-    protected $type = 'gfyranks';
+    protected $type = 'gfybadges';
 
     /**
      * Method to get the field options.
@@ -38,7 +38,7 @@ class JFormFieldGfyRanks extends JFormFieldList
      */
     protected function getOptions()
     {
-        $items = new Gamification\Rank\Ranks(JFactory::getDbo());
+        $items = new Gamification\Badge\Badges(JFactory::getDbo());
         $items->load();
 
         $options = $items->toOptions('id', 'title');

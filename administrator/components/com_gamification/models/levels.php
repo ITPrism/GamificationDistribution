@@ -156,11 +156,11 @@ class GamificationModelLevels extends JModelList
         $orderDirn = $this->getState('list.direction');
 
         if ($orderCol === 'a.value') {
-            $orderCol = 'd.points ' . $orderDirn . ', a.value';
+            $orderCol = 'a.group_id ASC, d.points ASC, a.value';
         }
 
         if ($orderCol === 'a.points') {
-            $orderCol = 'd.points ' . $orderDirn . ', a.points';
+            $orderCol = 'a.group_id ASC, d.points ASC, a.points';
         }
 
         return $orderCol . ' ' . $orderDirn;

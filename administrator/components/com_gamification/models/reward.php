@@ -59,6 +59,10 @@ class GamificationModelReward extends JModelAdmin
         $data = JFactory::getApplication()->getUserState($this->option . '.edit.reward.data', array());
         if (!$data) {
             $data = $this->getItem();
+            
+            if ((int)$data->points === 0) {
+                $data->points = '';
+            }
         }
 
         return $data;
@@ -75,13 +79,16 @@ class GamificationModelReward extends JModelAdmin
     {
         $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
         $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $points    = Joomla\Utilities\ArrayHelper::getValue($data, 'points', 0, 'int');
-        $pointsId  = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id', 0, 'int');
         $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id', 0, 'int');
         $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
-        $note      = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
-        $number    = Joomla\Utilities\ArrayHelper::getValue($data, 'number');
         $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
+
+        // Get advanced options.
+        $activityText = Joomla\Utilities\ArrayHelper::getValue($data, 'activity_text');
+        $number       = Joomla\Utilities\ArrayHelper::getValue($data, 'number');
+        $note         = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
+        $points       = Joomla\Utilities\ArrayHelper::getValue($data, 'points', 0, 'int');
+        $pointsId     = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id', 0, 'int');
 
         if (!is_numeric($number) and !$number) {
             $number = null;
@@ -93,6 +100,10 @@ class GamificationModelReward extends JModelAdmin
 
         if (!$description) {
             $description = null;
+        }
+
+        if (!$activityText) {
+            $activityText = null;
         }
 
         // Load a record from the database
@@ -108,6 +119,7 @@ class GamificationModelReward extends JModelAdmin
         $row->set('published', $published);
         $row->set('note', $note);
         $row->set('description', $description);
+        $row->set('activity_text', $activityText);
         $row->set('number', $number);
 
         $this->prepareImage($row, $data);
@@ -128,22 +140,34 @@ class GamificationModelReward extends JModelAdmin
     protected function prepareImage($table, $data)
     {
         if (!empty($data['image'])) {
-            // Delete old image if I upload the new one
+            // Delete old image if I upload new one.
             if ($table->get('image')) {
                 $params     = JComponentHelper::getParams($this->option);
                 /** @var  $params Joomla\Registry\Registry */
 
                 $filesystemHelper   = new Prism\Filesystem\Helper($params);
                 $mediaFolder        = $filesystemHelper->getMediaFolder();
-                
-                $file = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder .DIRECTORY_SEPARATOR. $table->get('image'));
 
-                if (is_file($file)) {
-                    JFile::delete($file);
+                $fileImage  = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR .$mediaFolder. DIRECTORY_SEPARATOR. $table->get('image'));
+                $fileSmall  = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR .$mediaFolder. DIRECTORY_SEPARATOR. $table->get('image_small'));
+                $fileSquare = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR .$mediaFolder. DIRECTORY_SEPARATOR. $table->get('image_square'));
+
+                if (is_file($fileImage)) {
+                    JFile::delete($fileImage);
+                }
+
+                if (is_file($fileSmall)) {
+                    JFile::delete($fileSmall);
+                }
+
+                if (is_file($fileSquare)) {
+                    JFile::delete($fileSquare);
                 }
 
             }
             $table->set('image', $data['image']);
+            $table->set('image_small', $data['image_small']);
+            $table->set('image_square', $data['image_square']);
         }
     }
 
@@ -160,25 +184,41 @@ class GamificationModelReward extends JModelAdmin
             $filesystemHelper   = new Prism\Filesystem\Helper($params);
             $mediaFolder        = $filesystemHelper->getMediaFolder();
 
-            $file = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder .DIRECTORY_SEPARATOR. $row->get('image'));
+            $fileImage  = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR .$mediaFolder. DIRECTORY_SEPARATOR . $row->get('image'));
+            $fileSmall  = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR .$mediaFolder. DIRECTORY_SEPARATOR . $row->get('image_small'));
+            $fileSquare = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR .$mediaFolder. DIRECTORY_SEPARATOR . $row->get('image_square'));
 
-            if (JFile::exists($file)) {
-                JFile::delete($file);
+            if (is_file($fileImage)) {
+                JFile::delete($fileImage);
+            }
+
+            if (is_file($fileSmall)) {
+                JFile::delete($fileSmall);
+            }
+
+            if (is_file($fileSquare)) {
+                JFile::delete($fileSquare);
             }
         }
 
-        $row->set('image', '');
-        $row->store();
+        $row->set('image', null);
+        $row->set('image_small', null);
+        $row->set('image_square', null);
+        $row->store(true);
     }
 
     /**
      * Store the file in a folder of the extension.
      *
      * @param array $image
+     * @param bool $resizeImage
      *
-     * @return string
+     * @throws \RuntimeException
+     * @throws \Exception
+     *
+     * @return array
      */
-    public function uploadImage($image)
+    public function uploadImage($image, $resizeImage = false)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
@@ -194,6 +234,7 @@ class GamificationModelReward extends JModelAdmin
         $mediaFolder        = $filesystemHelper->getMediaFolder();
 
         $destinationFolder  = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder);
+        $temporaryFolder    = $app->get('tmp_path');
 
         // Joomla! media extension parameters
         $mediaParams = JComponentHelper::getParams('com_media');
@@ -232,22 +273,74 @@ class GamificationModelReward extends JModelAdmin
         // Generate temporary file name
         $ext = strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
 
-        $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
+        $generatedName = Prism\Utilities\StringHelper::generateRandomString();
 
-        $imageName   = $generatedName . '_reward.' . $ext;
-        $destination = JPath::clean($destinationFolder . DIRECTORY_SEPARATOR . $imageName);
+        $temporaryFile = $generatedName.'_reward.'. $ext;
+        $temporaryDestination = JPath::clean($temporaryFolder .DIRECTORY_SEPARATOR. $temporaryFile);
 
         // Prepare uploader object.
         $uploader = new Prism\File\Uploader\Local($uploadedFile);
-        $uploader->setDestination($destination);
+        $uploader->setDestination($temporaryDestination);
 
         // Upload temporary file
         $file->setUploader($uploader);
-
         $file->upload();
 
-        $source = $file->getFile();
+        $temporaryFile = $file->getFile();
+        if (!is_file($temporaryFile)) {
+            throw new Exception('COM_GAMIFICATION_ERROR_FILE_CANT_BE_UPLOADED');
+        }
 
-        return basename($source);
+        // Resize image
+        $image = new JImage();
+        $image->loadFile($temporaryFile);
+        if (!$image->isLoaded()) {
+            throw new Exception(JText::sprintf('COM_GAMIFICATION_ERROR_FILE_NOT_FOUND', $temporaryDestination));
+        }
+
+        $imageName  = $generatedName . '_image.png';
+        $smallName  = $generatedName . '_small.png';
+        $squareName = $generatedName . '_square.png';
+
+        $imageFile  = $destinationFolder .DIRECTORY_SEPARATOR. $imageName;
+        $smallFile  = $destinationFolder .DIRECTORY_SEPARATOR. $smallName;
+        $squareFile = $destinationFolder .DIRECTORY_SEPARATOR. $squareName;
+
+        $scaleOption = $params->get('image_resizing_scale', JImage::SCALE_INSIDE);
+
+        // Create main image
+        if (!$resizeImage) {
+            $image->toFile($imageFile, IMAGETYPE_PNG);
+        } else {
+            $width  = $params->get('image_width', 200);
+            $height = $params->get('image_height', 200);
+            $image->resize($width, $height, false, $scaleOption);
+            $image->toFile($imageFile, IMAGETYPE_PNG);
+        }
+
+        // Create small image
+        $width  = $params->get('image_small_width', 100);
+        $height = $params->get('image_small_height', 100);
+        $image->resize($width, $height, false, $scaleOption);
+        $image->toFile($smallFile, IMAGETYPE_PNG);
+
+        // Create square image
+        $width  = $params->get('image_square_width', 50);
+        $height = $params->get('image_square_height', 50);
+        $image->resize($width, $height, false, $scaleOption);
+        $image->toFile($squareFile, IMAGETYPE_PNG);
+
+        $names = array(
+            'image'        => $imageName,
+            'image_small'  => $smallName,
+            'image_square' => $squareName
+        );
+
+        // Remove the temporary file.
+        if (JFile::exists($temporaryFile)) {
+            JFile::delete($temporaryFile);
+        }
+
+        return $names;
     }
 }

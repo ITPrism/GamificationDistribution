@@ -30,7 +30,7 @@ class GamificationViewRank extends JViewLegacy
     protected $documentTitle;
     protected $option;
 
-    protected $imagesFolder;
+    protected $mediaFolder;
 
     protected $listOrder;
     protected $listDirn;
@@ -48,7 +48,9 @@ class GamificationViewRank extends JViewLegacy
 
         // Load the component parameters.
         $params             = JComponentHelper::getParams($this->option);
-        $this->imagesFolder = $params->get('images_directory', 'images/gamification');
+        
+        $filesystemHelper   = new Prism\Filesystem\Helper($params);
+        $this->mediaFolder  = $filesystemHelper->getMediaFolder();
 
         // Prepare actions, behaviors, scripts and document.
         $this->addToolbar();

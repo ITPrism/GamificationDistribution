@@ -59,6 +59,12 @@ class GamificationModelAchievement extends JModelAdmin
         $data = JFactory::getApplication()->getUserState($this->option . '.edit.achievement.data', array());
         if (!$data) {
             $data = $this->getItem();
+
+            if (isset($data->rewards) and $data->rewards !== '') {
+                $rewards = new \Joomla\Registry\Registry($data->rewards);
+
+                $data->rewards = $rewards->toArray();
+            }
         }
 
         return $data;
@@ -83,16 +89,11 @@ class GamificationModelAchievement extends JModelAdmin
         $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
         $activityText = Joomla\Utilities\ArrayHelper::getValue($data, 'activity_text');
 
+        $customData = $this->prepareCustomData($data);
+        $rewards    = $this->prepareRewards($data);
+
         if (!$note) {$note = null;}
         if (!$description) {$description = null;}
-        if (!$params) {
-            $params = '{}';
-        } else {
-            $params_ = new Joomla\Registry\Registry;
-            $params_->loadArray($params);
-
-            $params = $params_->toString();
-        }
 
         // Load a record from the database
         $row = $this->getTable();
@@ -102,12 +103,13 @@ class GamificationModelAchievement extends JModelAdmin
 
         $row->set('title', $title);
         $row->set('context', $context);
+        $row->set('custom_data', $customData);
+        $row->set('rewards', $rewards);
         $row->set('group_id', $groupId);
         $row->set('published', $published);
         $row->set('note', $note);
         $row->set('description', $description);
         $row->set('activity_text', $activityText);
-        $row->set('params', $params);
 
         $this->prepareImage($row, $data);
 
@@ -117,7 +119,7 @@ class GamificationModelAchievement extends JModelAdmin
     }
 
     /**
-     * Prepare and sanitise the table prior to saving.
+     * Prepare images to saving.
      *
      * @param GamificationTableAchievement $table
      * @param array                  $data
@@ -158,6 +160,91 @@ class GamificationModelAchievement extends JModelAdmin
         }
     }
 
+    /**
+     * Prepare custom data.
+     *
+     * @param array $data
+     *
+     * @return string
+     */
+    protected function prepareCustomData($data)
+    {
+        $customData = Joomla\Utilities\ArrayHelper::getValue($data, 'custom_data', [], 'array');
+        
+        $results = array();
+        $filter  = JFilterInput::getInstance();
+        
+        foreach ($customData as $values) {
+            $key   = trim($filter->clean($values['key'], 'cmd'));
+            $value = trim($filter->clean($values['value'], 'string'));
+
+            if (!$key) {
+                continue;
+            }
+            
+            $results[$key] = $value;
+        }
+        
+        $customData = new Joomla\Registry\Registry($results);
+
+        return $customData->toString();
+    }
+
+    /**
+     * Prepare rewards that will be given for accomplishing this unit.
+     *
+     * @param array  $data
+     *
+     * @return string
+     */
+    protected function prepareRewards($data)
+    {
+        $rewards = Joomla\Utilities\ArrayHelper::getValue($data, 'rewards', [], 'array');
+
+        $rewards['points'] = trim($rewards['points']);
+        $rewards['points_id'] = (int)$rewards['points_id'];
+
+        // Prepare badge IDs.
+        $results = array();
+        foreach ($rewards['badge_id'] as $itemId) {
+            $itemId   = (int)$itemId;
+            if (!$itemId) {
+                continue;
+            }
+
+            $results[] = $itemId;
+        }
+        $rewards['badge_id'] = $results;
+
+        // Prepare rank IDs.
+        $results = array();
+        foreach ($rewards['rank_id'] as $itemId) {
+            $itemId   = (int)$itemId;
+            if (!$itemId) {
+                continue;
+            }
+
+            $results[] = $itemId;
+        }
+        $rewards['rank_id'] = $results;
+
+        // Prepare badge IDs.
+        $results = array();
+        foreach ($rewards['reward_id'] as $itemId) {
+            $itemId   = (int)$itemId;
+            if (!$itemId) {
+                continue;
+            }
+
+            $results[] = $itemId;
+        }
+        $rewards['reward_id'] = $results;
+
+        $rewards = new Joomla\Registry\Registry($rewards);
+
+        return $rewards->toString();
+    }
+
     public function removeImage($id)
     {
         // Load a record from the database
@@ -188,10 +275,10 @@ class GamificationModelAchievement extends JModelAdmin
             }
         }
 
-        $row->set('image', '');
-        $row->set('image_small', '');
-        $row->set('image_square', '');
-        $row->store();
+        $row->set('image');
+        $row->set('image_small');
+        $row->set('image_square');
+        $row->store(true);
     }
 
     /**
@@ -202,7 +289,7 @@ class GamificationModelAchievement extends JModelAdmin
      * @throws \RuntimeException
      * @throws \Exception
      *
-     * @return string
+     * @return array
      */
     public function uploadImage($image)
     {

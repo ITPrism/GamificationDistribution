@@ -23,6 +23,8 @@ class GamificationController extends JControllerLegacy
         $viewName = $this->input->getCmd('view', 'dashboard');
         $this->input->set('view', $viewName);
 
+        JHtml::stylesheet('com_gamification/backend.style.css', false, true, false);
+
         parent::display();
 
         return $this;
