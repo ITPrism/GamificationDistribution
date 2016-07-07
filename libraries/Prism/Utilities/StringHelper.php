@@ -127,7 +127,7 @@ abstract class StringHelper
     public static function clean($content)
     {
         $content = strip_tags($content);
-        $content = \JString::trim(preg_replace('/\r|\n/', ' ', $content));
+        $content = trim(preg_replace('/\r|\n/', ' ', $content));
 
         return $content;
     }
@@ -151,8 +151,8 @@ abstract class StringHelper
      */
     public static function substr($content, $offset, $length)
     {
-        $pos     = \JString::strpos($content, ' ', $length);
-        $content = \JString::substr($content, $offset, $pos);
+        $pos     = strpos($content, ' ', $length);
+        $content = substr($content, $offset, $pos);
 
         return $content;
     }
@@ -216,5 +216,25 @@ abstract class StringHelper
         } else {
             return \JFilterOutput::stringURLSafe($string);
         }
+    }
+
+    /**
+     * Generate MD5 hash based on name and value.
+     *
+     * <code>
+     * $id = 1;
+     * $name = 'John Dow';
+     *
+     * $alias = Prism\Utilities\StringHelper::generateMd5Hash($name, $id);
+     * </code>
+     *
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function generateMd5Hash($name, $value)
+    {
+        return md5($name.':'.$value);
     }
 }

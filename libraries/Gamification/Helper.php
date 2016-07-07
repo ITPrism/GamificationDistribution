@@ -11,6 +11,8 @@ namespace Gamification;
 
 use Prism\Integration\Activity;
 use Prism\Integration\Notification;
+use Joomla\Utilities\ArrayHelper;
+use Joomla\Registry\Registry;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -22,23 +24,19 @@ defined('JPATH_PLATFORM') or die;
  */
 abstract class Helper
 {
-    public static function storeActivity($notice, $options)
+    public static function storeActivity($notice, Registry $options)
     {
-        $builder = new Activity\Builder($options);
-        $builder->build();
-
-        $activity = $builder->getActivity();
+        $builder  = new Activity\Factory($options);
+        $activity = $builder->create();
 
         $activity->setContent($notice);
         $activity->store();
     }
 
-    public static function sendNotification($message, $options)
+    public static function sendNotification($message, Registry $options)
     {
-        $builder = new Notification\Builder($options);
-        $builder->build();
-
-        $notifier = $builder->getNotification();
+        $builder  = new Notification\Factory($options);
+        $notifier = $builder->create();
 
         $notifier->setContent($message);
         $notifier->send();
@@ -80,5 +78,92 @@ abstract class Helper
         }
 
         return $results;
+    }
+
+    /**
+     * Prepare custom data.
+     *
+     * @param array $data
+     *
+     * @throws \InvalidArgumentException
+     * @return string
+     */
+    public static function prepareCustomData($data)
+    {
+        $customData = ArrayHelper::getValue($data, 'custom_data', [], 'array');
+
+        $results = array();
+        $filter  = \JFilterInput::getInstance();
+
+        foreach ($customData as $values) {
+            $key   = trim($filter->clean($values['key'], 'cmd'));
+            $value = trim($filter->clean($values['value'], 'string'));
+
+            if (!$key) {
+                continue;
+            }
+
+            $results[$key] = $value;
+        }
+
+        $customData = new Registry($results);
+
+        return $customData->toString();
+    }
+
+    /**
+     * Prepare rewards that will be given for accomplishing this unit.
+     *
+     * @param array  $data
+     *
+     * @throws \InvalidArgumentException
+     * @return string
+     */
+    public static function prepareRewards($data)
+    {
+        $rewards = ArrayHelper::getValue($data, 'rewards', [], 'array');
+
+        $rewards['points'] = trim($rewards['points']);
+        $rewards['points_id'] = (int)$rewards['points_id'];
+
+        // Prepare badge IDs.
+        $results = array();
+        foreach ($rewards['badge_id'] as $itemId) {
+            $itemId   = (int)$itemId;
+            if (!$itemId) {
+                continue;
+            }
+
+            $results[] = $itemId;
+        }
+        $rewards['badge_id'] = $results;
+
+        // Prepare rank IDs.
+        $results = array();
+        foreach ($rewards['rank_id'] as $itemId) {
+            $itemId   = (int)$itemId;
+            if (!$itemId) {
+                continue;
+            }
+
+            $results[] = $itemId;
+        }
+        $rewards['rank_id'] = $results;
+
+        // Prepare badge IDs.
+        $results = array();
+        foreach ($rewards['reward_id'] as $itemId) {
+            $itemId   = (int)$itemId;
+            if (!$itemId) {
+                continue;
+            }
+
+            $results[] = $itemId;
+        }
+        $rewards['reward_id'] = $results;
+
+        $rewards = new Registry($rewards);
+
+        return $rewards->toString();
     }
 }

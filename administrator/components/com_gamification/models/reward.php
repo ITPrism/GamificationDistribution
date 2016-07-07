@@ -7,8 +7,14 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
+
+// Register Observers
+JLoader::register('GamificationObserverReward', GAMIFICATION_PATH_COMPONENT_ADMINISTRATOR .'/tables/observers/reward.php');
+JObserverMapper::addObserverClassToClass('GamificationObserverReward', 'GamificationTableReward', array('typeAlias' => 'com_gamification.reward'));
 
 class GamificationModelReward extends JModelAdmin
 {
@@ -60,8 +66,8 @@ class GamificationModelReward extends JModelAdmin
         if (!$data) {
             $data = $this->getItem();
             
-            if ((int)$data->points === 0) {
-                $data->points = '';
+            if ((int)$data->points_number === 0) {
+                $data->points_number = '';
             }
         }
 
@@ -72,23 +78,26 @@ class GamificationModelReward extends JModelAdmin
      * Save data into the DB
      *
      * @param array $data The data about item
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     * @throws \RuntimeException
      *
      * @return  int
      */
     public function save($data)
     {
-        $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id', 0, 'int');
-        $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
-        $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
+        $id        = ArrayHelper::getValue($data, 'id');
+        $title     = ArrayHelper::getValue($data, 'title');
+        $groupId   = ArrayHelper::getValue($data, 'group_id', 0, 'int');
+        $published = ArrayHelper::getValue($data, 'published', 0, 'int');
+        $description = ArrayHelper::getValue($data, 'description');
 
         // Get advanced options.
-        $activityText = Joomla\Utilities\ArrayHelper::getValue($data, 'activity_text');
-        $number       = Joomla\Utilities\ArrayHelper::getValue($data, 'number');
-        $note         = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
-        $points       = Joomla\Utilities\ArrayHelper::getValue($data, 'points', 0, 'int');
-        $pointsId     = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id', 0, 'int');
+        $activityText = ArrayHelper::getValue($data, 'activity_text');
+        $number       = ArrayHelper::getValue($data, 'number');
+        $note         = ArrayHelper::getValue($data, 'note');
+        $points       = ArrayHelper::getValue($data, 'points_number', 0, 'int');
+        $pointsId     = ArrayHelper::getValue($data, 'points_id', 0, 'int');
 
         if (!is_numeric($number) and !$number) {
             $number = null;
@@ -113,7 +122,7 @@ class GamificationModelReward extends JModelAdmin
         $row->load($id);
 
         $row->set('title', $title);
-        $row->set('points', $points);
+        $row->set('points_number', $points);
         $row->set('points_id', $pointsId);
         $row->set('group_id', $groupId);
         $row->set('published', $published);
@@ -134,6 +143,8 @@ class GamificationModelReward extends JModelAdmin
      *
      * @param GamificationTableReward $table
      * @param array                  $data
+     *
+     * @throws \UnexpectedValueException
      *
      * @since    1.6
      */
@@ -215,6 +226,7 @@ class GamificationModelReward extends JModelAdmin
      *
      * @throws \RuntimeException
      * @throws \Exception
+     * @throws \InvalidArgumentException
      *
      * @return array
      */
@@ -223,9 +235,9 @@ class GamificationModelReward extends JModelAdmin
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($image, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($image, 'error');
+        $uploadedFile = ArrayHelper::getValue($image, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($image, 'name');
+        $errorCode    = ArrayHelper::getValue($image, 'error');
 
         $params     = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */

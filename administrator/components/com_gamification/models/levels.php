@@ -26,7 +26,7 @@ class GamificationModelLevels extends JModelList
             $config['filter_fields'] = array(
                 'id', 'a.id',
                 'title', 'a.title',
-                'points', 'a.points',
+                'points_number', 'a.points_number',
                 'value', 'a.value',
                 'group_name', 'b.name',
                 'rank_name', 'd.title',
@@ -56,7 +56,7 @@ class GamificationModelLevels extends JModelList
         $this->setState('filter.state', $value);
 
         // List state information.
-        parent::populateState('a.points', 'asc');
+        parent::populateState('a.points_number', 'asc');
     }
 
     /**
@@ -100,7 +100,7 @@ class GamificationModelLevels extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.points, a.value, a.group_id, a.rank_id, a.published, ' .
+                'a.id, a.title, a.points_number, a.value, a.group_id, a.rank_id, a.published, ' .
                 'b.name AS group_name, ' .
                 'c.abbr AS points_type, c.title AS points_name, ' .
                 'd.title AS rank_title'
@@ -155,14 +155,6 @@ class GamificationModelLevels extends JModelList
         $orderCol  = $this->getState('list.ordering');
         $orderDirn = $this->getState('list.direction');
 
-        if ($orderCol === 'a.value') {
-            $orderCol = 'a.group_id ASC, d.points ASC, a.value';
-        }
-
-        if ($orderCol === 'a.points') {
-            $orderCol = 'a.group_id ASC, d.points ASC, a.points';
-        }
-
-        return $orderCol . ' ' . $orderDirn;
+        return 'a.group_id ASC, d.points_number ASC, ' . $orderCol . ' ' . $orderDirn;
     }
 }

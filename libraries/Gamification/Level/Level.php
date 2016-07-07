@@ -9,20 +9,26 @@
 
 namespace Gamification\Level;
 
-use Prism\Database\Table;
 use Gamification\Mechanic;
 use Gamification\Rank\Rank;
+use Gamification\Points\Points;
+use Joomla\DI\ContainerAwareInterface;
+use Joomla\DI\ContainerAwareTrait;
+use Prism\Utilities\StringHelper;
+use Prism\Database\Table;
 
 defined('JPATH_PLATFORM') or die;
 
 /**
- * This class contains methods that are used for managing a level.
+ * This class contains methods used for managing a level.
  *
  * @package         Gamification
  * @subpackage      Levels
  */
-class Level extends Table implements Mechanic\PointsInterface
+class Level extends Table implements ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
     /**
      * Badge ID.
      *
@@ -31,69 +37,46 @@ class Level extends Table implements Mechanic\PointsInterface
     protected $id;
 
     protected $title;
-    protected $points;
+    protected $points_number;
     protected $value;
     protected $published;
     protected $points_id;
     protected $rank_id;
     protected $group_id;
 
+    /**
+     * @var Rank
+     */
     protected $rank;
 
-    protected static $instances = array();
+    /**
+     * @var Points
+     */
+    protected $points;
 
     /**
-     * Create an instance of the object and load data.
+     * Get level ID.
      *
      * <code>
-     * $levelId = 1;
-     * $level   = Gamification\Level\Level::getInstance(\JFactory::getDbo(), $levelId);
+     * $levelId    = 1;
+     *
+     * $level      = new Gamification\Level\Level(\JFactory::getDbo());
+     * $level->load($levelId);
+     *
+     * if (!$level->getId()) {
+     * // ...
+     * }
      * </code>
      *
-     * @param \JDatabaseDriver $db
-     * @param int $id
-     *
-     * @return null|Level
+     * @return int
      */
-    public static function getInstance(\JDatabaseDriver $db, $id)
+    public function getId()
     {
-        if (!array_key_exists($id, self::$instances)) {
-            $item   = new Level($db);
-            $item->load($id);
-            
-            self::$instances[$id] = $item;
-        }
-
-        return self::$instances[$id];
+        return (int)$this->id;
     }
-
+    
     /**
-     * Get the rank where the level is positioned.
-     *
-     * <code>
-     * $levelId = 1;
-     * $level   = new Gamification\Level\Level(\JFactory::getDbo());
-     *
-     * $rank    = $level->getRank();
-     * </code>
-     *
-     * @return null|Rank
-     */
-    public function getRank()
-    {
-        if (!$this->rank_id) {
-            return null;
-        }
-
-        if (!$this->rank) {
-            $this->rank = Rank::getInstance($this->db, $this->rank_id);
-        }
-
-        return $this->rank;
-    }
-
-    /**
-     * Get points.
+     * Get title.
      *
      * <code>
      * $levelId    = 1;
@@ -104,7 +87,7 @@ class Level extends Table implements Mechanic\PointsInterface
      * $points     = $level->getTitle();
      * </code>
      *
-     * @return number
+     * @return string
      */
     public function getTitle()
     {
@@ -112,7 +95,7 @@ class Level extends Table implements Mechanic\PointsInterface
     }
 
     /**
-     * Get points.
+     * Get points number need to be collected to accomplish this level.
      *
      * <code>
      * $levelId    = 1;
@@ -120,14 +103,14 @@ class Level extends Table implements Mechanic\PointsInterface
      * $level      = new Gamification\Level\Level(\JFactory::getDbo());
      * $level->load($levelId);
      *
-     * $points     = $level->getPoints();
+     * echo $level->getPointsNumber();
      * </code>
      *
-     * @return number
+     * @return int
      */
-    public function getPoints()
+    public function getPointsNumber()
     {
-        return $this->points;
+        return $this->points_number;
     }
 
     /**
@@ -150,6 +133,82 @@ class Level extends Table implements Mechanic\PointsInterface
     }
 
     /**
+     * Get rank ID used for the level.
+     *
+     * <code>
+     * $levelId = 1;
+     *
+     * $level   = new Gamification\Level\Level(\JFactory::getDbo());
+     * $level->load($levelId);
+     *
+     * $rankId    = $level->getRankId();
+     * </code>
+     *
+     * @return int
+     */
+    public function getRankId()
+    {
+        return (int)$this->rank_id;
+    }
+
+    /**
+     * Get group ID of the level.
+     *
+     * <code>
+     * $levelId = 1;
+     *
+     * $level   = new Gamification\Level\Level(\JFactory::getDbo());
+     * $level->load($levelId);
+     *
+     * $groupId = $level->getGroupId();
+     * </code>
+     *
+     * @return int
+     */
+    public function getGroupId()
+    {
+        return (int)$this->group_id;
+    }
+
+    /**
+     * Get the value of the level.
+     *
+     * <code>
+     * $levelId = 1;
+     *
+     * $level   = new Gamification\Level\Level(\JFactory::getDbo());
+     * $level->load($levelId);
+     *
+     * $value   = $level->getValue();
+     * </code>
+     *
+     * @return int
+     */
+    public function getValue()
+    {
+        return (int)$this->value;
+    }
+
+    /**
+     * Check for published level.
+     *
+     * <code>
+     * $levelId     = 1;
+     * $level       = new Gamification\Level\Level(\JFactory::getDbo());
+     *
+     * if(!$level->isPublished()) {
+     * ...
+     * }
+     * </code>
+     *
+     * @return bool
+     */
+    public function isPublished()
+    {
+        return (!$this->published) ? false : true;
+    }
+    
+    /**
      * Load level data using the table object.
      *
      * <code>
@@ -164,6 +223,8 @@ class Level extends Table implements Mechanic\PointsInterface
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -171,7 +232,7 @@ class Level extends Table implements Mechanic\PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.title, a.points, a.value, a.published, a.points_id, a.rank_id, a.group_id')
+            ->select('a.id, a.title, a.points_number, a.value, a.published, a.points_id, a.rank_id, a.group_id')
             ->from($this->db->quoteName('#__gfy_levels', 'a'));
 
         // Prepare keys.
@@ -189,13 +250,175 @@ class Level extends Table implements Mechanic\PointsInterface
         $this->bind($result);
     }
 
+    protected function preparePointsObject($pointsId)
+    {
+        if ($pointsId > 0) {
+            $key = StringHelper::generateMd5Hash(Points::class, $pointsId);
+
+            if ($this->container !== null) {
+                if ($this->container->exists($key)) {
+                    $this->points = $this->container->get($key);
+                } else {
+                    $this->points = new Points($this->db);
+                    $this->points->load($pointsId);
+
+                    $this->container->set($key, $this->points);
+                }
+            } else {
+                $this->points = new Points($this->db);
+                $this->points->load($pointsId);
+            }
+        }
+    }
+    
+    protected function prepareRankObject($rankId)
+    {
+        if ($rankId > 0) {
+            $key = StringHelper::generateMd5Hash(Rank::class, $rankId);
+
+            if ($this->container !== null) {
+                if ($this->container->exists($key)) {
+                    $this->rank = $this->container->get($key);
+                } else {
+                    $this->rank = new Rank($this->db);
+                    $this->rank->setContainer($this->container);
+                    $this->rank->load($rankId);
+
+                    $this->container->set($key, $this->rank);
+                }
+            } else {
+                $this->rank = new Rank($this->db);
+                $this->rank->load($rankId);
+            }
+        }
+    }
+
+    /**
+     * Get the rank where the level is positioned.
+     *
+     * <code>
+     * $levelId = 1;
+     * $level   = new Gamification\Level\Level(\JFactory::getDbo());
+     *
+     * $rank    = $level->getRank();
+     * </code>
+     *
+     * @return null|Rank
+     */
+    public function getRank()
+    {
+        // Create a basic points object.
+        if ($this->rank === null and $this->rank_id > 0) {
+            $this->prepareRankObject($this->rank_id);
+        }
+
+        return $this->rank;
+    }
+
+    /**
+     * Set Rank object.
+     *
+     * <code>
+     * $rankId   = 1;
+     * $rank     = new Gamification\Rank\Rank(\JFactory::getDbo());
+     * $rank->load($rankId);
+     *
+     * $level      = new Gamification\Level\Level(\JFactory::getDbo());
+     * $level->setRank($rank);
+     * </code>
+     *
+     * @param Rank $rank
+     * @throws \UnexpectedValueException
+     * @throws \OutOfBoundsException
+     *
+     * @return self
+     */
+    public function setRank(Rank $rank)
+    {
+        $this->rank = $rank;
+
+        if ($this->rank_id > 0 and $this->rank_id !== $rank->getId()) {
+            throw new \UnexpectedValueException('The points ID already exists and it does not much with new Rank object.');
+        }
+
+        $this->rank_id = $rank->getId();
+
+        // Add the points object in the container.
+        $key = StringHelper::generateMd5Hash(Points::class, $this->rank_id);
+        if ($this->container !== null and !$this->container->exists($key)) {
+            $this->container->set($key, $this->rank);
+        }
+
+        return $this;
+    }
+    
+    /**
+     * Get points object.
+     *
+     * <code>
+     * $levelId    = 1;
+     * $level      = new Gamification\Level\Level(\JFactory::getDbo());
+     * $level->load($levelId);
+     *
+     * $points     = $level->getPoints();
+     * </code>
+     *
+     * @return Points
+     */
+    public function getPoints()
+    {
+        // Create a basic points object.
+        if ($this->points === null and $this->points_id > 0) {
+            $this->preparePointsObject($this->points_id);
+        }
+
+        return $this->points;
+    }
+
+    /**
+     * Set Points object.
+     *
+     * <code>
+     * $pointsId   = 1;
+     * $points     = new Gamification\Points\Points(\JFactory::getDbo());
+     * $points->load($pointsId);
+     *
+     * $level      = new Gamification\Level\Level(\JFactory::getDbo());
+     * $level->setPoints($points);
+     * </code>
+     *
+     * @param Points $points
+     * @throws \UnexpectedValueException
+     * @throws \OutOfBoundsException
+     *
+     * @return self
+     */
+    public function setPoints(Points $points)
+    {
+        $this->points = $points;
+
+        if ($this->points_id > 0 and $this->points_id !== $points->getId()) {
+            throw new \UnexpectedValueException('The points ID already exists and it does not much with new Points object.');
+        }
+
+        $this->points_id = $points->getId();
+
+        // Add the points object in the container.
+        $key = StringHelper::generateMd5Hash(Points::class, $this->points_id);
+        if ($this->container !== null and !$this->container->exists($key)) {
+            $this->container->set($key, $this->points);
+        }
+
+        return $this;
+    }
+
     /**
      * Save the data to the database.
      *
      * <code>
      * $data = array(
      *        'title'    => '......',
-     *        'points'    => 100,
+     *        'points_number'    => 100,
      *        'value'    => 1,
      *        'published' => 1,
      *        'points_id' => 2,
@@ -226,7 +449,7 @@ class Level extends Table implements Mechanic\PointsInterface
         $query
             ->update($this->db->quoteName('#__gfy_levels'))
             ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
-            ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
+            ->set($this->db->quoteName('points_number') . '  = ' . $this->db->quote($this->points_number))
             ->set($this->db->quoteName('value') . '  = ' . $this->db->quote($this->value))
             ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
             ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
@@ -246,7 +469,7 @@ class Level extends Table implements Mechanic\PointsInterface
         $query
             ->insert($this->db->quoteName('#__gfy_levels'))
             ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
-            ->set($this->db->quoteName('points') . '  = ' . $this->db->quote($this->points))
+            ->set($this->db->quoteName('points_number') . '  = ' . $this->db->quote($this->points_number))
             ->set($this->db->quoteName('value') . '  = ' . $this->db->quote($this->value))
             ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
             ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)

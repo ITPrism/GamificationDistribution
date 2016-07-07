@@ -60,6 +60,8 @@ class Owner implements ValidatorInterface
      * }
      * </code>
      *
+     * @throws \RuntimeException
+     *
      * @return bool
      */
     public function isValid()

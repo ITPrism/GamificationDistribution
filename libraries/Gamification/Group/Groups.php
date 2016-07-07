@@ -32,6 +32,8 @@ class Groups extends Collection
      * </code>
      *
      * @param array $options  Options that will be used for filtering results.
+     *
+     * @throws \RuntimeException
      */
     public function load(array $options = array())
     {

@@ -17,7 +17,8 @@ jQuery(document).ready(function($) {
 		var fieldValue = $('<input>', {
 			type: "text",
 			name: "jform[custom_data]["+index+"][value]",
-			placeholder: Joomla.JText._('COM_GAMIFICATION_VALUE').toLowerCase()
+			placeholder: Joomla.JText._('COM_GAMIFICATION_VALUE').toLowerCase(),
+			class: 'input-xxlarge'
 		});
 
 		var btnRemove = $('<button class="btn btn-danger btn-mini js-gfy-cdremovebtn" type="button"><i class="icon icon-remove"></i></button>');

@@ -39,6 +39,8 @@ class Levels extends Collection
      * </code>
      *
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load(array $options = array())
     {

@@ -32,6 +32,7 @@ class GamificationViewBadges extends JViewLegacy
     protected $listOrder;
     protected $listDirn;
     protected $saveOrder;
+    protected $saveOrderingUrl;
 
     protected $sidebar;
 
@@ -66,6 +67,11 @@ class GamificationViewBadges extends JViewLegacy
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
         $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
+        if ($this->saveOrder) {
+            $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
+            JHtml::_('sortablelist.sortable', $this->getName() . 'List', 'adminForm', strtolower($this->listDirn), $this->saveOrderingUrl);
+        }
+        
         $this->filterForm    = $this->get('FilterForm');
         $this->activeFilters = $this->get('ActiveFilters');
     }

@@ -33,12 +33,14 @@ class JFormFieldGfyPoints extends JFormFieldList
     /**
      * Method to get the field options.
      *
+     * @throws  \RuntimeException
+     * @throws  \InvalidArgumentException
+     *
      * @return  array   The field option objects.
-     * @since   1.6
      */
     protected function getOptions()
     {
-        $pointsItems = new Gamification\Points\PointsItems(JFactory::getDbo());
+        $pointsItems = new Gamification\Points\PointsCollection(JFactory::getDbo());
         $pointsItems->load();
 
         $options = $pointsItems->toOptions('id', 'title', 'abbr');

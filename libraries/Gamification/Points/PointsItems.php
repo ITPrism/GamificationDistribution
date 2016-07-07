@@ -18,6 +18,8 @@ defined('JPATH_PLATFORM') or die;
  *
  * @package         Gamification
  * @subpackage      Points
+ *
+ * @deprecated since v2.3
  */
 class PointsItems extends Collection
 {

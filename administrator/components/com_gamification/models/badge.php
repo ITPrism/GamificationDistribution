@@ -7,8 +7,15 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+use Joomla\Registry\Registry;
+
 // no direct access
 defined('_JEXEC') or die;
+
+// Register Observers
+JLoader::register('GamificationObserverBadge', GAMIFICATION_PATH_COMPONENT_ADMINISTRATOR .'/tables/observers/badge.php');
+JObserverMapper::addObserverClassToClass('GamificationObserverBadge', 'GamificationTableBadge', array('typeAlias' => 'com_gamification.badge'));
 
 class GamificationModelBadge extends JModelAdmin
 {
@@ -19,7 +26,7 @@ class GamificationModelBadge extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  JTable  A database object
+     * @return  GamificationTableBadge  A database object
      * @since   1.6
      */
     public function getTable($type = 'Badge', $prefix = 'GamificationTable', $config = array())
@@ -56,12 +63,18 @@ class GamificationModelBadge extends JModelAdmin
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
-        $data = JFactory::getApplication()->getUserState($this->option . '.edit.badge.data', array());
+        $app  = JFactory::getApplication();
+        $data = $app->getUserState($this->option . '.edit.badge.data', array());
         if (!$data) {
             $data = $this->getItem();
 
-            if ((int)$data->points === 0) {
-                $data->points = '';
+            // Set previous used group.
+            if (!$data->id) {
+                $data->group_id = $app->getUserState($this->option . '.badge.group_id', 0);
+            }
+
+            if ((int)$data->points_number === 0) {
+                $data->points_number = '';
             }
         }
 
@@ -73,32 +86,29 @@ class GamificationModelBadge extends JModelAdmin
      *
      * @param array $data The data about item
      *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     *
      * @return  int
      */
     public function save($data)
     {
-        $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $points    = Joomla\Utilities\ArrayHelper::getValue($data, 'points');
-        $pointsId  = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id');
-        $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id');
-        $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published');
-        $note      = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
-        $description      = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
-        $activityText     = Joomla\Utilities\ArrayHelper::getValue($data, 'activity_text');
+        $id        = ArrayHelper::getValue($data, 'id');
+        $title     = ArrayHelper::getValue($data, 'title');
+        $points    = ArrayHelper::getValue($data, 'points_number');
+        $pointsId  = ArrayHelper::getValue($data, 'points_id');
+        $groupId   = ArrayHelper::getValue($data, 'group_id');
+        $published = ArrayHelper::getValue($data, 'published');
+        $note      = ArrayHelper::getValue($data, 'note');
+        $params    = ArrayHelper::getValue($data, 'params', [], 'array');
 
-        if (!$note) {
-            $note = null;
-        }
+        $description  = ArrayHelper::getValue($data, 'description');
+        $activityText = ArrayHelper::getValue($data, 'activity_text');
 
-        if (!$description) {
-            $description = null;
-        }
-
-        if (!$activityText) {
-            $activityText = null;
-        }
-
+        $customData = Gamification\Helper::prepareCustomData($data);
+        $params     = new Registry($params);
+        
         // Load a record from the database
         $row = $this->getTable();
         /** @var $row GamificationTableBadge */
@@ -106,14 +116,17 @@ class GamificationModelBadge extends JModelAdmin
         $row->load($id);
 
         $row->set('title', $title);
-        $row->set('points', $points);
+        $row->set('points_number', $points);
         $row->set('points_id', $pointsId);
         $row->set('group_id', $groupId);
         $row->set('published', $published);
         $row->set('note', $note);
         $row->set('description', $description);
         $row->set('activity_text', $activityText);
+        $row->set('custom_data', $customData);
+        $row->set('params', $params->toString());
 
+        $this->prepareTable($row);
         $this->prepareImage($row, $data);
 
         $row->store(true);
@@ -125,7 +138,47 @@ class GamificationModelBadge extends JModelAdmin
      * Prepare and sanitise the table prior to saving.
      *
      * @param GamificationTableBadge $table
+     *
+     * @throws \RuntimeException
+     */
+    protected function prepareTable($table)
+    {
+        if (!$table->get('note')) {
+            $table->set('note', null);
+        }
+
+        if (!$table->get('description')) {
+            $table->set('note', null);
+        }
+
+        if (!$table->get('activity_text')) {
+            $table->set('note', null);
+        }
+
+        // get maximum order number
+        if (!$table->get('id') and !$table->get('ordering')) {
+            // Set ordering to the last item if not set
+            $db    = JFactory::getDbo();
+            $query = $db->getQuery(true);
+            $query
+                ->select('MAX(a.ordering)')
+                ->from($db->quoteName('#__gfy_badges', 'a'))
+                ->where('a.group_id = ' . (int)$table->get('group_id'));
+
+            $db->setQuery($query, 0, 1);
+            $max = (int)$db->loadResult();
+
+            $table->set('ordering', $max + 1);
+        }
+    }
+
+    /**
+     * Prepare and sanitise the table prior to saving.
+     *
+     * @param GamificationTableBadge $table
      * @param array                  $data
+     *
+     * @throws \UnexpectedValueException
      *
      * @since    1.6
      */
@@ -145,7 +198,6 @@ class GamificationModelBadge extends JModelAdmin
                 if (JFile::exists($file)) {
                     JFile::delete($file);
                 }
-
             }
             $table->set('image', $data['image']);
         }
@@ -180,6 +232,11 @@ class GamificationModelBadge extends JModelAdmin
      *
      * @param array $image
      *
+     * @throws \InvalidArgumentException
+     * @throws \Exception
+     * @throws \UnexpectedValueException
+     * @throws \RuntimeException
+     *
      * @return string
      */
     public function uploadImage($image)
@@ -187,9 +244,9 @@ class GamificationModelBadge extends JModelAdmin
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($image, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($image, 'error');
+        $uploadedFile = ArrayHelper::getValue($image, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($image, 'name');
+        $errorCode    = ArrayHelper::getValue($image, 'error');
 
         $params     = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
@@ -253,5 +310,21 @@ class GamificationModelBadge extends JModelAdmin
         $source = $file->getFile();
 
         return basename($source);
+    }
+
+    /**
+     * A protected method to get a set of ordering conditions.
+     *
+     * @param    GamificationTableBadge $table
+     *
+     * @return    array    An array of conditions to add to add to ordering queries.
+     * @since    1.6
+     */
+    protected function getReorderConditions($table)
+    {
+        $condition   = array();
+        $condition[] = 'group_id = ' . (int)$table->get('group_id');
+
+        return $condition;
     }
 }

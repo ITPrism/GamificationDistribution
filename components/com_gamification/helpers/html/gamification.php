@@ -7,6 +7,9 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Gamification\User\Rank\Rank as UserRank;
+use Gamification\User\Badge\Badge as UserBadge;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -24,7 +27,13 @@ abstract class JHtmlGamification
         if (!$value) {
             $html = '--';
         } else {
-            $html = '<span class="hasTooltip" title="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">' . $value . ' [ ' . $abbr . ' ]' . '</span>';
+            if ($abbr) {
+                $abbr = ' [ '.$abbr.' ]';
+            } else {
+                $abbr = ' ( '.$name.' )';
+            }
+
+            $html = '<span class="hasTooltip" title="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">' . $value . $abbr . '</span>';
         }
 
         return $html;
@@ -40,18 +49,18 @@ abstract class JHtmlGamification
         return $html;
     }
 
-    public static function rank(Gamification\User\Rank $rank, $mediaPath, $tip = false, $placeholders = array())
+    public static function rank(UserRank $rank, $mediaPath, $tip = false, $placeholders = array())
     {
         $title   = '';
         $class   = '';
         $classes = array();
 
-        if ($tip and $rank->getDescription()) {
+        if ($tip and $rank->getRank()->getActivityText()) {
             JHtml::_('bootstrap.tooltip');
 
             $classes[] = 'hasTooltip';
 
-            $description  = strip_tags(trim($rank->getDescription($placeholders)));
+            $description  = strip_tags(trim($rank->getRank()->getActivityText($placeholders)));
             $title = ' title="' . htmlspecialchars($description, ENT_QUOTES, 'UTF-8') . '"';
         }
 
@@ -61,26 +70,26 @@ abstract class JHtmlGamification
         }
 
         // Prepare alt property
-        $alt = strip_tags(trim($rank->getTitle()));
+        $alt = strip_tags(trim($rank->getRank()->getTitle()));
         if ($alt !== null and $alt !== '') {
             $alt = ' alt="' . htmlspecialchars($alt, ENT_QUOTES, 'UTF-8') . '"';
         }
 
-        $html = '<img src="' . $mediaPath.'/'.$rank->getImage() . '"' . $class . $alt . $title . ' />';
+        $html = '<img src="' . $mediaPath.'/'.$rank->getRank()->getImage() . '"' . $class . $alt . $title . ' />';
 
         return $html;
     }
 
-    public static function badge(Gamification\User\Badge $badge, $mediaPath, $tip = false, $placeholders = array())
+    public static function badge(UserBadge $badge, $mediaPath, $tip = false, $placeholders = array())
     {
         $title   = '';
         $class   = '';
         $classes = array();
 
-        if ($tip and $badge->getDescription()) {
+        if ($tip and $badge->getBadge()->getActivityText()) {
             JHtml::_('bootstrap.tooltip');
             $classes[] = 'hasTooltip';
-            $description  = strip_tags(trim($badge->getDescription($placeholders)));
+            $description  = strip_tags(trim($badge->getBadge()->getActivityText($placeholders)));
             $title = ' title="' . htmlspecialchars($description, ENT_QUOTES, 'UTF-8') . '"';
         }
 
@@ -90,12 +99,12 @@ abstract class JHtmlGamification
         }
 
         // Prepare alt property
-        $alt = strip_tags(trim($badge->getTitle()));
+        $alt = strip_tags(trim($badge->getBadge()->getTitle()));
         if ($alt !== null and $alt !== '') {
             $alt = ' alt="' . htmlspecialchars($alt, ENT_QUOTES, 'UTF-8') . '"';
         }
 
-        $html = '<img src="' . $mediaPath.'/'.$badge->getImage() . '"' . $class . $alt . $title . ' />';
+        $html = '<img src="' . $mediaPath.'/'.$badge->getBadge()->getImage() . '"' . $class . $alt . $title . ' />';
 
         return $html;
     }
@@ -224,6 +233,42 @@ abstract class JHtmlGamification
         return implode($html);
     }
 
+    /**
+     * @param Prism\Integration\Profiles\ProfilesInterface $socialProfiles
+     * @param $options
+     *
+     * @return string
+     */
+    public static function avatar($socialProfiles, $options)
+    {
+        $class = '';
+        if (array_key_exists('class', $options)) {
+            $class = ' class="'.$options['class'].'"';
+        }
+
+        // Display social profile.
+        if ($socialProfiles !== null) {
+            $avatar = $socialProfiles->getAvatar($options['user_id'], $options['size']);
+
+            if (!$avatar) {
+                $avatar = '<img '.$class.' src="'.$options['default'].'">';
+            } else {
+                $avatar = '<img '.$class.' src="'.$avatar.'" alt="'.$options['name'].'">';
+            }
+
+            $link   =  $socialProfiles->getLink($options['user_id']);
+        } else {
+            $avatar = '<img '.$class.' src="'.$options['default'].'" >';
+            $link   = '';
+        }
+
+        if ($link !== '') {
+            $avatar = '<a href="'.$link.'">'.$avatar.'</a>';
+        }
+        
+        return $avatar;
+    }
+    
     public static function number($number)
     {
         if ($number === null) {

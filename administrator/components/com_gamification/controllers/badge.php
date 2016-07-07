@@ -39,9 +39,15 @@ class GamificationControllerBadge extends Backend
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
+        $app  = JFactory::getApplication();
+        
         $data = $this->input->post->get('jform', array(), 'array');
 
-        $itemId = ArrayHelper::getValue($data, 'id');
+        $itemId  = ArrayHelper::getValue($data, 'id');
+        
+        // Store group ID to the session.
+        $groupId = ArrayHelper::getValue($data, 'group_id');
+        $app->setUserState('com_gamification.badge.group_id', $groupId);
 
         $redirectOptions = array(
             'task' => $this->getTask(),
@@ -69,18 +75,15 @@ class GamificationControllerBadge extends Backend
         }
 
         try {
-
             $file = $this->input->files->get('jform', array(), 'array');
             $file = ArrayHelper::getValue($file, 'image');
 
             // Upload picture
             if (!empty($file['name'])) {
-
                 $imageName = $model->uploadImage($file);
-                if (!empty($imageName)) {
+                if ($imageName !== null and $imageName !== '') {
                     $validData['image'] = $imageName;
                 }
-
             }
 
             $itemId = $model->save($validData);
@@ -117,14 +120,10 @@ class GamificationControllerBadge extends Backend
         }
 
         try {
-
             $model->removeImage($itemId);
-
         } catch (Exception $e) {
-
             JLog::add($e->getMessage());
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
-
         }
 
         $this->displayMessage(JText::_('COM_GAMIFICATION_IMAGE_DELETED'), $redirectOptions);

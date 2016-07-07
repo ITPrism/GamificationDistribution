@@ -39,11 +39,18 @@ defined('_JEXEC') or die; ?>
     </div>
         
     <?php echo JHtml::_('bootstrap.endTab'); ?>
+
+    <?php echo JHtml::_('bootstrap.addTab', 'badgeData', 'params', JText::_('COM_GAMIFICATION_OPTIONS')); ?>
+    <?php echo $this->form->renderField('url_text', 'params'); ?>
+    <?php echo $this->form->renderField('url', 'params'); ?>
+    <?php echo $this->form->renderField('url_target', 'params'); ?>
+    <?php echo JHtml::_('bootstrap.endTab'); ?>
+
     <?php echo JHtml::_('bootstrap.addTab', 'badgeData', 'advanced', JText::_('JGLOBAL_FIELDSET_ADVANCED')); ?>
     <div class="control-group">
-        <div class="control-label"><?php echo $this->form->getLabel('points'); ?></div>
+        <div class="control-label"><?php echo $this->form->getLabel('points_number'); ?></div>
         <div class="controls">
-            <?php echo $this->form->getInput('points'); ?>
+            <?php echo $this->form->getInput('points_number'); ?>
             <?php echo $this->form->getInput('points_id'); ?>
         </div>
     </div>
@@ -63,6 +70,11 @@ defined('_JEXEC') or die; ?>
     <?php echo $this->form->renderField('note'); ?>
     
     <?php echo JHtml::_('bootstrap.endTab'); ?>
+
+    <?php echo JHtml::_('bootstrap.addTab', 'badgeData', 'custom_data', JText::_('COM_GAMIFICATION_CUSTOM_DATA')); ?>
+    <?php echo $this->form->getInput('custom_data'); ?>
+    <?php echo JHtml::_('bootstrap.endTab'); ?>
+    
     <?php echo JHtml::_('bootstrap.endTabSet'); ?>
 
     <input type="hidden" name="task" value=""/>

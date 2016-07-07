@@ -71,10 +71,8 @@ class GamificationControllerRank extends Backend
         }
 
         try {
-
             // Upload picture
             if (!empty($file['name'])) {
-
                 $imageName = $model->uploadImage($file);
                 if (!empty($imageName)) {
                     $validData['image'] = $imageName;
@@ -87,10 +85,8 @@ class GamificationControllerRank extends Backend
             $redirectOptions['id'] = $itemId;
 
         } catch (Exception $e) {
-
             JLog::add($e->getMessage());
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
-
         }
 
         $this->displayMessage(JText::_('COM_GAMIFICATION_RANK_SAVED'), $redirectOptions);
@@ -120,9 +116,7 @@ class GamificationControllerRank extends Backend
         }
 
         try {
-
             $model->removeImage($itemId);
-
         } catch (Exception $e) {
             JLog::add($e->getMessage());
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));

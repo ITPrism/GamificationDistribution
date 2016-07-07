@@ -62,17 +62,17 @@ class plgSystemGamification extends JPlugin
                 'store_activity' => $this->params->get('leveling_store_activity', 0)
             );
 
-            JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Leveling', 'Gamification\\User\\Points', $options);
+            JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Leveling', 'Gamification\\User\\Points\\PointsManager', $options);
         }
 
         if ($this->params->get('enable_badging', 0)) {
             $options = array(
-                'typeAlias' => 'com_gamification.badging',
+                'typeAlias'         => 'com_gamification.badging',
                 'send_notification' => $this->params->get('badging_send_notification', 0),
-                'store_activity' => $this->params->get('badging_store_activity', 0)
+                'store_activity'    => $this->params->get('badging_store_activity', 0)
             );
 
-            JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Badging', 'Gamification\\User\\Points', $options);
+            JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Badging', 'Gamification\\User\\Points\\PointsManager', $options);
         }
 
         if ($this->params->get('enable_ranking', 0)) {
@@ -82,7 +82,7 @@ class plgSystemGamification extends JPlugin
                 'store_activity' => $this->params->get('ranking_store_activity', 0)
             );
 
-            JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Ranking', 'Gamification\\User\\Points', $options);
+            JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Ranking', 'Gamification\\User\\Points\\PointsManager', $options);
         }
     }
 }

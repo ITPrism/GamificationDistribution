@@ -34,7 +34,7 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
      * Method to get the field options.
      *
      * @return  array   The field option objects.
-     * @since   1.6
+     * @throws  \RuntimeException
      */
     protected function getOptions()
     {
@@ -42,7 +42,7 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
         $query = $db->getQuery(true);
 
         $query
-            ->select('a.id AS value, CONCAT(a.title, " [", a.abbr, "] ") AS text')
+            ->select('a.id AS value, a.title AS text, a.abbr')
             ->from($db->quoteName('#__gfy_points', 'a'))
             ->where('a.published = ' . (int)Prism\Constants::PUBLISHED)
             ->order('a.title ASC');
@@ -50,6 +50,13 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
         // Get the options.
         $db->setQuery($query);
         $options = $db->loadObjectList();
+
+        foreach ($options as &$item) {
+            if ($item->abbr !== '') {
+                $item->text = $item->text . ' ['.$item->abbr.']';
+            }
+        }
+        unset($item);
 
         // Merge any additional options in the XML definition.
         $options = array_merge(parent::getOptions(), $options);
@@ -66,21 +73,19 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
         $options = (array)$this->getOptions();
 
         $pointsTypes = array();
-        if (!empty($this->value)) {
+        if (is_string($this->value) and $this->value !== '') {
             $pointsTypes_ = (array)json_decode($this->value);
-            if (!empty($pointsTypes_)) {
+            if (count($pointsTypes_) > 0) {
                 foreach ($pointsTypes_ as $type) {
                     $pointsTypes[$type->id] = $type->value;
                 }
             }
         }
 
-        if (!empty($options)) {
-
+        if (count($options) > 0) {
             $html[] = '<div id="points-elements">';
 
             foreach ($options as $option) {
-
                 $attr = ' class="points-type';
 
                 // Initialize some field attributes.
@@ -91,8 +96,7 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
                 // Initialize JavaScript field attributes.
                 $attr .= $this->element['onchange'] ? ' onchange="' . (string)$this->element['onchange'] . '"' : '';
 
-
-                $elementId = substr(md5(uniqid(time() * rand(), true)), 0, 10);
+                $elementId = Prism\Utilities\StringHelper::generateRandomString(10);
 
                 $value = Joomla\Utilities\ArrayHelper::getValue($pointsTypes, $option->value);
 
@@ -109,7 +113,7 @@ class JFormFieldGfyPointsTypes extends JFormFieldList
         // Scripts
         JHtml::_('behavior.framework');
         $doc = JFactory::getDocument();
-        $doc->addScript(JURI::root() . 'media/com_gamification/js/admin/fields/pointstypes.js');
+        $doc->addScript(JUri::root() . 'media/com_gamification/js/admin/fields/pointstypes.js');
 
         return implode($html);
 

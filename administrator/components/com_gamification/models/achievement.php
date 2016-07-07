@@ -10,6 +10,10 @@
 // no direct access
 defined('_JEXEC') or die;
 
+// Register Observers
+JLoader::register('GamificationObserverAchievement', GAMIFICATION_PATH_COMPONENT_ADMINISTRATOR .'/tables/observers/achievement.php');
+JObserverMapper::addObserverClassToClass('GamificationObserverAchievement', 'GamificationTableAchievement', array('typeAlias' => 'com_gamification.achievement'));
+
 class GamificationModelAchievement extends JModelAdmin
 {
     /**
@@ -50,6 +54,8 @@ class GamificationModelAchievement extends JModelAdmin
     /**
      * Method to get the data that should be injected in the form.
      *
+     * @throws \Exception
+     *
      * @return  mixed   The data for the form.
      * @since   1.6
      */
@@ -64,6 +70,10 @@ class GamificationModelAchievement extends JModelAdmin
                 $rewards = new \Joomla\Registry\Registry($data->rewards);
 
                 $data->rewards = $rewards->toArray();
+
+                if ((int)$data->points_number === 0) {
+                    $data->points_number = '';
+                }
             }
         }
 
@@ -75,25 +85,27 @@ class GamificationModelAchievement extends JModelAdmin
      *
      * @param array $data The data about item
      *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     *
      * @return  int
      */
     public function save($data)
     {
-        $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $context   = Joomla\Utilities\ArrayHelper::getValue($data, 'context');
-        $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id', 0, 'int');
-        $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
-        $note      = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
-        $params      = Joomla\Utilities\ArrayHelper::getValue($data, 'params', array(), 'array');
-        $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
+        $id           = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
+        $title        = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
+        $context      = Joomla\Utilities\ArrayHelper::getValue($data, 'context');
+        $groupId      = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id', 0, 'int');
+        $pointsId     = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id', 0, 'int');
+        $pointsNumber = Joomla\Utilities\ArrayHelper::getValue($data, 'points_number', 0, 'int');
+        $published    = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
+        $note         = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
+        $description  = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
         $activityText = Joomla\Utilities\ArrayHelper::getValue($data, 'activity_text');
 
-        $customData = $this->prepareCustomData($data);
-        $rewards    = $this->prepareRewards($data);
-
-        if (!$note) {$note = null;}
-        if (!$description) {$description = null;}
+        $customData = Gamification\Helper::prepareCustomData($data);
+        $rewards    = Gamification\Helper::prepareRewards($data);
 
         // Load a record from the database
         $row = $this->getTable();
@@ -105,12 +117,15 @@ class GamificationModelAchievement extends JModelAdmin
         $row->set('context', $context);
         $row->set('custom_data', $customData);
         $row->set('rewards', $rewards);
+        $row->set('points_number', $pointsNumber);
+        $row->set('points_id', $pointsId);
         $row->set('group_id', $groupId);
         $row->set('published', $published);
         $row->set('note', $note);
         $row->set('description', $description);
         $row->set('activity_text', $activityText);
 
+        $this->prepareTable($row);
         $this->prepareImage($row, $data);
 
         $row->store(true);
@@ -119,11 +134,34 @@ class GamificationModelAchievement extends JModelAdmin
     }
 
     /**
+     * Prepare and sanitise the table prior to saving.
+     *
+     * @param GamificationTableAchievement $table
+     *
+     * @since    1.6
+     */
+    protected function prepareTable($table)
+    {
+        if (!$table->get('note')) {
+            $table->set('note', null);
+        }
+
+        if (!$table->get('description')) {
+            $table->set('note', null);
+        }
+
+        if (!$table->get('activity_text')) {
+            $table->set('note', null);
+        }
+    }
+
+    /**
      * Prepare images to saving.
      *
      * @param GamificationTableAchievement $table
      * @param array                  $data
      *
+     * @throws \UnexpectedValueException
      * @since    1.6
      */
     protected function prepareImage($table, $data)
@@ -158,91 +196,6 @@ class GamificationModelAchievement extends JModelAdmin
             $table->set('image_small', $data['image_small']);
             $table->set('image_square', $data['image_square']);
         }
-    }
-
-    /**
-     * Prepare custom data.
-     *
-     * @param array $data
-     *
-     * @return string
-     */
-    protected function prepareCustomData($data)
-    {
-        $customData = Joomla\Utilities\ArrayHelper::getValue($data, 'custom_data', [], 'array');
-        
-        $results = array();
-        $filter  = JFilterInput::getInstance();
-        
-        foreach ($customData as $values) {
-            $key   = trim($filter->clean($values['key'], 'cmd'));
-            $value = trim($filter->clean($values['value'], 'string'));
-
-            if (!$key) {
-                continue;
-            }
-            
-            $results[$key] = $value;
-        }
-        
-        $customData = new Joomla\Registry\Registry($results);
-
-        return $customData->toString();
-    }
-
-    /**
-     * Prepare rewards that will be given for accomplishing this unit.
-     *
-     * @param array  $data
-     *
-     * @return string
-     */
-    protected function prepareRewards($data)
-    {
-        $rewards = Joomla\Utilities\ArrayHelper::getValue($data, 'rewards', [], 'array');
-
-        $rewards['points'] = trim($rewards['points']);
-        $rewards['points_id'] = (int)$rewards['points_id'];
-
-        // Prepare badge IDs.
-        $results = array();
-        foreach ($rewards['badge_id'] as $itemId) {
-            $itemId   = (int)$itemId;
-            if (!$itemId) {
-                continue;
-            }
-
-            $results[] = $itemId;
-        }
-        $rewards['badge_id'] = $results;
-
-        // Prepare rank IDs.
-        $results = array();
-        foreach ($rewards['rank_id'] as $itemId) {
-            $itemId   = (int)$itemId;
-            if (!$itemId) {
-                continue;
-            }
-
-            $results[] = $itemId;
-        }
-        $rewards['rank_id'] = $results;
-
-        // Prepare badge IDs.
-        $results = array();
-        foreach ($rewards['reward_id'] as $itemId) {
-            $itemId   = (int)$itemId;
-            if (!$itemId) {
-                continue;
-            }
-
-            $results[] = $itemId;
-        }
-        $rewards['reward_id'] = $results;
-
-        $rewards = new Joomla\Registry\Registry($rewards);
-
-        return $rewards->toString();
     }
 
     public function removeImage($id)
@@ -287,7 +240,9 @@ class GamificationModelAchievement extends JModelAdmin
      * @param array $image
      *
      * @throws \RuntimeException
-     * @throws \Exception
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     * @throws \LogicException
      *
      * @return array
      */
@@ -361,14 +316,14 @@ class GamificationModelAchievement extends JModelAdmin
 
         $temporaryFile = $file->getFile();
         if (!is_file($temporaryFile)) {
-            throw new Exception('COM_GAMIFICATION_ERROR_FILE_CANT_BE_UPLOADED');
+            throw new RuntimeException('COM_GAMIFICATION_ERROR_FILE_CANT_BE_UPLOADED');
         }
 
         // Resize image
         $image = new JImage();
         $image->loadFile($temporaryFile);
         if (!$image->isLoaded()) {
-            throw new Exception(JText::sprintf('COM_GAMIFICATION_ERROR_FILE_NOT_FOUND', $temporaryDestination));
+            throw new RuntimeException(JText::sprintf('COM_GAMIFICATION_ERROR_FILE_NOT_FOUND', $temporaryDestination));
         }
 
         $imageName  = $generatedName . '_image.png';

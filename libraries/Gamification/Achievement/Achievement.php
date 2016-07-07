@@ -9,7 +9,12 @@
 
 namespace Gamification\Achievement;
 
+use Joomla\DI\ContainerAwareInterface;
+use Joomla\DI\ContainerAwareTrait;
+use Prism\Utilities\StringHelper;
+use Joomla\Registry\Registry;
 use Prism\Database\Table;
+use Gamification\Points\Points;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -19,8 +24,10 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification
  * @subpackage      Achievements
  */
-class Achievement extends Table
+class Achievement extends Table implements ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
     /**
      * Achievement ID.
      *
@@ -29,20 +36,52 @@ class Achievement extends Table
     protected $id;
 
     protected $title;
+    protected $context;
     protected $description;
-    protected $note;
     protected $image;
+    protected $image_small;
+    protected $image_square;
+    protected $note;
     protected $activity_text;
     protected $published;
+    protected $ordering;
     protected $group_id;
+    protected $points_id;
+    protected $points_number;
 
     /**
-     * Get goal title.
+     * @var Registry
+     */
+    protected $custom_data;
+    protected $rewards;
+
+    /**
+     * @var Points
+     */
+    protected $points;
+
+    /**
+     * Initialize the object.
+     *
+     * @param \JDatabaseDriver $db
+     */
+    public function __construct(\JDatabaseDriver $db = null)
+    {
+        parent::__construct($db);
+
+        $this->custom_data = new Registry();
+        $this->rewards     = new Registry();
+    }
+
+    /**
+     * Get title.
      *
      * <code>
-     * $goalId    = 1;
-     * $goal      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
-     * $title     = $goal->getTitle();
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * $title            = $achievement->getTitle();
      * </code>
      *
      * @return string
@@ -53,12 +92,14 @@ class Achievement extends Table
     }
 
     /**
-     * Get goal image.
+     * Get image.
      *
      * <code>
-     * $goalId    = 1;
-     * $goal      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
-     * $image     = $goal->getImage();
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * $image     = $achievement->getImage();
      * </code>
      *
      * @return string
@@ -69,12 +110,68 @@ class Achievement extends Table
     }
 
     /**
-     * Get goal note.
+     * Get small image.
      *
      * <code>
-     * $goalId    = 1;
-     * $goal      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
-     * $note      = $goal->getNote();
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * echo $achievement->getImageSmall();
+     * </code>
+     *
+     * @return string
+     */
+    public function getImageSmall()
+    {
+        return $this->image_small;
+    }
+
+    /**
+     * Get square image.
+     *
+     * <code>
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * echo $achievement->getImageSquare();
+     * </code>
+     *
+     * @return string
+     */
+    public function getImageSquare()
+    {
+        return $this->image_square;
+    }
+
+    /**
+     * Get context.
+     *
+     * <code>
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * echo $achievement->getContext();
+     * </code>
+     *
+     * @return string
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
+    
+    /**
+     * Get note.
+     *
+     * <code>
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * $note      = $achievement->getNote();
      * </code>
      *
      * @return string
@@ -85,93 +182,21 @@ class Achievement extends Table
     }
 
     /**
-     * Return goal description with possibility
+     * Return the text that will be used as activity information. It is possible
      * to replace placeholders with dynamically generated data.
      *
      * <code>
-     * $goalId    = 1;
-     * $goal      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
      *
      * $data = array(
      *     "name" => "John Dow",
-     *     "title" => "..."
+     *     "title" => "...",
+     *     "target" => "..."
      * );
      *
-     * echo $goal->getDescription($data);
-     * </code>
-     *
-     * @param array $data
-     * @return string
-     */
-    public function getDescription(array $data = array())
-    {
-        if (count($data) > 0) {
-            $result = $this->description;
-
-            foreach ($data as $placeholder => $value) {
-                $placeholder = '{'.strtoupper($placeholder).'}';
-                $result = str_replace($placeholder, $value, $result);
-            }
-
-            return $result;
-
-        } else {
-            return $this->description;
-        }
-    }
-
-    /**
-     * Check for published goal.
-     *
-     * <code>
-     * $goalId     = 1;
-     * $goal       = new Gamification\Achievement\Achievement(\JFactory::getDbo());
-     *
-     * if(!$goal->isPublished()) {
-     * ...
-     * }
-     * </code>
-     *
-     * @return boolean
-     */
-    public function isPublished()
-    {
-        return (!$this->published) ? false : true;
-    }
-
-    /**
-     * Get the group ID of the goal.
-     *
-     * <code>
-     * $goalId    = 1;
-     *
-     * $goal      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
-     * $goal->load($goalId);
-     *
-     * $groupId    = $goal->getGroupId();
-     * </code>
-     *
-     * @return integer
-     */
-    public function getGroupId()
-    {
-        return $this->group_id;
-    }
-
-    /**
-     * Return the activity text with possibility
-     * to replace placeholders with dynamically generated data.
-     *
-     * <code>
-     * $goalId    = 1;
-     * $goal      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
-     *
-     * $data = array(
-     *     "name" => "John Dow",
-     *     "title" => "..."
-     * );
-     *
-     * echo $goal->getActivityText($data);
+     * echo $achievement->getActivityText($data);
      * </code>
      *
      * @param array $data
@@ -188,36 +213,115 @@ class Achievement extends Table
             }
 
             return $result;
-
         } else {
             return $this->activity_text;
         }
     }
 
     /**
-     * Load goal data from database.
+     * Return description of the achievement.
+     *
+     * <code>
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * echo $achievement->getDescription();
+     * </code>
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Check for published goal.
+     *
+     * <code>
+     * $achievementId     = 1;
+     * $achievement       = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     *
+     * if(!$achievement->isPublished()) {
+     * ...
+     * }
+     * </code>
+     *
+     * @return boolean
+     */
+    public function isPublished()
+    {
+        return (!$this->published) ? false : true;
+    }
+
+    /**
+     * Get the group ID of the goal.
+     *
+     * <code>
+     * $achievementId    = 1;
+     *
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * $groupId    = $achievement->getGroupId();
+     * </code>
+     *
+     * @return integer
+     */
+    public function getGroupId()
+    {
+        return $this->group_id;
+    }
+
+    /**
+     * Return a custom data.
+     *
+     * <code>
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * echo $achievement->getCustomData($data);
+     * </code>
+     *
+     * @param string $key
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    public function getCustomData($key, $default = null)
+    {
+        return $this->custom_data->get($key, $default);
+    }
+
+    /**
+     * Load data from database.
      *
      * <code>
      * $keys = array(
      *    "id" => 1,
-     *    "points_id" => 2
+     *    "group_id" => 2
      * );
      *
-     * $goal      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
-     * $goal->load($keys);
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($keys);
      * </code>
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
-        // Create a new query object.
         $query = $this->db->getQuery(true);
-
         $query
-            ->select('a.id, a.title, a.description, a.activity_text, a.image, a.published, a.params, a.group_id')
-            ->from($this->db->quoteName('#__gfy_goals', 'a'));
+            ->select(
+                'a.id, a.title, a.context, a.description, a.activity_text, a.image, a.image_small, a.image_square ' .
+                'a.published, a.custom_data, a.rewards, a.group_id'
+            )
+            ->from($this->db->quoteName('#__gfy_achievements', 'a'));
 
         // Prepare keys.
         if (is_array($keys)) {
@@ -231,9 +335,90 @@ class Achievement extends Table
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
 
-        $this->bind($result);
+        $this->bind($result, ['custom_data', 'rewards']);
     }
 
+    protected function preparePointsObject($pointsId)
+    {
+        if ($pointsId > 0) {
+            $key = StringHelper::generateMd5Hash(Points::class, $pointsId);
+
+            if ($this->container !== null) {
+                if ($this->container->exists($key)) {
+                    $this->points = $this->container->get($key);
+                } else {
+                    $this->points = new Points($this->db);
+                    $this->points->load($pointsId);
+
+                    $this->container->set($key, $this->points);
+                }
+            } else {
+                $this->points = new Points($this->db);
+                $this->points->load($pointsId);
+            }
+        }
+    }
+
+    /**
+     * Get points object.
+     *
+     * <code>
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * $points     = $achievement->getPoints();
+     * </code>
+     *
+     * @return Points
+     */
+    public function getPoints()
+    {
+        // Create a basic points object.
+        if ($this->points === null and $this->points_id > 0) {
+            $this->preparePointsObject($this->points_id);
+        }
+
+        return $this->points;
+    }
+
+    /**
+     * Set Points object.
+     *
+     * <code>
+     * $pointsId   = 1;
+     * $points     = new Gamification\Points\Points(\JFactory::getDbo());
+     * $points->load($pointsId);
+     *
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->setPoints($points);
+     * </code>
+     *
+     * @param Points $points
+     * @throws \UnexpectedValueException
+     * @throws \OutOfBoundsException
+     *
+     * @return self
+     */
+    public function setPoints(Points $points)
+    {
+        $this->points = $points;
+
+        if ($this->points_id > 0 and $this->points_id !== $points->getId()) {
+            throw new \UnexpectedValueException('The points ID already exists and it does not much with new Points object.');
+        }
+
+        $this->points_id = $points->getId();
+
+        // Add the points object in the container.
+        $key = StringHelper::generateMd5Hash(Points::class, $this->points_id);
+        if ($this->container !== null and !$this->container->exists($key)) {
+            $this->container->set($key, $this->points);
+        }
+
+        return $this;
+    }
+    
     /**
      * Save the data to the database.
      *
@@ -242,14 +427,14 @@ class Achievement extends Table
      *        "title"    => "......",
      *        "description"    => "......",
      *        "image"    => "picture.png",
-     *        "note"    => null,
+     *        "note"    => '...',
      *        "published" => 1,
      *        "group_id"  => 3
      * );
      *
-     * $goal   = new Gamification\Achievement\Achievement(\JFactory::getDbo());
-     * $goal->bind($data);
-     * $goal->store();
+     * $achievement   = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->bind($data);
+     * $achievement->store();
      * </code>
      */
     public function store()
@@ -267,17 +452,25 @@ class Achievement extends Table
         $description  = (!$this->description) ? null : $this->db->quote($this->description);
         $activityText = (!$this->activity_text) ? null : $this->db->quote($this->activity_text);
 
+        $customData = ($this->custom_data instanceof Registry) ? $this->custom_data->toString() : '{}';
+        $rewards    = ($this->rewards instanceof Registry) ? $this->rewards->toString() : '{}';
+
         // Create a new query object.
         $query = $this->db->getQuery(true);
 
         $query
             ->update($this->db->quoteName('#__gfy_goals'))
             ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
+            ->set($this->db->quoteName('context') . '=' . $this->db->quote($this->context))
+            ->set($this->db->quoteName('description') . '=' . $description)
             ->set($this->db->quoteName('image') . '=' . $this->db->quote($this->image))
+            ->set($this->db->quoteName('image_small') . '=' . $this->db->quote($this->image_small))
+            ->set($this->db->quoteName('image_square') . '=' . $this->db->quote($this->image_square))
             ->set($this->db->quoteName('note') . '=' . $note)
             ->set($this->db->quoteName('activity_text') . '=' . $activityText)
-            ->set($this->db->quoteName('description') . '=' . $description)
             ->set($this->db->quoteName('published') . '=' . (int)$this->published)
+            ->set($this->db->quoteName('custom_data') . '=' . $this->db->quote($customData))
+            ->set($this->db->quoteName('rewards') . '=' . $this->db->quote($rewards))
             ->set($this->db->quoteName('group_id') . '=' . (int)$this->group_id)
             ->where($this->db->quoteName('id') . '=' . (int)$this->id);
 
@@ -287,15 +480,23 @@ class Achievement extends Table
 
     protected function insertObject()
     {
+        $customData   = ($this->custom_data instanceof Registry) ? $this->custom_data->toString() : '{}';
+        $rewards      = ($this->rewards instanceof Registry) ? $this->rewards->toString() : '{}';
+        
         // Create a new query object.
         $query = $this->db->getQuery(true);
 
         $query
             ->insert($this->db->quoteName('#__gfy_goals'))
-            ->set($this->db->quoteName('title') . '  = ' . $this->db->quote($this->title))
-            ->set($this->db->quoteName('image') . '  = ' . $this->db->quote($this->image))
-            ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
-            ->set($this->db->quoteName('group_id') . '  = ' . (int)$this->group_id);
+            ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
+            ->set($this->db->quoteName('context') . '=' . $this->db->quote($this->context))
+            ->set($this->db->quoteName('image') . '=' . $this->db->quote($this->image))
+            ->set($this->db->quoteName('image_small') . '=' . $this->db->quote($this->image_small))
+            ->set($this->db->quoteName('image_square') . '=' . $this->db->quote($this->image_square))
+            ->set($this->db->quoteName('published') . '=' . (int)$this->published)
+            ->set($this->db->quoteName('custom_data') . '=' . $this->db->quote($customData))
+            ->set($this->db->quoteName('rewards') . '=' . $this->db->quote($rewards))
+            ->set($this->db->quoteName('group_id') . '=' . (int)$this->group_id);
 
         if ($this->note !== null and $this->note !== '') {
             $query->set($this->db->quoteName('note') . ' = ' . $this->db->quote($this->note));

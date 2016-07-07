@@ -14,7 +14,7 @@ use Prism\Database\Collection;
 defined('JPATH_PLATFORM') or die;
 
 /**
- * This class contains methods that are used for managing goals.
+ * This class contains methods that are used for managing achievements.
  *
  * @package         Gamification
  * @subpackage      Achievements
@@ -25,13 +25,13 @@ class Achievements extends Collection
      * Load units from database.
      *
      * <code>
-     * $goals = new Gamification\Achievement\Achievements(JFactory::getDbo());
-     * $goals->load();
-     *
-     * $options = $goals->toOptions("id", "title");
+     * $achievements = new Gamification\Achievement\Achievements(JFactory::getDbo());
+     * $achievements->load();
      * </code>
      *
      * @param array $options  Options that will be used for filtering results.
+     *
+     * @throws \RuntimeException
      */
     public function load(array $options = array())
     {
@@ -59,7 +59,7 @@ class Achievements extends Collection
             $query->where('a.group_id = ' . (int)$groupId);
         }
 
-        // Filter by group ID.
+        // Filter by context.
         if ($context !== null and $context !== '') {
             $query->where('a.context = ' . $this->db->quote($context));
         }
@@ -69,18 +69,18 @@ class Achievements extends Collection
     }
 
     /**
-     * Create a goal object and return it.
+     * Create a achievement object and return it.
      *
      * <code>
      * $options = array(
      *     "ids" => array(1,2,3,4,5)
      * );
      *
-     * $goals   = new Gamification\Achievement\Achievements(\JFactory::getDbo());
-     * $goals->load($options);
+     * $achievements   = new Gamification\Achievement\Achievements(\JFactory::getDbo());
+     * $achievements->load($options);
      *
-     * $goalId = 1;
-     * $goal = $goals->getAchievement($goalId);
+     * $achievementId = 1;
+     * $achievement = $achievements->getAchievement($achievementId);
      * </code>
      *
      * @param int|string $id Achievement ID or Achievement context.
@@ -89,36 +89,35 @@ class Achievements extends Collection
      */
     public function getAchievement($id)
     {
-        $goal = null;
+        $achievement = null;
 
         foreach ($this->items as $item) {
             if (is_numeric($id) and (int)$id === (int)$item['id']) {
-                $goal = new Achievement($this->db);
-                $goal->bind($this->items[$id]);
+                $achievement = new Achievement($this->db);
+                $achievement->bind($this->items[$id]);
                 break;
-
             } elseif (strcmp($id, $item['context']) === 0) {
-                $goal = new Achievement($this->db);
-                $goal->bind($item);
+                $achievement = new Achievement($this->db);
+                $achievement->bind($item);
                 break;
             }
         }
 
-        return $goal;
+        return $achievement;
     }
 
     /**
-     * Return the goals as array with objects.
+     * Return the achievements as array with objects.
      *
      * <code>
      * $options = array(
      *     "ids" => array(1,2,3,4,5)
      * );
      *
-     * $goals   = new Gamification\Achievement\Achievements(\JFactory::getDbo());
-     * $goals->load($options);
+     * $achievements   = new Gamification\Achievement\Achievements(\JFactory::getDbo());
+     * $achievements->load($options);
      *
-     * $goals = $goals->getAchievements();
+     * $achievements = $achievements->getAchievements();
      * </code>
      *
      * @return array
@@ -129,10 +128,10 @@ class Achievements extends Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $goal = new Achievement($this->db);
-            $goal->bind($item);
+            $achievement = new Achievement($this->db);
+            $achievement->bind($item);
             
-            $results[$i] = $goal;
+            $results[$i] = $achievement;
             $i++;
         }
 
@@ -143,9 +142,11 @@ class Achievements extends Collection
      * Return contexts of the items.
      *
      * <code>
-     * $goals   = new Gamification\Achievement\Achievements(\JFactory::getDbo());
-     * $context = $goals->getContexts();
+     * $achievements   = new Gamification\Achievement\Achievements(\JFactory::getDbo());
+     * $context = $achievements->getContexts();
      * </code>
+     *
+     * @throws \RuntimeException
      *
      * @return array
      */

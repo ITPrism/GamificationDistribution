@@ -48,6 +48,8 @@ class Notification extends Table
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -179,6 +181,8 @@ class Notification extends Table
      *
      * $notification->remove();
      * </code>
+     *
+     * @throws \RuntimeException
      */
     public function remove()
     {
@@ -209,6 +213,8 @@ class Notification extends Table
      *
      * @param string $content The message, that will be send to a user.
      * @param int $userId This is the receiver of the message.
+     *
+     * @throws \InvalidArgumentException
      */
     public function send($content = null, $userId = null)
     {
@@ -494,11 +500,14 @@ class Notification extends Table
      * </code>
      *
      * @param int $status Status of a notification (0 - Not Read, 1 - Read, -2 - trashed )
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
     public function updateStatus($status)
     {
         if (!$this->id or !$this->user_id) {
-            throw new InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_ID_OR_USER_ID'));
+            throw new \InvalidArgumentException(\JText::_('LIB_GAMIFICATION_ERROR_INVALID_PARAMETER_ID_OR_USER_ID'));
         }
 
         $this->status = (int)$status;

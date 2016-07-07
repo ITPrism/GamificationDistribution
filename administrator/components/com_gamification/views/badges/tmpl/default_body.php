@@ -10,8 +10,23 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<?php foreach ($this->items as $i => $item) { ?>
-    <tr class="row<?php echo $i % 2; ?>">
+<?php foreach ($this->items as $i => $item) {
+    $ordering = ($this->listOrder === 'a.ordering');
+
+    $iconClass  = '';
+    if (!$this->saveOrder) {
+        $iconClass = ' inactive tip-top hasTooltip" title="' . JHtml::tooltipText('JORDERINGDISABLED');
+    }
+    ?>
+    <tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->group_id ?>">
+        <td class="order nowrap center hidden-phone">
+    		<span class="sortable-handler <?php echo $iconClass ?>">
+    			<i class="icon-menu"></i>
+    		</span>
+            <?php if ($this->saveOrder) { ?>
+                <input type="text" style="display:none" name="order[]" size="5" value="<?php echo $item->ordering; ?>" class="width-20 text-area-order "/>
+            <?php } ?>
+        </td>
         <td class="center hidden-phone">
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
@@ -26,11 +41,10 @@ defined('_JEXEC') or die;
             </div>
         </td>
         <td class="center hidden-phone">
-            <?php echo JHtml::_('gamification.points', $item->points, $item->points_name, $item->points_type); ?>
+            <?php echo JHtml::_('gamification.points', $item->points_number, $item->points_name, $item->points_type); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->id; ?>
         </td>
     </tr>
 <?php } ?>
-	  

@@ -42,9 +42,9 @@ defined('_JEXEC') or die;
     <?php echo JHtml::_('bootstrap.endTab'); ?>
     <?php echo JHtml::_('bootstrap.addTab', 'badgeData', 'advanced', JText::_('JGLOBAL_FIELDSET_ADVANCED')); ?>
     <div class="control-group">
-        <div class="control-label"><?php echo $this->form->getLabel('points'); ?></div>
+        <div class="control-label"><?php echo $this->form->getLabel('points_number'); ?></div>
         <div class="controls">
-            <?php echo $this->form->getInput('points'); ?>
+            <?php echo $this->form->getInput('points_number'); ?>
             <?php echo $this->form->getInput('points_id'); ?>
         </div>
     </div>

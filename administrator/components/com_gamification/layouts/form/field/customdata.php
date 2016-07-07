@@ -68,7 +68,7 @@ jQuery.gfyData.buttonId = "'.$buttonId.'";
 $document = JFactory::getDocument();
 $document->addScriptDeclaration($js);
 ?>
-<div id="<?php echo $containerId;?>" class="form-inline gfy-customdata">
+<div id="<?php echo $containerId;?>" class="form-inline gfy-customdata <?php echo $class; ?>">
 <button class="btn btn-default" id="<?php echo $buttonId;?>" type="button">
     <i class="icon icon-plus"></i>
     <?php echo JText::_('COM_GAMIFICATION_ADD_DATA'); ?>
@@ -77,6 +77,6 @@ $document->addScriptDeclaration($js);
     <?php foreach ($customData as $customDataKey => $customDataValue) {
         $customDataIndex = Prism\Utilities\StringHelper::generateRandomString(5);
     ?>
-        <div id="<?php echo $customDataIndex; ?>"><input type="text" name="jform[custom_data][<?php echo $customDataIndex; ?>][key]" placeholder="<?php echo strtolower(JText::_('COM_GAMIFICATION_KEY')); ?>" value="<?php echo $customDataKey; ?>" /><input type="text" name="jform[custom_data][<?php echo $customDataIndex; ?>][value]" placeholder="<?php echo strtolower(JText::_('COM_GAMIFICATION_VALUE')); ?>" value="<?php echo $customDataValue; ?>" /><button class="btn btn-danger btn-mini js-gfy-cdremovebtn" type="button"><i class="icon icon-remove"></i></button></div>
+        <div id="<?php echo $customDataIndex; ?>"><input type="text" name="jform[custom_data][<?php echo $customDataIndex; ?>][key]" placeholder="<?php echo strtolower(JText::_('COM_GAMIFICATION_KEY')); ?>" value="<?php echo $customDataKey; ?>" /><input type="text" name="jform[custom_data][<?php echo $customDataIndex; ?>][value]" placeholder="<?php echo strtolower(JText::_('COM_GAMIFICATION_VALUE')); ?>" value="<?php echo $customDataValue; ?>" class="input-xxlarge"/><button class="btn btn-danger btn-mini js-gfy-cdremovebtn" type="button"><i class="icon icon-remove"></i></button></div>
     <?php } ?>
 </div>

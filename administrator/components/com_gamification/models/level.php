@@ -30,7 +30,7 @@ class GamificationModelLevel extends JModelAdmin
     /**
      * Method to get the record form.
      *
-     * @param   array   $data     An optional array of data for the form to interogate.
+     * @param   array   $data     An optional array of data for the form to interrogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
      * @return  JForm   A JForm object on success, false on failure
@@ -79,13 +79,17 @@ class GamificationModelLevel extends JModelAdmin
      *
      * @param array $data   The data about item
      *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     *
      * @return   int
      */
     public function save($data)
     {
         $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
         $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $points    = Joomla\Utilities\ArrayHelper::getValue($data, 'points');
+        $points    = Joomla\Utilities\ArrayHelper::getValue($data, 'points_number');
         $pointsId  = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id');
         $value     = Joomla\Utilities\ArrayHelper::getValue($data, 'value');
         $rankId    = Joomla\Utilities\ArrayHelper::getValue($data, 'rank_id');
@@ -97,7 +101,7 @@ class GamificationModelLevel extends JModelAdmin
         $row->load($id);
 
         $row->set('title', $title);
-        $row->set('points', $points);
+        $row->set('points_number', $points);
         $row->set('points_id', $pointsId);
         $row->set('value', $value);
         $row->set('rank_id', $rankId);

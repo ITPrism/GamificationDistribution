@@ -28,7 +28,7 @@ defined('_JEXEC') or die;
             <strong><?php echo $item->value; ?></strong>
         </td>
         <td class="hidden-phone">
-            <?php echo JHtml::_('gamification.points', $item->points, $item->points_name, $item->points_type); ?>
+            <?php echo JHtml::_('gamification.points', $item->points_number, $item->points_name, $item->points_type); ?>
         </td>
         <td class="hidden-phone">
             <?php if (!empty($item->rank_id)) { ?>

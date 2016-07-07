@@ -9,8 +9,11 @@
 
 namespace Gamification\Reward;
 
+use Joomla\DI\ContainerAwareInterface;
+use Joomla\DI\ContainerAwareTrait;
+use Prism\Utilities\StringHelper;
 use Prism\Database\Table;
-use Gamification\Mechanic;
+use Gamification\Points\Points;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -20,8 +23,10 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification
  * @subpackage      Rewards
  */
-class Reward extends Table implements Mechanic\PointsInterface
+class Reward extends Table implements ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
     /**
      * Reward ID.
      *
@@ -31,7 +36,8 @@ class Reward extends Table implements Mechanic\PointsInterface
 
     protected $title;
     protected $description;
-    protected $points;
+    protected $activity_text;
+    protected $points_number;
     protected $image;
     protected $note;
     protected $number;
@@ -39,31 +45,30 @@ class Reward extends Table implements Mechanic\PointsInterface
     protected $points_id;
     protected $group_id;
 
-    protected static $instances = array();
+    /**
+     * @var Points
+     */
+    protected $points;
 
     /**
-     * Create an instance of the object and load data.
+     * Get reward ID.
      *
      * <code>
-     * $rewardId = 1;
-     * $reward   = Gamification\Reward\Reward::getInstance(\JFactory::getDbo(), $rewardId);
+     * $rewardId    = 1;
+     *
+     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
+     * $reward->load($rewardId);
+     *
+     * if (!$reward->getId()) {
+     * // ...
+     * }
      * </code>
      *
-     * @param \JDatabaseDriver $db
-     * @param int $id
-     *
-     * @return null|self
+     * @return int
      */
-    public static function getInstance($db, $id)
+    public function getId()
     {
-        if (!array_key_exists($id, self::$instances)) {
-            $item   = new Reward($db);
-            $item->load($id);
-            
-            self::$instances[$id] = $item;
-        }
-
-        return self::$instances[$id];
+        return (int)$this->id;
     }
 
     /**
@@ -83,21 +88,21 @@ class Reward extends Table implements Mechanic\PointsInterface
     }
 
     /**
-     * Get reward points.
+     * Get the number of points need to receive this reward.
      *
      * <code>
      * $rewardId    = 1;
      * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
      * $reward->load($rewardId);
      *
-     * $points     = $reward->getPoints();
+     * $points     = $reward->getPointsNumber();
      * </code>
      *
      * @return number
      */
-    public function getPoints()
+    public function getPointsNumber()
     {
-        return $this->points;
+        return $this->points_number;
     }
 
     /**
@@ -168,28 +173,48 @@ class Reward extends Table implements Mechanic\PointsInterface
     }
 
     /**
-     * Return reward description with possibility
+     * Return reward description.
+     *
+     * <code>
+     * $rewardId    = 1;
+     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
+     * $reward->load($rewardId);
+     *
+     * echo $reward->getDescription();
+     * </code>
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Return the text that will be used as activity information. It is possible
      * to replace placeholders with dynamically generated data.
      *
      * <code>
      * $rewardId    = 1;
      * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
+     * $reward->load($rewardId);
      *
      * $data = array(
      *     "name" => "John Dow",
-     *     "title" => "..."
+     *     "title" => "...",
+     *     "target" => "..."
      * );
      *
-     * echo $reward->getDescription($data);
+     * echo $reward->getActivityText($data);
      * </code>
      *
      * @param array $data
      * @return string
      */
-    public function getDescription(array $data = array())
+    public function getActivityText(array $data = array())
     {
         if (count($data) > 0) {
-            $result = $this->description;
+            $result = $this->activity_text;
 
             foreach ($data as $placeholder => $value) {
                 $placeholder = '{'.strtoupper($placeholder).'}';
@@ -197,9 +222,8 @@ class Reward extends Table implements Mechanic\PointsInterface
             }
 
             return $result;
-
         } else {
-            return $this->description;
+            return $this->activity_text;
         }
     }
 
@@ -281,6 +305,8 @@ class Reward extends Table implements Mechanic\PointsInterface
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -288,7 +314,7 @@ class Reward extends Table implements Mechanic\PointsInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.title, a.description, a.points, a.image, a.note, a.number, a.published, a.points_id, a.group_id')
+            ->select('a.id, a.title, a.description, a.activity_text, a.points_number, a.image, a.note, a.number, a.published, a.points_id, a.group_id')
             ->from($this->db->quoteName('#__gfy_rewards', 'a'));
 
         // Prepare keys.
@@ -306,6 +332,87 @@ class Reward extends Table implements Mechanic\PointsInterface
         $this->bind($result);
     }
 
+    protected function preparePointsObject($pointsId)
+    {
+        if ($pointsId > 0) {
+            $key = StringHelper::generateMd5Hash(Points::class, $pointsId);
+
+            if ($this->container !== null) {
+                if ($this->container->exists($key)) {
+                    $this->points = $this->container->get($key);
+                } else {
+                    $this->points = new Points($this->db);
+                    $this->points->load($pointsId);
+
+                    $this->container->set($key, $this->points);
+                }
+            } else {
+                $this->points = new Points($this->db);
+                $this->points->load($pointsId);
+            }
+        }
+    }
+
+    /**
+     * Get points object.
+     *
+     * <code>
+     * $rewardId    = 1;
+     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
+     * $reward->load($rewardId);
+     *
+     * $points     = $reward->getPoints();
+     * </code>
+     *
+     * @return Points
+     */
+    public function getPoints()
+    {
+        // Create a basic points object.
+        if ($this->points === null and $this->points_id > 0) {
+            $this->preparePointsObject($this->points_id);
+        }
+
+        return $this->points;
+    }
+
+    /**
+     * Set Points object.
+     *
+     * <code>
+     * $pointsId   = 1;
+     * $points     = new Gamification\Points\Points(\JFactory::getDbo());
+     * $points->load($pointsId);
+     *
+     * $reward      = new Gamification\Reward\Reward(\JFactory::getDbo());
+     * $reward->setPoints($points);
+     * </code>
+     *
+     * @param Points $points
+     * @throws \UnexpectedValueException
+     * @throws \OutOfBoundsException
+     *
+     * @return self
+     */
+    public function setPoints(Points $points)
+    {
+        $this->points = $points;
+
+        if ($this->points_id > 0 and $this->points_id !== $points->getId()) {
+            throw new \UnexpectedValueException('The points ID already exists and it does not much with new Points object.');
+        }
+
+        $this->points_id = $points->getId();
+
+        // Add the points object in the container.
+        $key = StringHelper::generateMd5Hash(Points::class, $this->points_id);
+        if ($this->container !== null and !$this->container->exists($key)) {
+            $this->container->set($key, $this->points);
+        }
+
+        return $this;
+    }
+
     /**
      * Save the data to the database.
      *
@@ -313,7 +420,8 @@ class Reward extends Table implements Mechanic\PointsInterface
      * $data = array(
      *        "title"    => "......",
      *        "description"    => "......",
-     *        "points"    => 100,
+     *        "activity_text"    => "......",
+     *        "points_number"    => 100,
      *        "image"    => "picture.png",
      *        "note"    => null,
      *        "number"    => 10,
@@ -340,6 +448,7 @@ class Reward extends Table implements Mechanic\PointsInterface
     {
         $note        = (!$this->note) ? null : $this->db->quote($this->note);
         $description = (!$this->description) ? null : $this->db->quote($this->description);
+        $activityText = (!$this->activity_text) ? null : $this->db->quote($this->activity_text);
         $number      = (!is_numeric($this->number) and !$this->number) ? null : $this->db->quote($this->number);
 
         // Create a new query object.
@@ -353,6 +462,7 @@ class Reward extends Table implements Mechanic\PointsInterface
             ->set($this->db->quoteName('note') . '  = ' . $note)
             ->set($this->db->quoteName('number') . '  = ' . $number)
             ->set($this->db->quoteName('description') . '  = ' . $description)
+            ->set($this->db->quoteName('activity_text') . '  = ' . $activityText)
             ->set($this->db->quoteName('published') . '  = ' . (int)$this->published)
             ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
             ->set($this->db->quoteName('group_id') . '  = ' . (int)$this->group_id)
@@ -380,6 +490,10 @@ class Reward extends Table implements Mechanic\PointsInterface
             $query->set($this->db->quoteName('note') . ' = ' . $this->db->quote($this->note));
         }
 
+        if ($this->activity_text !== null and $this->activity_text !== '') {
+            $query->set($this->db->quoteName('activity_text') . ' = ' . $this->db->quote($this->activity_text));
+        }
+        
         if ($this->description !== null and $this->description !== '') {
             $query->set($this->db->quoteName('description') . ' = ' . $this->db->quote($this->description));
         }

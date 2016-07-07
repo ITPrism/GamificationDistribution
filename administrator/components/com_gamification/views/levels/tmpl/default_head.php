@@ -24,7 +24,7 @@ defined('_JEXEC') or die;
         <?php echo JHtml::_('searchtools.sort', 'COM_GAMIFICATION_VALUE', 'a.value', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="10%" class="nowrap hidden-phone">
-        <?php echo JHtml::_('searchtools.sort', 'COM_GAMIFICATION_POINTS', 'a.points', $this->listDirn, $this->listOrder); ?>
+        <?php echo JHtml::_('searchtools.sort', 'COM_GAMIFICATION_POINTS', 'a.points_number', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="10%" class="nowrap hidden-phone">
         <?php echo JHtml::_('searchtools.sort', 'COM_GAMIFICATION_RANK', 'd.title', $this->listDirn, $this->listOrder); ?>

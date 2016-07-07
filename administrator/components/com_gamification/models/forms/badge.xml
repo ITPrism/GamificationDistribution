@@ -53,7 +53,7 @@
     </fieldset>
 
     <fields label="JGLOBAL_LABEL_ADVANCED">
-        <field name="points" type="text"
+        <field name="points_number" type="text"
                label="COM_GAMIFICATION_POINTS"
                description="COM_GAMIFICATION_FIELD_POINTS_DESC"
                filter="int"
@@ -77,6 +77,46 @@
                label="COM_GAMIFICATION_NOTE"
                description="COM_GAMIFICATION_FIELD_NOTE_DESC"
                filter="trim"
+        />
+    </fields>
+
+    <fields name="params" label="COM_GAMIFICATION_OPTIONS">
+        <field
+                name="url"
+                type="url"
+                validate="url"
+                filter="url"
+                relative="true"
+                label="COM_GAMIFICATION_FIELD_URL_LABEL"
+                description="COM_GAMIFICATION_FIELD_URL_DESC"
+                class="input-xxlarge"
+        />
+        
+        <field name="url_text"
+               type="text"
+               label="COM_GAMIFICATION_FIELD_URL_LINK_TEXT_LABEL"
+               description="COM_GAMIFICATION_FIELD_URL_LINK_TEXT_DESC"
+               class="input-xxlarge"
+        />
+        
+        <field
+                name="url_target"
+                type="list"
+                label="COM_GAMIFICATION_URL_FIELD_BROWSERNAV_LABEL"
+                description="COM_GAMIFICATION_URL_FIELD_BROWSERNAV_DESC"
+                default="0"
+                filter="options"
+        >
+            <option value="0">JBROWSERTARGET_PARENT</option>
+            <option value="1">JBROWSERTARGET_NEW</option>
+            <option value="2">JBROWSERTARGET_POPUP</option>
+        </field>
+    </fields>
+
+    <fields label="COM_GAMIFICATION_CUSTOM_DATA">
+        <field name="custom_data" type="gfycustomdata"
+               label="COM_GAMIFICATION_CUSTOM_DATA"
+               description="COM_GAMIFICATION_FIELD_CUSTOM_DATA_DESC"
         />
     </fields>
 </form>

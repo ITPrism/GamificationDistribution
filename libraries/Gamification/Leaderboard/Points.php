@@ -39,11 +39,13 @@ class Points extends Collection
      * </code>
      *
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load(array $options = array())
     {
         $pointsId       = $this->getOptionId($options, 'points_id');
-        $orderColumn    = $this->getOptionOrderColumn($options, 'a.points');
+        $orderColumn    = $this->getOptionOrderColumn($options, 'a.points_number');
         $orderDirection = $this->getOptionOrderDirection($options);
         $limit          = $this->getOptionLimit($options);
 
@@ -51,13 +53,13 @@ class Points extends Collection
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                'a.points, a.user_id, ' .
+                'a.points_number, a.user_id, ' .
                 'b.title, b.abbr, ' .
                 'c.name '
             )
-            ->from($this->db->quoteName('#__gfy_userpoints') . ' AS a')
-            ->innerJoin($this->db->quoteName('#__gfy_points') . ' AS b ON a.points_id = b.id')
-            ->innerJoin($this->db->quoteName('#__users') . ' AS c ON a.user_id = c.id')
+            ->from($this->db->quoteName('#__gfy_userpoints', 'a'))
+            ->innerJoin($this->db->quoteName('#__gfy_points', 'b') . ' ON a.points_id = b.id')
+            ->innerJoin($this->db->quoteName('#__users', 'c') . ' ON a.user_id = c.id')
             ->where('a.points_id = ' . (int)$pointsId)
             ->order($this->db->quoteName($orderColumn) . ' ' . $orderDirection);
 

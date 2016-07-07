@@ -3,7 +3,7 @@ Prism Library Changelog
 
 ###v1.14
 * Added [jQueryAutoComplete](https://github.com/devbridge/jQuery-Autocomplete) to Prism UI.
-* Added Prism\Utilities\ArrayHelper.
+* Added Prism\Utilities\ArrayHelper and Prism\Container.
 
 ###v1.13
 * Added class Money and interface Currency.

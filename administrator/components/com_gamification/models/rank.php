@@ -7,8 +7,14 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
+
+// Register Observers
+JLoader::register('GamificationObserverRank', GAMIFICATION_PATH_COMPONENT_ADMINISTRATOR .'/tables/observers/rank.php');
+JObserverMapper::addObserverClassToClass('GamificationObserverRank', 'GamificationTableRank', array('typeAlias' => 'com_gamification.rank'));
 
 class GamificationModelRank extends JModelAdmin
 {
@@ -30,7 +36,7 @@ class GamificationModelRank extends JModelAdmin
     /**
      * Method to get the record form.
      *
-     * @param   array   $data     An optional array of data for the form to interogate.
+     * @param   array   $data     An optional array of data for the form to interrogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
      * @return  JForm   A JForm object on success, false on failure
@@ -60,8 +66,8 @@ class GamificationModelRank extends JModelAdmin
         if (!$data) {
             $data = $this->getItem();
 
-            if ((int)$data->points === 0) {
-                $data->points = '';
+            if ((int)$data->points_number === 0) {
+                $data->points_number = '';
             }
         }
 
@@ -72,20 +78,23 @@ class GamificationModelRank extends JModelAdmin
      * Save data into the DB
      *
      * @param array $data The data about item
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     * @throws \RuntimeException
      *
      * @return     int
      */
     public function save($data)
     {
-        $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $title     = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $points    = Joomla\Utilities\ArrayHelper::getValue($data, 'points');
-        $pointsId  = Joomla\Utilities\ArrayHelper::getValue($data, 'points_id');
-        $groupId   = Joomla\Utilities\ArrayHelper::getValue($data, 'group_id');
-        $published = Joomla\Utilities\ArrayHelper::getValue($data, 'published');
-        $note      = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
-        $description      = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
-        $activityText     = Joomla\Utilities\ArrayHelper::getValue($data, 'activity_text');
+        $id        = ArrayHelper::getValue($data, 'id');
+        $title     = ArrayHelper::getValue($data, 'title');
+        $points    = ArrayHelper::getValue($data, 'points_number');
+        $pointsId  = ArrayHelper::getValue($data, 'points_id');
+        $groupId   = ArrayHelper::getValue($data, 'group_id');
+        $published = ArrayHelper::getValue($data, 'published');
+        $note      = ArrayHelper::getValue($data, 'note');
+        $description      = ArrayHelper::getValue($data, 'description');
+        $activityText     = ArrayHelper::getValue($data, 'activity_text');
 
         if (!$note) {
             $note = null;
@@ -106,7 +115,7 @@ class GamificationModelRank extends JModelAdmin
         $row->load($id);
 
         $row->set('title', $title);
-        $row->set('points', $points);
+        $row->set('points_number', $points);
         $row->set('points_id', $pointsId);
         $row->set('group_id', $groupId);
         $row->set('published', $published);
@@ -126,6 +135,8 @@ class GamificationModelRank extends JModelAdmin
      *
      * @param GamificationTableRank $table
      * @param array                 $data
+     *
+     * @throws \UnexpectedValueException
      *
      * @since    1.6
      */
@@ -180,6 +191,11 @@ class GamificationModelRank extends JModelAdmin
      *
      * @param array $image
      *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     * @throws \Exception
+     *
      * @return string
      */
     public function uploadImage($image)
@@ -187,9 +203,9 @@ class GamificationModelRank extends JModelAdmin
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($image, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($image, 'error');
+        $uploadedFile = ArrayHelper::getValue($image, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($image, 'name');
+        $errorCode    = ArrayHelper::getValue($image, 'error');
 
         $params     = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
@@ -233,7 +249,7 @@ class GamificationModelRank extends JModelAdmin
         }
 
         // Generate temporary file name
-        $ext = JString::strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
+        $ext = strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
 
         $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
 

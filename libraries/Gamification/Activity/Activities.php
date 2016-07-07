@@ -36,6 +36,8 @@ class Activities extends Collection
      * $activities->load($options);
      * </code>
      *
+     * @throws \RuntimeException
+     *
      * @param array $options  Options that will be used for filtering results.
      */
     public function load(array $options = array())
@@ -63,5 +65,73 @@ class Activities extends Collection
 
         $this->db->setQuery($query, 0, $limit);
         $this->items = (array)$this->db->loadAssocList();
+    }
+
+    /**
+     * Create a activity object and return it.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $activities   = new Gamification\Activity\Activities(\JFactory::getDbo());
+     * $activities->load($options);
+     *
+     * $activityId = 1;
+     * $activity   = $activities->getActivity($activityId);
+     * </code>
+     *
+     * @param int|string $id Activity ID
+     *
+     * @throws \UnexpectedValueException
+     *
+     * @return null|Activity
+     */
+    public function getActivity($id)
+    {
+        $activity = null;
+
+        foreach ($this->items as $item) {
+            if ((int)$item['id'] === (int)$id) {
+                $activity = new Activity($this->db);
+                $activity->bind($item);
+                break;
+            }
+        }
+
+        return $activity;
+    }
+
+    /**
+     * Return the activities as array with objects.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $activities   = new Gamification\Activity\Activities(\JFactory::getDbo());
+     * $activities->load($options);
+     *
+     * $activities = $activities->getActivities();
+     * </code>
+     *
+     * @return array
+     */
+    public function getActivities()
+    {
+        $results = array();
+
+        $i = 0;
+        foreach ($this->items as $item) {
+            $activity = new Activity($this->db);
+            $activity->bind($item);
+
+            $results[$i] = $activity;
+            $i++;
+        }
+
+        return $results;
     }
 }

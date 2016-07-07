@@ -29,48 +29,6 @@ class Points extends Table
     protected $published;
     protected $group_id;
 
-    protected static $instances = array();
-
-    /**
-     * Create an instance of the object and load data.
-     *
-     * <code>
-     * // create object points by ID
-     * $pointsId   = 1;
-     * $points     = Gamification\Points\Points::getInstance(\JFactory::getDbo(), $pointsId);
-     *
-     * // create object points by abbreviation
-     * $keys = array(
-     *    'abbr' => 'P'
-     * );
-     * $points     = Gamification\Points\Points::getInstance(\JFactory::getDbo(), $keys);
-     * </code>
-     *
-     * @param \JDatabaseDriver $db
-     * @param int|array $keys
-     *
-     * @return null|self
-     */
-    public static function getInstance($db, $keys)
-    {
-        if (is_array($keys)) {
-            $index = ArrayHelper::getValue($keys, 'abbr');
-        } else {
-            $index = (int)$keys;
-        }
-
-        $index = \JApplicationHelper::getHash($index);
-
-        if (!array_key_exists($index, self::$instances)) {
-            $item   = new Points($db);
-            $item->load($keys);
-            
-            self::$instances[$index] = $item;
-        }
-
-        return self::$instances[$index];
-    }
-
     /**
      * Load points data using the table object.
      *
@@ -86,6 +44,8 @@ class Points extends Table
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -187,16 +147,16 @@ class Points extends Table
      * $keys = array(
      *    'abbr' => 'P'
      * );
-     * 
+     *
      * $points     = new Gamification\Points\Points(\JFactory::getDbo());
      * $points->load($keys);
-     * 
+     *
      * if (!$points->getId()) {
      * ....
      * }
      * </code>
      *
-     * @return null|integer
+     * @return int
      */
     public function getId()
     {
@@ -290,10 +250,10 @@ class Points extends Table
      *
      * <code>
      * $pointsId    = 1;
-     * 
+     *
      * $points      = new Gamification\Points\Points(\JFactory::getDbo());
      * $points->load($pointsId);
-     * 
+     *
      * if(!$points->isPublished()) {
      * .....
      * }
@@ -303,6 +263,6 @@ class Points extends Table
      */
     public function isPublished()
     {
-        return (!$this->published) ? false : true;
+        return (bool)$this->published;
     }
 }

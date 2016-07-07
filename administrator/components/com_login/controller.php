@@ -48,7 +48,7 @@ class LoginController extends JControllerLegacy
 	{
 		// Check for request forgeries.
 		JSession::checkToken('request') or jexit(JText::_('JINVALID_TOKEN'));
-
+		
 		$app = JFactory::getApplication();
 
 		$model = $this->getModel('login');

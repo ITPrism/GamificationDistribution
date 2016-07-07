@@ -26,6 +26,7 @@ class History extends Table
     protected $points_id;
     protected $points;
     protected $hash;
+    protected $context;
     protected $record_date;
 
     /**
@@ -39,11 +40,13 @@ class History extends Table
      * );
      *
      * $pointsHistory     = new Gamification\Points\History(\JFactory::getDbo());
-     * $pointsHistory->load($pointsId);
+     * $pointsHistory->load($keys);
      * </code>
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -51,7 +54,7 @@ class History extends Table
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.user_id, a.points_id, a.points, a.hash, a.record_date')
+            ->select('a.id, a.user_id, a.points_id, a.points, a.context, a.hash, a.record_date')
             ->from($this->db->quoteName('#__gfy_points_history', 'a'));
 
         // Prepare keys.
@@ -78,6 +81,7 @@ class History extends Table
      *        'user_id'   => 'Points',
      *        'points_id' => $pointsId,
      *        'points'    => 100,
+     *        'context'   => 'com_users.registration',
      *        'hash'      => md5($ip . $userId . $pointsId . $itemId)
      * );
      *
@@ -106,6 +110,7 @@ class History extends Table
             ->set($this->db->quoteName('user_id') . '  = ' . (int)$this->user_id)
             ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
             ->set($this->db->quoteName('points') . '  = ' . (int)$this->points)
+            ->set($this->db->quoteName('context') . '  = ' . $this->db->quote($this->context))
             ->set($this->db->quoteName('hash') . '  = ' . $this->db->quote($this->hash))
             ->set($this->db->quoteName('record_date') . '  = ' . $this->db->quote($this->record_date))
             ->where($this->db->quoteName('id') . '  = ' . (int)$this->id);
@@ -124,6 +129,7 @@ class History extends Table
             ->set($this->db->quoteName('user_id') . '  = ' . (int)$this->user_id)
             ->set($this->db->quoteName('points_id') . '  = ' . (int)$this->points_id)
             ->set($this->db->quoteName('points') . '  = ' . (int)$this->points)
+            ->set($this->db->quoteName('context') . '  = ' . $this->db->quote($this->context))
             ->set($this->db->quoteName('hash') . '  = ' . $this->db->quote($this->hash));
 
         $this->db->setQuery($query);
@@ -137,10 +143,10 @@ class History extends Table
      *
      * <code>
      * $id = 1;
-     * 
+     *
      * $pointsHistory     = new Gamification\Points\History(\JFactory::getDbo());
      * $pointsHistory->load($id);
-     * 
+     *
      * if (!$pointsHistory->getId()) {
      * ....
      * }
@@ -196,6 +202,25 @@ class History extends Table
     }
 
     /**
+     * Return the context of the record.
+     *
+     * <code>
+     * $id = 1;
+     *
+     * $pointsHistory  = new Gamification\Points\History(\JFactory::getDbo());
+     * $pointsHistory->load($id);
+     *
+     * echo $pointsHistory->getContext();
+     * </code>
+     *
+     * @return string
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
+    
+    /**
      * Return the unique string used to identify the connection between user and objects.
      *
      * <code>
@@ -215,6 +240,7 @@ class History extends Table
     {
         return $this->hash;
     }
+    
     /**
      * Return the date when the record has been created.
      *
@@ -241,6 +267,8 @@ class History extends Table
      *
      * <code>
      * $keys = array(
+     *    'user_id' => 1,
+     *    'points_id' => 2,
      *    'hash' => md5($ip . $userId . $itemId)
      * );
      *
@@ -251,6 +279,8 @@ class History extends Table
      * </code>
      *
      * @param int|array $keys
+     *
+     * @throws \RuntimeException
      *
      * @return bool
      */
@@ -307,6 +337,16 @@ class History extends Table
         $this->points_id = $pointsId;
     }
 
+    /**
+     * Set the context of the record.
+     *
+     * @param string $context
+     */
+    public function setContext($context)
+    {
+        $this->context = $context;
+    }
+    
     /**
      * Set the hash, generated to provide connection between the object and the user.
      *

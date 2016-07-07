@@ -27,7 +27,7 @@ class GamificationModelRewards extends JModelList
                 'id', 'a.id',
                 'title', 'a.title',
                 'group_name', 'b.name',
-                'points', 'a.points',
+                'points_number', 'a.points_number',
                 'published', 'a.published'
             );
         }
@@ -62,7 +62,7 @@ class GamificationModelRewards extends JModelList
         $this->setState('filter.group', $value);
 
         // List state information.
-        parent::populateState('a.points', 'asc');
+        parent::populateState('a.points_number', 'asc');
     }
 
     /**
@@ -105,7 +105,7 @@ class GamificationModelRewards extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.points, a.group_id, a.note, a.number, a.published, ' .
+                'a.id, a.title, a.points_number, a.group_id, a.note, a.number, a.published, ' .
                 'b.name AS group_name, ' .
                 'c.abbr AS points_type, c.title AS points_name'
             )
@@ -155,7 +155,7 @@ class GamificationModelRewards extends JModelList
         $orderString = $orderCol . ' ' . $orderDirn;
 
         if (strcmp('b.name', $orderCol) === 0) {
-            $orderString .= ', a.points ASC';
+            $orderString .= ', a.points_number ASC';
         }
 
         return $orderString;
