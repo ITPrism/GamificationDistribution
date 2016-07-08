@@ -74,6 +74,25 @@ class Achievement extends Table implements ContainerAwareInterface
     }
 
     /**
+     * Get badge ID.
+     *
+     * <code>
+     * $badgeId    = 1;
+     * $badge      = new Gamification\Badge\Badge(\JFactory::getDbo());
+     *
+     * if (!$badge->getId()) {
+     * // ...
+     * }
+     * </code>
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return (int)$this->id;
+    }
+    
+    /**
      * Get title.
      *
      * <code>
@@ -318,8 +337,8 @@ class Achievement extends Table implements ContainerAwareInterface
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                'a.id, a.title, a.context, a.description, a.activity_text, a.image, a.image_small, a.image_square ' .
-                'a.published, a.custom_data, a.rewards, a.group_id'
+                'a.id, a.title, a.context, a.description, a.activity_text, a.image, a.image_small, a.image_square, ' .
+                'a.points_id, a.points_number, a.published, a.custom_data, a.rewards, a.group_id'
             )
             ->from($this->db->quoteName('#__gfy_achievements', 'a'));
 
@@ -459,7 +478,7 @@ class Achievement extends Table implements ContainerAwareInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->update($this->db->quoteName('#__gfy_goals'))
+            ->update($this->db->quoteName('#__gfy_achievements'))
             ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
             ->set($this->db->quoteName('context') . '=' . $this->db->quote($this->context))
             ->set($this->db->quoteName('description') . '=' . $description)
@@ -472,6 +491,8 @@ class Achievement extends Table implements ContainerAwareInterface
             ->set($this->db->quoteName('custom_data') . '=' . $this->db->quote($customData))
             ->set($this->db->quoteName('rewards') . '=' . $this->db->quote($rewards))
             ->set($this->db->quoteName('group_id') . '=' . (int)$this->group_id)
+            ->set($this->db->quoteName('points_id') . '=' . (int)$this->points_id)
+            ->set($this->db->quoteName('points_number') . '=' . (int)$this->points_number)
             ->where($this->db->quoteName('id') . '=' . (int)$this->id);
 
         $this->db->setQuery($query);
@@ -487,7 +508,7 @@ class Achievement extends Table implements ContainerAwareInterface
         $query = $this->db->getQuery(true);
 
         $query
-            ->insert($this->db->quoteName('#__gfy_goals'))
+            ->insert($this->db->quoteName('#__gfy_achievements'))
             ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
             ->set($this->db->quoteName('context') . '=' . $this->db->quote($this->context))
             ->set($this->db->quoteName('image') . '=' . $this->db->quote($this->image))
@@ -496,6 +517,8 @@ class Achievement extends Table implements ContainerAwareInterface
             ->set($this->db->quoteName('published') . '=' . (int)$this->published)
             ->set($this->db->quoteName('custom_data') . '=' . $this->db->quote($customData))
             ->set($this->db->quoteName('rewards') . '=' . $this->db->quote($rewards))
+            ->set($this->db->quoteName('points_id') . '=' . (int)$this->points_id)
+            ->set($this->db->quoteName('points_number') . '=' . (int)$this->points_number)
             ->set($this->db->quoteName('group_id') . '=' . (int)$this->group_id);
 
         if ($this->note !== null and $this->note !== '') {

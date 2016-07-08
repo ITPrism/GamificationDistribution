@@ -13,6 +13,8 @@ use Prism\Database\TableImmutable;
 use Gamification\Badge\Badge;
 use Gamification\Level\Level;
 use Gamification\Rank\Rank;
+use Gamification\Reward\Reward;
+use Gamification\Achievement\Achievement;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -120,6 +122,42 @@ class Profile extends TableImmutable
             ->where('a.rank_id  = '. (int)$rank->getId())
             ->where('a.user_id  = '. (int)$userId)
             ->where('a.group_id = '. (int)$rank->getGroupId());
+
+        $this->db->setQuery($query, 0, 1);
+
+        return (bool)$this->db->loadResult();
+    }
+
+    public function isRewardReceived(Reward $reward, $userId = 0)
+    {
+        if (!$userId and $this->id > 0) {
+            $userId = $this->id;
+        }
+
+        $query = $this->db->getQuery(true);
+        $query
+            ->select('COUNT(*)')
+            ->from($this->db->quoteName('#__gfy_userrewards', 'a'))
+            ->where('a.reward_id  = '. (int)$reward->getId())
+            ->where('a.user_id  = '. (int)$userId);
+
+        $this->db->setQuery($query, 0, 1);
+
+        return (bool)$this->db->loadResult();
+    }
+
+    public function isAchievementAccomplished(Achievement $achievement, $userId = 0)
+    {
+        if (!$userId and $this->id > 0) {
+            $userId = $this->id;
+        }
+
+        $query = $this->db->getQuery(true);
+        $query
+            ->select('COUNT(*)')
+            ->from($this->db->quoteName('#__gfy_userachievements', 'a'))
+            ->where('a.achievement_id  = '. (int)$achievement->getId())
+            ->where('a.user_id  = '. (int)$userId);
 
         $this->db->setQuery($query, 0, 1);
 

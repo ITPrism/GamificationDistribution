@@ -2,10 +2,10 @@ Gamification Platform Changelog
 ==========================
 
 ###v2.1
-* Added achievements, rewards and challenges.
+* Added achievements and rewards.
 * Fixed an issue that causes an error on PHP 7.
 * Fixed compatibility issue between the gamification platform and Prism Library.
-* The library was reworked and improved.
+* Gamification library was reworked and improved.
 
 ###v2.0
 * Rewrote the gamification library. Now the objects use table observers to trigger events.

@@ -38,18 +38,6 @@ CREATE TABLE IF NOT EXISTS `#__gfy_achievements` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `#__gfy_challenges` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `title` varchar(64) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `image` varchar(64) NOT NULL DEFAULT '',
-  `note` varchar(255) DEFAULT NULL,
-  `published` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
-  `params` varchar(2048) NOT NULL DEFAULT '{}',
-  `group_id` smallint(5) UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `#__gfy_rewards` (
   `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(64) NOT NULL,
@@ -68,10 +56,12 @@ CREATE TABLE IF NOT EXISTS `#__gfy_rewards` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__gfy_userachievements` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` int(10) UNSIGNED NOT NULL,
   `achievement_id` int(10) UNSIGNED NOT NULL,
   `accomplished` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
-  `accomplished_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
+  `accomplished_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__gfy_userrewards` (

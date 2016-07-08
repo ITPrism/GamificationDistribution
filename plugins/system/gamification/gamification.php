@@ -84,5 +84,25 @@ class plgSystemGamification extends JPlugin
 
             JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Ranking', 'Gamification\\User\\Points\\PointsManager', $options);
         }
+
+        if ($this->params->get('enable_rewarding', 0)) {
+            $options = array(
+                'typeAlias' => 'com_gamification.rewarding',
+                'send_notification' => $this->params->get('rewarding_send_notification', 0),
+                'store_activity' => $this->params->get('rewarding_store_activity', 0)
+            );
+
+            JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Rewarding', 'Gamification\\User\\Points\\PointsManager', $options);
+        }
+
+        if ($this->params->get('enable_accomplishing', 0)) {
+            $options = array(
+                'typeAlias' => 'com_gamification.accomplishing',
+                'send_notification' => $this->params->get('accomplishing_send_notification', 0),
+                'store_activity' => $this->params->get('accomplishing_store_activity', 0)
+            );
+
+            JObserverMapper::addObserverClassToClass('Gamification\\Observer\\User\\Accomplishing', 'Gamification\\User\\Points\\PointsManager', $options);
+        }
     }
 }

@@ -74,11 +74,11 @@ class GamificationHelper
             $vName === 'achievements'
         );
 
-        JHtmlSidebar::addEntry(
+        /*JHtmlSidebar::addEntry(
             JText::_('COM_GAMIFICATION_CHALLENGES'),
             'index.php?option=' . self::$extension . '&view=challenges',
             $vName === 'challenges'
-        );
+        );*/
 
         JHtmlSidebar::addEntry(
             JText::_('COM_GAMIFICATION_PROFILES'),

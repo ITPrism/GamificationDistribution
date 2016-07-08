@@ -39,13 +39,17 @@ class Achievements extends Collection
         $orderDirection = $this->getOptionOrderDirection($options);
 
         $ids     = $this->getOptionIds($options);
-        $groupId = $this->getOptionId($options, 'group_id');
-        $context = !array_key_exists('context', $options) ? null : $options['context'];
+        $groupId  = $this->getOptionId($options, 'group_id');
+        $pointsId = $this->getOptionId($options, 'points_id');
+        $context  = !array_key_exists('context', $options) ? null : $options['context'];
 
         // Create a new query object.
         $query = $this->db->getQuery(true);
         $query
-            ->select('a.id, a.title, a.context, a.activity_text, a.description, a.published, a.image, a.group_id, a.params')
+            ->select(
+                'a.id, a.title, a.context, a.description, a.activity_text, a.image, a.image_small, a.image_square, ' .
+                'a.points_id, a.points_number, a.published, a.custom_data, a.rewards, a.group_id'
+            )
             ->from($this->db->quoteName('#__gfy_achievements', 'a'))
             ->order($this->db->escape($orderColumn . ' ' . $orderDirection));
 
@@ -57,6 +61,11 @@ class Achievements extends Collection
         // Filter by group ID.
         if ($groupId > 0) {
             $query->where('a.group_id = ' . (int)$groupId);
+        }
+
+        // Filter by points ID.
+        if ($pointsId > 0) {
+            $query->where('a.points_id = ' . (int)$pointsId);
         }
 
         // Filter by context.
