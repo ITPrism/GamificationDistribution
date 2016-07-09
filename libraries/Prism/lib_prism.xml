@@ -28,6 +28,7 @@
         <folder>Log</folder>
         <folder>Money</folder>
         <folder>Payment</folder>
+        <folder>Renderer</folder>
         <folder>Response</folder>
         <folder>Transifex</folder>
         <folder>ui</folder>

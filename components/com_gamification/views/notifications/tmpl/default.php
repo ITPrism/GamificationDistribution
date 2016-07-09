@@ -38,7 +38,7 @@ defined('_JEXEC') or die;?>
             </div>
             <div class="col-xs-1">
                 <button data-element-id="<?php echo (int)$item->id; ?>" class="btn btn-danger js-gfy-btn-remove-notification">
-                    <i class="glyphicon glyphicon-trash"></i>
+                    <i class="fa fa-trash"></i>
                 </button>
             </div>
         </div>

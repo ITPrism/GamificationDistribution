@@ -38,7 +38,6 @@ class Points extends Table implements ContainerAwareInterface
 
     protected $user_id;
     protected $points_id;
-    protected $group_id;
     protected $points_number = 0;
 
     /**
@@ -298,9 +297,9 @@ class Points extends Table implements ContainerAwareInterface
      * This method will reset points number, user ID and the ID of the record.
      *
      * <code>
-     * $userPoints  = new Gamification\User\Points\Points(JFactory::getDbo());
-     *
      * $basicPoints = new Gamification\Points\Points(JFactory::getDbo());
+     *
+     * $userPoints  = new Gamification\User\Points\Points(JFactory::getDbo());
      * $userPoints->setPoints($basicPoints);
      * </code>
      *
@@ -419,13 +418,13 @@ class Points extends Table implements ContainerAwareInterface
      * <code>
      * $keys = array(
      *       'user_id'  => 1,
-     *       'group_id' => 2
+     *       'points_id' => 2
      * );
      *
      * $data = array(
      *     'user_id'  => 1,
-     *     'group_id' => 2,
-     *     'points_id' => 3
+     *     'points_id' => 2,
+     *     'points_number' => 300
      * );
      *
      * $userPoints   = new Gamification\User\Points\Points(JFactory::getDbo());

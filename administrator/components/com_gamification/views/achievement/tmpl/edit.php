@@ -40,7 +40,7 @@ defined('_JEXEC') or die; ?>
     <?php echo JHtml::_('bootstrap.endTab'); ?>
 
     <?php echo JHtml::_('bootstrap.addTab', 'achievementData', 'rewarding', JText::_('COM_GAMIFICATION_REWARDING')); ?>
-    <?php echo JLayoutHelper::render('edit.rewards', $this->form); ?>
+    <?php echo JLayoutHelper::render('form.options.rewards', $this->form); ?>
     <?php echo JHtml::_('bootstrap.endTab'); ?>
 
     <?php echo JHtml::_('bootstrap.addTab', 'achievementData', 'advanced', JText::_('JGLOBAL_FIELDSET_ADVANCED')); ?>

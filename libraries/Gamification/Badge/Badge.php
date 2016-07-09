@@ -10,6 +10,7 @@
 namespace Gamification\Badge;
 
 use Gamification\Points\Points;
+use Gamification\Mechanic\PointsBased;
 use Joomla\Registry\Registry;
 use Joomla\DI\ContainerAwareInterface;
 use Joomla\DI\ContainerAwareTrait;
@@ -24,7 +25,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification
  * @subpackage      Badges
  */
-class Badge extends Table implements ContainerAwareInterface
+class Badge extends Table implements ContainerAwareInterface, PointsBased
 {
     use ContainerAwareTrait;
     
@@ -486,6 +487,26 @@ class Badge extends Table implements ContainerAwareInterface
         return $this->points_number;
     }
 
+    /**
+     * Get points ID.
+     *
+     * <code>
+     * $badgeId    = 1;
+     * $badge      = new Gamification\Badge\Badge(\JFactory::getDbo());
+     * $badge->load($badgeId);
+     *
+     * if ($badge->getPointsId()) {
+     * // ...
+     * }
+     * </code>
+     *
+     * @return Points
+     */
+    public function getPointsId()
+    {
+        return $this->points_id;
+    }
+    
     /**
      * Get points object.
      *
