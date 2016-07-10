@@ -61,7 +61,7 @@ class GamificationControllerBadge extends Backend
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_('COM_GAMIFICATION_ERROR_FORM_CANNOT_BE_LOADED'), 500);
+            throw new Exception(JText::_('COM_GAMIFICATION_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
         // Validate the form
@@ -91,7 +91,7 @@ class GamificationControllerBadge extends Backend
             $redirectOptions['id'] = $itemId;
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 
@@ -122,7 +122,7 @@ class GamificationControllerBadge extends Backend
         try {
             $model->removeImage($itemId);
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 

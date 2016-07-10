@@ -27,7 +27,7 @@ class GamificationControllerAchievement extends Backend
      * @param string $prefix
      * @param array  $config
      *
-     * @return GamificationModelGoal
+     * @return GamificationModelAchievement
      */
     public function getModel($name = 'Achievement', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
     {
@@ -83,7 +83,7 @@ class GamificationControllerAchievement extends Backend
 
             $redirectOptions['id'] = $itemId;
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 
@@ -114,7 +114,7 @@ class GamificationControllerAchievement extends Backend
         try {
             $model->removeImage($itemId);
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 

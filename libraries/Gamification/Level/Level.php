@@ -9,7 +9,7 @@
 
 namespace Gamification\Level;
 
-use Gamification\Mechanic;
+use Gamification\Mechanic\PointsBased;
 use Gamification\Rank\Rank;
 use Gamification\Points\Points;
 use Joomla\DI\ContainerAwareInterface;
@@ -25,7 +25,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification
  * @subpackage      Levels
  */
-class Level extends Table implements ContainerAwareInterface
+class Level extends Table implements ContainerAwareInterface, PointsBased
 {
     use ContainerAwareTrait;
 

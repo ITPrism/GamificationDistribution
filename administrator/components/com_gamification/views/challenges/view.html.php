@@ -12,7 +12,7 @@ use Joomla\Registry\Registry;
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationViewAchievements extends JViewLegacy
+class GamificationViewChallenge extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -87,16 +87,16 @@ class GamificationViewAchievements extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolbarHelper::title(JText::_('COM_GAMIFICATION_ACHIEVEMENT_MANAGER'));
-        JToolbarHelper::addNew('achievement.add');
-        JToolbarHelper::editList('achievement.edit');
+        JToolbarHelper::title(JText::_('COM_GAMIFICATION_CHALLENGE_MANAGER'));
+        JToolbarHelper::addNew('challenge.add');
+        JToolbarHelper::editList('challenge.edit');
         JToolbarHelper::divider();
-        JToolbarHelper::publishList('achievements.publish');
-        JToolbarHelper::unpublishList('achievements.unpublish');
+        JToolbarHelper::publishList('challenges.publish');
+        JToolbarHelper::unpublishList('challenges.unpublish');
         JToolbarHelper::divider();
-        JToolbarHelper::deleteList(JText::_('COM_GAMIFICATION_DELETE_ITEMS_QUESTION'), 'achievements.delete');
+        JToolbarHelper::deleteList(JText::_('COM_GAMIFICATION_DELETE_ITEMS_QUESTION'), 'challenges.delete');
         JToolbarHelper::divider();
-        JToolbarHelper::custom('achievements.backToDashboard', 'dashboard', '', JText::_('COM_GAMIFICATION_DASHBOARD'), false);
+        JToolbarHelper::custom('challenges.backToDashboard', 'dashboard', '', JText::_('COM_GAMIFICATION_DASHBOARD'), false);
     }
 
     /**
@@ -106,7 +106,7 @@ class GamificationViewAchievements extends JViewLegacy
      */
     protected function setDocument()
     {
-        $this->document->setTitle(JText::_('COM_GAMIFICATION_ACHIEVEMENT_MANAGER'));
+        $this->document->setTitle(JText::_('COM_GAMIFICATION_CHALLENGE_MANAGER'));
 
         // Load language string in JavaScript
         JText::script('COM_GAMIFICATION_SEARCH_IN_TITLE_TOOLTIP');

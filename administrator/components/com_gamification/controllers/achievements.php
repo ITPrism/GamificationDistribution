@@ -24,7 +24,7 @@ class GamificationControllerAchievements extends Prism\Controller\Admin
      * @param string $prefix
      * @param array  $config
      *
-     * @return GamificationModelGoal
+     * @return GamificationModelAchievement
      */
     public function getModel($name = 'Achievement', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
     {

@@ -56,13 +56,12 @@ class GamificationControllerNotification extends JControllerLegacy
         }
 
         try {
-
             $notification = new Gamification\Notification\Notification(JFactory::getDbo());
             $notification->load($itemId);
             $notification->remove();
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 

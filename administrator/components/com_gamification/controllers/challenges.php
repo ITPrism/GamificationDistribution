@@ -11,22 +11,22 @@
 defined('_JEXEC') or die;
 
 /**
- * Gamification achievements controller class.
+ * Gamification challenges controller class.
  *
  * @package      Gamification Platform
  * @subpackage   Components
  * @since        1.6
  */
-class GamificationControllerAchievements extends Prism\Controller\Admin
+class GamificationControllerChallenges extends Prism\Controller\Admin
 {
     /**
      * @param string $name
      * @param string $prefix
      * @param array  $config
      *
-     * @return GamificationModelAchievement
+     * @return GamificationModelChallenge
      */
-    public function getModel($name = 'Achievement', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Challenge', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
         return $model;

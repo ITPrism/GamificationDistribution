@@ -45,7 +45,7 @@ class Levels extends Collection
     public function load(array $options = array())
     {
         $groupId        = $this->getOptionId($options, 'group_id');
-        $orderColumn    = $this->getOptionOrderColumn($options, 'b.points');
+        $orderColumn    = $this->getOptionOrderColumn($options, 'b.points_number');
         $orderDirection = $this->getOptionOrderDirection($options);
         $limit          = $this->getOptionLimit($options);
 

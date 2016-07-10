@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationModelAchievement extends JModelAdmin
+class GamificationModelChallenge extends JModelAdmin
 {
     /**
      * Returns a reference to the a Table object, always creating it.
@@ -19,10 +19,10 @@ class GamificationModelAchievement extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  GamificationTableAchievement
+     * @return  GamificationTableChallenge
      * @since   1.6
      */
-    public function getTable($type = 'Achievement', $prefix = 'GamificationTable', $config = array())
+    public function getTable($type = 'Challenge', $prefix = 'GamificationTable', $config = array())
     {
         return JTable::getInstance($type, $prefix, $config);
     }
@@ -39,7 +39,7 @@ class GamificationModelAchievement extends JModelAdmin
     public function getForm($data = array(), $loadData = true)
     {
         // Get the form.
-        $form = $this->loadForm($this->option . '.achievement', 'achievement', array('control' => 'jform', 'load_data' => $loadData));
+        $form = $this->loadForm($this->option . '.challenge', 'challenge', array('control' => 'jform', 'load_data' => $loadData));
         if (!$form) {
             return false;
         }
@@ -56,7 +56,7 @@ class GamificationModelAchievement extends JModelAdmin
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
-        $data = JFactory::getApplication()->getUserState($this->option . '.edit.achievement.data', array());
+        $data = JFactory::getApplication()->getUserState($this->option . '.edit.challenge.data', array());
         if (!$data) {
             $data = $this->getItem();
         }
@@ -90,7 +90,7 @@ class GamificationModelAchievement extends JModelAdmin
 
         // Load a record from the database
         $row = $this->getTable();
-        /** @var $row GamificationTableAchievement */
+        /** @var $row GamificationTableChallenge */
 
         $row->load($id);
 
@@ -224,7 +224,7 @@ class GamificationModelAchievement extends JModelAdmin
 
         $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
 
-        $imageName   = $generatedName . '_achievement.' . $ext;
+        $imageName   = $generatedName . '_challenge.' . $ext;
         $destination = JPath::clean($destinationFolder .DIRECTORY_SEPARATOR. $imageName);
 
         // Prepare uploader object.

@@ -68,13 +68,11 @@ class GamificationControllerLevel extends Backend
         }
 
         try {
-
             $itemId = $model->save($validData);
             $redirectData['id'] = $itemId;
 
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
 
         }

@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationModelAchievements extends JModelList
+class GamificationModelChallenges extends JModelList
 {
     /**
      * Constructor.
@@ -108,7 +108,7 @@ class GamificationModelAchievements extends JModelList
                 'b.name AS group_name'
             )
         );
-        $query->from($db->quoteName('#__gfy_achievements', 'a'));
+        $query->from($db->quoteName('#__gfy_challenges', 'a'));
         $query->innerJoin($db->quoteName('#__gfy_groups', 'b') . ' ON a.group_id = b.id');
 
         // Filter by group.

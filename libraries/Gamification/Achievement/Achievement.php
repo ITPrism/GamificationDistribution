@@ -15,6 +15,7 @@ use Prism\Utilities\StringHelper;
 use Joomla\Registry\Registry;
 use Prism\Database\Table;
 use Gamification\Points\Points;
+use Gamification\Mechanic\PointsBased;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -24,7 +25,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification
  * @subpackage      Achievements
  */
-class Achievement extends Table implements ContainerAwareInterface
+class Achievement extends Table implements ContainerAwareInterface, PointsBased
 {
     use ContainerAwareTrait;
 
@@ -74,13 +75,13 @@ class Achievement extends Table implements ContainerAwareInterface
     }
 
     /**
-     * Get badge ID.
+     * Get achievement ID.
      *
      * <code>
-     * $badgeId    = 1;
-     * $badge      = new Gamification\Badge\Badge(\JFactory::getDbo());
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
      *
-     * if (!$badge->getId()) {
+     * if (!$achievement->getId()) {
      * // ...
      * }
      * </code>
@@ -378,6 +379,44 @@ class Achievement extends Table implements ContainerAwareInterface
         }
     }
 
+    /**
+     * Get points number needed to reach this achievement.
+     *
+     * <code>
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * $points     = $achievement->getPointsNumber();
+     * </code>
+     *
+     * @return int
+     */
+    public function getPointsNumber()
+    {
+        return $this->points_number;
+    }
+
+    /**
+     * Get points ID.
+     *
+     * <code>
+     * $achievementId    = 1;
+     * $achievement      = new Gamification\Achievement\Achievement(\JFactory::getDbo());
+     * $achievement->load($achievementId);
+     *
+     * if ($achievement->getPointsId()) {
+     * // ...
+     * }
+     * </code>
+     *
+     * @return Points
+     */
+    public function getPointsId()
+    {
+        return $this->points_id;
+    }
+    
     /**
      * Get points object.
      *

@@ -21,7 +21,7 @@ defined('_JEXEC') or die;?>
         }
         ?>
         <div class="gfy-notification <?php echo $notReadClass; ?> row" id="js-gfy-note-element<?php echo $item->id; ?>">
-            <div class="col-xs-10">
+            <div class="col-md-10 col-xs-7">
                 <div class="media">
                     <?php if (!empty($item->image)) { ?>
                         <div class="media-left">
@@ -33,10 +33,10 @@ defined('_JEXEC') or die;?>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-1">
+            <div class="col-md-1 col-xs-1">
                 <img src="<?php echo (!$item->status) ? 'media/com_gamification/images/status_active.png' : 'media/com_gamification/images/status_inactive.png'; ?>"/>
             </div>
-            <div class="col-xs-1">
+            <div class="col-md-1 col-xs-3">
                 <button data-element-id="<?php echo (int)$item->id; ?>" class="btn btn-danger js-gfy-btn-remove-notification">
                     <i class="fa fa-trash"></i>
                 </button>

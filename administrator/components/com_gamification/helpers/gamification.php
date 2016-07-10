@@ -99,6 +99,12 @@ class GamificationHelper
         );
 
         JHtmlSidebar::addEntry(
+            JText::_('COM_GAMIFICATION_TOOLS'),
+            'index.php?option=' . self::$extension . '&view=tools',
+            $vName === 'tools'
+        );
+        
+        JHtmlSidebar::addEntry(
             JText::_('COM_GAMIFICATION_PLUGINS'),
             'index.php?option=com_plugins&view=plugins&filter_search=gamification',
             $vName === 'plugins'

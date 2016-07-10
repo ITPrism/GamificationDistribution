@@ -12,7 +12,7 @@ use Joomla\Registry\Registry;
 // no direct access
 defined('_JEXEC') or die;
 
-class GamificationViewAchievement extends JViewLegacy
+class GamificationViewChallenge extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -63,18 +63,18 @@ class GamificationViewAchievement extends JViewLegacy
         JFactory::getApplication()->input->set('hidemainmenu', true);
         $isNew = ((int)$this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_GAMIFICATION_NEW_ACHIEVEMENT') : JText::_('COM_GAMIFICATION_EDIT_ACHIEVEMENT');
+        $this->documentTitle = $isNew ? JText::_('COM_GAMIFICATION_NEW_CHALLENGE') : JText::_('COM_GAMIFICATION_EDIT_CHALLENGE');
 
         JToolbarHelper::title($this->documentTitle);
 
-        JToolbarHelper::apply('achievement.apply');
-        JToolbarHelper::save2new('achievement.save2new');
-        JToolbarHelper::save('achievement.save');
+        JToolbarHelper::apply('challenge.apply');
+        JToolbarHelper::save2new('challenge.save2new');
+        JToolbarHelper::save('challenge.save');
 
         if (!$isNew) {
-            JToolbarHelper::cancel('achievement.cancel', 'JTOOLBAR_CANCEL');
+            JToolbarHelper::cancel('challenge.cancel', 'JTOOLBAR_CANCEL');
         } else {
-            JToolbarHelper::cancel('achievement.cancel', 'JTOOLBAR_CLOSE');
+            JToolbarHelper::cancel('challenge.cancel', 'JTOOLBAR_CLOSE');
         }
     }
 

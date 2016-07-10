@@ -64,7 +64,6 @@ class GamificationControllerNotifications extends Admin
         }
 
         try {
-
             $model = $this->getModel();
             $model->read($cid, $value);
 
@@ -72,11 +71,11 @@ class GamificationControllerNotifications extends Admin
             $this->displayWarning($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 
-        if ($value == 1) {
+        if ((int)$value === 1) {
             $msg = $this->text_prefix . '_N_ITEMS_READ';
         } else {
             $msg = $this->text_prefix . '_N_ITEMS_NOT_READ';

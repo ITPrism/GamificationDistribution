@@ -36,10 +36,7 @@ class GamificationControllerProfile extends Form
         $model = parent::getModel($name, $prefix, $config);
         return $model;
     }
-
-    /**
-     * Save an item
-     */
+    
     public function save($key = null, $urlVar = null)
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
@@ -79,7 +76,7 @@ class GamificationControllerProfile extends Form
         try {
             $itemId = $model->save($validData);
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 

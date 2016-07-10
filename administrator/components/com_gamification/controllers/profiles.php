@@ -61,7 +61,6 @@ class GamificationControllerProfiles extends Admin
         }
 
         try {
-
             $pks = $model->filterProfiles($pks);
 
             if (!$pks) {
@@ -76,7 +75,7 @@ class GamificationControllerProfiles extends Admin
             $model->create($pks);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 

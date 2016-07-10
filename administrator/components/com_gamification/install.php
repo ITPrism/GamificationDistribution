@@ -125,17 +125,6 @@ class pkg_gamificationInstallerScript
         }
         GamificationInstallHelper::addRow($title, $result, $info);
 
-        // Display result about verification for cURL library
-        $title = JText::_('COM_GAMIFICATION_CURL_LIBRARY');
-        $info  = '';
-        if (!extension_loaded('curl')) {
-            $info   = JText::_('COM_GAMIFICATION_CURL_INFO');
-            $result = array('type' => 'important', 'text' => JText::_('JOFF'));
-        } else {
-            $result = array('type' => 'success', 'text' => JText::_('JON'));
-        }
-        GamificationInstallHelper::addRow($title, $result, $info);
-
         // Display result about verification Magic Quotes
         $title = JText::_('COM_GAMIFICATION_MAGIC_QUOTES');
         $info  = '';
@@ -158,10 +147,47 @@ class pkg_gamificationInstallerScript
         }
         GamificationInstallHelper::addRow($title, $result, $info);
 
+        // Display result about verification for cURL library
+        $title = JText::_('COM_GAMIFICATION_CURL_LIBRARY');
+        $info  = '';
+        if (!extension_loaded('curl')) {
+            $info   = JText::_('COM_GAMIFICATION_PHP_CURL_INFO');
+            $result = array('type' => 'important', 'text' => JText::_('JNO'));
+        } else {
+            $currentVersion = GamificationInstallHelper::getCurlVersion();
+            $text           = JText::sprintf('COM_GAMIFICATION_CURRENT_V_S', $currentVersion);
+
+            if (version_compare($currentVersion, '7.34.0', '<')) {
+                $info   = JText::sprintf('COM_GAMIFICATION_REQUIRES_V_S', '7.34.0+');
+                $result = array('type' => 'warning', 'text' => $text);
+            } else {
+                $result = array('type' => 'success', 'text' => $text);
+            }
+        }
+        GamificationInstallHelper::addRow($title, $result, $info);
+        
+        // Display result about verification Open SSL
+        $title = JText::_('COM_GAMIFICATION_OPEN_SSL');
+        $info  = '';
+        if (!function_exists('curl_init')) {
+            $result = array('type' => 'important', 'text' => JText::_('JNO'));
+        } else {
+            $currentVersion = GamificationInstallHelper::getOpenSslVersion();
+            $text           = JText::sprintf('COM_GAMIFICATION_CURRENT_V_S', $currentVersion);
+
+            if (version_compare($currentVersion, '1.0.1.3', '<')) {
+                $info   = JText::sprintf('COM_GAMIFICATION_REQUIRES_V_S', '1.0.1.3+');
+                $result = array('type' => 'warning', 'text' => $text);
+            } else {
+                $result = array('type' => 'success', 'text' => $text);
+            }
+        }
+        GamificationInstallHelper::addRow($title, $result, $info);
+        
         // Display result about PHP version
         $title = JText::_('COM_GAMIFICATION_PHP_VERSION');
         $info  = '';
-        if (version_compare(PHP_VERSION, '5.5.0') < 0) {
+        if (version_compare(PHP_VERSION, '5.5.19') < 0) {
             $result = array('type' => 'important', 'text' => JText::_('COM_GAMIFICATION_WARNING'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));

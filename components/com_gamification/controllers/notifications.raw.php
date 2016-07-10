@@ -43,7 +43,6 @@ class GamificationControllerNotifications extends JControllerLegacy
         $response = new Prism\Response\Json();
 
         try {
-
             $notifications = new Gamification\Notification\Notifications(JFactory::getDbo());
 
             $options = array(
@@ -54,7 +53,7 @@ class GamificationControllerNotifications extends JControllerLegacy
             $notRead = $notifications->getNumber($options);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

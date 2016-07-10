@@ -14,22 +14,22 @@ use Joomla\Utilities\ArrayHelper;
 defined('_JEXEC') or die;
 
 /**
- * Gamification achievement controller class.
+ * Gamification challenge controller class.
  *
  * @package      Gamification Platform
  * @subpackage   Components
  * @since        1.6
  */
-class GamificationControllerAchievement extends Backend
+class GamificationControllerChallenge extends Backend
 {
     /**
      * @param string $name
      * @param string $prefix
      * @param array  $config
      *
-     * @return GamificationModelAchievement
+     * @return GamificationModelChallenge
      */
-    public function getModel($name = 'Achievement', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Challenge', $prefix = 'GamificationModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
         return $model;
@@ -84,11 +84,11 @@ class GamificationControllerAchievement extends Backend
 
             $redirectOptions['id'] = $itemId;
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 
-        $this->displayMessage(JText::_('COM_GAMIFICATION_ACHIEVEMENT_SAVED'), $redirectOptions);
+        $this->displayMessage(JText::_('COM_GAMIFICATION_CHALLENGE_SAVED'), $redirectOptions);
     }
 
     public function removeImage()
@@ -98,13 +98,13 @@ class GamificationControllerAchievement extends Backend
         $itemId = $this->input->get->get('id', 0, 'int');
 
         $redirectOptions = array(
-            'view'   => 'achievement',
+            'view'   => 'challenge',
             'layout' => 'edit',
             'id'     => $itemId
         );
 
         $model = $this->getModel();
-        /** @var $model GamificationModelAchievement */
+        /** @var $model GamificationModelChallenge */
 
         // Check for errors
         if (!$itemId) {
@@ -115,7 +115,7 @@ class GamificationControllerAchievement extends Backend
         try {
             $model->removeImage($itemId);
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_gamification');
             throw new Exception(JText::_('COM_GAMIFICATION_ERROR_SYSTEM'));
         }
 

@@ -36,11 +36,10 @@ $lang->load('lib_gamification', GAMIFICATION_PATH_COMPONENT_SITE);
 
 JLog::addLogger(
     array(
-        // Sets file name
         'text_file' => 'com_gamification.errors.php'
     ),
     // Sets messages of all log levels to be sent to the file
-    JLog::CRITICAL + JLog::EMERGENCY + JLog::ERROR,
+    JLog::CRITICAL + JLog::EMERGENCY + JLog::ALERT + JLog::ERROR,
     // The log category/categories which should be recorded in this file
     // In this case, it's just the one category from our extension, still
     // we need to put it inside an array

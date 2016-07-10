@@ -14,6 +14,7 @@ use Joomla\DI\ContainerAwareTrait;
 use Prism\Utilities\StringHelper;
 use Prism\Database\Table;
 use Gamification\Points\Points;
+use Gamification\Mechanic\PointsBased;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -23,7 +24,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Gamification
  * @subpackage      Rewards
  */
-class Reward extends Table implements ContainerAwareInterface
+class Reward extends Table implements ContainerAwareInterface, PointsBased
 {
     use ContainerAwareTrait;
 

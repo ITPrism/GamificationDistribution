@@ -14,7 +14,7 @@ use Prism\Database\Table;
 defined('JPATH_PLATFORM') or die;
 
 /**
- * This class contains methods that are used for managing a achievement.
+ * This class contains methods that are used for managing a challenge.
  *
  * @package         Gamification
  * @subpackage      Challenges
@@ -36,12 +36,12 @@ class Challenge extends Table
     protected $group_id;
 
     /**
-     * Get achievement title.
+     * Get challenge title.
      *
      * <code>
-     * $achievementId    = 1;
-     * $achievement      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
-     * $title       = $achievement->getTitle();
+     * $challengeId    = 1;
+     * $challenge      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
+     * $title       = $challenge->getTitle();
      * </code>
      *
      * @return string
@@ -52,12 +52,12 @@ class Challenge extends Table
     }
 
     /**
-     * Get achievement image.
+     * Get challenge image.
      *
      * <code>
-     * $achievementId    = 1;
-     * $achievement      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
-     * $image       = $achievement->getImage();
+     * $challengeId    = 1;
+     * $challenge      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
+     * $image       = $challenge->getImage();
      * </code>
      *
      * @return string
@@ -68,12 +68,12 @@ class Challenge extends Table
     }
 
     /**
-     * Get achievement note.
+     * Get challenge note.
      *
      * <code>
-     * $achievementId    = 1;
-     * $achievement      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
-     * $note       = $achievement->getNote();
+     * $challengeId    = 1;
+     * $challenge      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
+     * $note       = $challenge->getNote();
      * </code>
      *
      * @return string
@@ -84,19 +84,19 @@ class Challenge extends Table
     }
 
     /**
-     * Return achievement description with possibility
+     * Return challenge description with possibility
      * to replace placeholders with dynamically generated data.
      *
      * <code>
-     * $achievementId    = 1;
-     * $achievement      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
+     * $challengeId    = 1;
+     * $challenge      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
      *
      * $data = array(
      *     "name" => "John Dow",
      *     "title" => "..."
      * );
      *
-     * echo $achievement->getDescription($data);
+     * echo $challenge->getDescription($data);
      * </code>
      *
      * @param array $data
@@ -120,13 +120,13 @@ class Challenge extends Table
     }
 
     /**
-     * Check for published achievement.
+     * Check for published challenge.
      *
      * <code>
-     * $achievementId     = 1;
-     * $achievement       = new Gamification\Challenge\Challenge(\JFactory::getDbo());
+     * $challengeId     = 1;
+     * $challenge       = new Gamification\Challenge\Challenge(\JFactory::getDbo());
      *
-     * if(!$achievement->isPublished()) {
+     * if(!$challenge->isPublished()) {
      * ...
      * }
      * </code>
@@ -139,15 +139,15 @@ class Challenge extends Table
     }
 
     /**
-     * Get the group ID of the achievement.
+     * Get the group ID of the challenge.
      *
      * <code>
-     * $achievementId    = 1;
+     * $challengeId    = 1;
      *
-     * $achievement      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
-     * $achievement->load($achievementId);
+     * $challenge      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
+     * $challenge->load($challengeId);
      *
-     * $groupId    = $achievement->getGroupId();
+     * $groupId    = $challenge->getGroupId();
      * </code>
      *
      * @return integer
@@ -158,7 +158,7 @@ class Challenge extends Table
     }
 
     /**
-     * Load achievement data from database.
+     * Load challenge data from database.
      *
      * <code>
      * $keys = array(
@@ -166,8 +166,8 @@ class Challenge extends Table
      *    "group_id" => 2
      * );
      *
-     * $achievement      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
-     * $achievement->load($keys);
+     * $challenge      = new Gamification\Challenge\Challenge(\JFactory::getDbo());
+     * $challenge->load($keys);
      * </code>
      *
      * @param int|array $keys
@@ -210,9 +210,9 @@ class Challenge extends Table
      *        "group_id"  => 3
      * );
      *
-     * $achievement   = new Gamification\Challenge\Challenge(\JFactory::getDbo());
-     * $achievement->bind($data);
-     * $achievement->store();
+     * $challenge   = new Gamification\Challenge\Challenge(\JFactory::getDbo());
+     * $challenge->bind($data);
+     * $challenge->store();
      * </code>
      */
     public function store()
