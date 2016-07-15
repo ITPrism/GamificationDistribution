@@ -1,9 +1,9 @@
 Gamification Platform Distribution
 ==========================
-( Version 2.0 )
+( Version 2.1 )
 - - -
 
-Distribution of [Gamification Platform] (http://itprism.com/free-joomla-extensions/ecommerce-gamification/game-mechanics-platform) installed on Joomla 3.4.8. It should be used as development environment where everyone can contribute a code to the project.
+Distribution of [Gamification Platform] (http://itprism.com/free-joomla-extensions/ecommerce-gamification/game-mechanics-platform) installed on Joomla 3.6.0. It should be used as development environment where everyone can contribute a code to the project.
 
 ##Documentation
 You can find documentation on following pages.

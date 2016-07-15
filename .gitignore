@@ -1,6 +1,5 @@
 /configuration.php
 /robots.txt
-/.idea
 /cache/*
 /logs/*
 /tmp/*

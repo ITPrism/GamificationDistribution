@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension type="library" version="3.4" method="upgrade">
+<extension type="library" version="3.5" method="upgrade">
 	<name>Prism Library</name>
 	<libraryname>Prism</libraryname>
 	<author>Todor Iliev</author>
 	<authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-	<copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
+	<copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
 	<license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
 	<packager>ITPrism</packager>
 	<packagerurl>http://itprism.com</packagerurl>
-	<version>1.8</version>
-	<creationDate>31 October, 2015</creationDate>
+	<version>1.12</version>
+	<creationDate>29 April, 2016</creationDate>
 	<description><![CDATA[
     <p><a href="http://itprism.com/free-joomla-extensions/others/software-development-kit" target="_blank">Prism Library</a> is a collection of PHP classes used in many ITPrism extensions.</p>
     <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
@@ -20,13 +20,14 @@
 	    <folder>Controller</folder>
         <folder>Database</folder>
         <folder>File</folder>
+        <folder>Filesystem</folder>
+		<folder>Helper</folder>
         <folder>Integration</folder>
         <folder>language</folder>
         <folder>libs</folder>
         <folder>Log</folder>
         <folder>Payment</folder>
         <folder>Response</folder>
-        <folder>String</folder>
         <folder>Transifex</folder>
         <folder>ui</folder>
         <folder>Utilities</folder>

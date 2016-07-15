@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   Integrations\Profiles
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@prism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@prism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -19,6 +19,8 @@ defined('JPATH_PLATFORM') or die;
  *
  * @package      Prism
  * @subpackage   Integrations\Notifications
+ *
+ * @deprecated v1.20
  */
 class Builder
 {

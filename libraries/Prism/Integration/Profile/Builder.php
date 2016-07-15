@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   Integrations\Profiles
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -11,6 +11,7 @@ namespace Prism\Integration\Profile;
 
 use Joomla\Utilities\ArrayHelper;
 use Joomla\Registry\Registry;
+use Prism\Filesystem\Helper;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -20,6 +21,8 @@ defined('JPATH_PLATFORM') or die;
  *
  * @package      Prism
  * @subpackage   Integrations\Profiles
+ *
+ * @deprecated v1.20
  */
 class Builder
 {
@@ -70,15 +73,17 @@ class Builder
 
             case 'socialcommunity':
 
-                jimport('socialcommunity.init');
+                jimport('Socialcommunity.init');
 
                 /** @var  $params Registry */
                 $params = \JComponentHelper::getParams('com_socialcommunity');
-                $path   = $params->get('images_directory', '/images/profiles');
+                $filesystemHelper = new Helper($params);
 
-                $profile = new SocialCommunity(\JFactory::getDbo());
-                $profile->load($userId);
-                $profile->setPath($path);
+                $url   = $filesystemHelper->getMediaFolderUri();
+
+                $profile = new Socialcommunity(\JFactory::getDbo());
+                $profile->load(array('user_id' => $userId));
+                $profile->setMediaUrl($url);
 
                 break;
 
@@ -106,6 +111,9 @@ class Builder
                 $profile = new JomSocial(\JFactory::getDbo());
                 $profile->load($userId);
 
+                // Load language file.
+                $lang = \JFactory::getLanguage();
+                $lang->load('com_community.country', JPATH_BASE);
                 break;
 
             case 'easysocial':
