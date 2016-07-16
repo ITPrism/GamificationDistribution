@@ -22,10 +22,12 @@ Gamification Platform is under [GPLv3 license](http://www.gnu.org/licenses/gpl-3
 If you would like to add new feature to the extension or you would like to fix an issue, you should send pull request. How to do it?
 
 * [Fork](https://help.github.com/articles/fork-a-repo/) this repository. That will create a copy in your GitHub account.
-* [Clone the repository](https://help.github.com/articles/cloning-a-repository/), that you have just forked, on your PC .
+* [Clone the repository](https://help.github.com/articles/cloning-a-repository/), that you have just forked, on your PC.
 * [Install the distribution like Joomla!](https://docs.joomla.org/J3.x:Installing_Joomla) on your localhost. Note: You should not remove the folder 'installation' on the last step of the installation process.
-* The installer will remove some files (joomla.xml, robots.txt.dist). You have to [revert the files](https://www.quora.com/How-can-I-recover-a-file-I-deleted-in-my-local-repo-from-the-remote-repo-in-Git).
-* [Create branch](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) and write your code.
+* Change the value of constant **DEV\_STATUS** to '**dev**' in that file *__libraries/cms/version/version.php__*.
+* The installer could remove some files or folders (joomla.xml, robots.txt.dist, /installation). You will have to [revert the files](https://www.quora.com/How-can-I-recover-a-file-I-deleted-in-my-local-repo-from-the-remote-repo-in-Git).
+* [Create branch](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) and write your code. Use this branch to provide your contribution.
+* If you would like to exclude files that you do not want to commit, you will have to use [explicit repository excludes](https://help.github.com/articles/ignoring-files/#explicit-repository-excludes).
 * When you are done, [push your branch](https://help.github.com/articles/pushing-to-a-remote/) to your remote (forked) repository.
 * Go to your repository and [create pull request](https://help.github.com/articles/using-pull-requests/).
 
@@ -43,3 +45,5 @@ If you would like to create a package that you will be able to install on your J
 * Save the file __build/antconfig.txt__.
 * Open a console and go in folder __build__.
 * Type `ant` and click enter. The system will copy all files from distribution to the folder where you are going to build the installable package.
+
+`ant`
