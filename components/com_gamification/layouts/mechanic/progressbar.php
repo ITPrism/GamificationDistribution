@@ -63,10 +63,11 @@ if ($tooltip) {
 
 
 <div class="gfy-progress-labels">
-
+<?php if ($progress->getCurrentUnit()) { ?>
 <div class="gfy-prgss-lbl-current">
 <?php echo htmlspecialchars($progress->getCurrentUnit()->getTitle(), ENT_QUOTES, 'UTF-8');?>
 </div>
+<?php } ?>
 
 <?php
 // Prepare next level
