@@ -10,9 +10,8 @@
 namespace Prism\File;
 
 use Joomla\Registry\Registry;
-use Joomla\Utilities\ArrayHelper;
+use Prism\Constants;
 use Prism\Utilities\StringHelper;
-use Prism\Validator\Validator;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -25,316 +24,220 @@ defined('JPATH_PLATFORM') or die;
 class Image
 {
     /**
-     * The folder where the files will be stored.
+     * The file that will be processed.
      *
      * @var string
      */
-    protected $rootFolder;
-
-    /**
-     * The file data that comes from PHP input.
-     *
-     * @var array
-     */
-    protected $fileInput = array();
-
     protected $file;
-
-    protected $errors = array();
-    protected $validators = array();
 
     /**
      * Initialize the object.
      *
      * <code>
-     * $image = $this->input->files->get('media', array(), 'array');
-     * $rootFolder = "/root/joomla/tmp";
+     * $file        = '/tmp/picture.jpg';
+     * $destinationFolder  = "/root/joomla/tmp";
      *
-     * $file = new Prism\File\Image($image, $rootFolder);
+     * $image = new Prism\File\Image($file);
      * </code>
      *
-     * @param  array $fileInput Data from PHP input.
-     * @param  string $rootFolder The folder where the file will be stored.
-     * @param  Registry $options
+     * @param  string $file
      */
-    public function __construct(array $fileInput, $rootFolder, Registry $options = null)
+    public function __construct($file)
     {
-        $this->fileInput  = $fileInput;
-        $this->rootFolder = $rootFolder;
-        $this->options = ($options !== null and ($options instanceof Registry)) ? $options : new Registry;
-    }
-
-    /**
-     * Add an object that validates the file.
-     *
-     * <code>
-     * $image = $this->input->files->get('media', array(), 'array');
-     * $rootFolder = "/root/joomla/tmp";
-     *
-     * $validator = new Prism\File\Validator\Image();
-     *
-     * $file = new Prism\File\Image($image, $rootFolder);
-     * $file->addValidator($validator);
-     * </code>
-     *
-     * @param  Validator $validator An object that validate a file.
-     * @param  bool $reset Remove existing validators.
-     *
-     * @return self
-     */
-    public function addValidator(Validator $validator, $reset = false)
-    {
-        if ($reset !== false) {
-            $this->validators = array();
-        }
-
-        $this->validators[] = $validator;
-
-        return $this;
-    }
-
-    /**
-     * Validate the file.
-     *
-     * <code>
-     * $myFile     = "/tmp/myfile.jpg";
-     * $rootFolder = "/root/joomla/tmp";
-     *
-     * $validator = new Prism\File\Validator\Image();
-     *
-     * $file = new Prism\File\Image($myFile, $rootFolder);
-     * $file->addValidator($validator);
-     *
-     * if (!$file->isValid()) {
-     * ...
-     * )
-     * </code>
-     */
-    public function isValid()
-    {
-        /** @var $validator Validator */
-        foreach ($this->validators as $validator) {
-            if (!$validator->isValid()) {
-                $this->errors[] = $validator->getMessage();
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Upload the file in the temporary folder.
-     *
-     * <code>
-     * $image = $this->input->files->get('media', array(), 'array');
-     * $rootFolder = "/root/joomla/tmp";
-     *
-     * $file = new Prism\File\Image($image, $rootFolder);
-     *
-     * $fileData = $file->upload();
-     * </code>
-     *
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function upload()
-    {
-        $sourceFile      = ArrayHelper::getValue($this->fileInput, 'tmp_name');
-        $filename        = \JFile::makeSafe(ArrayHelper::getValue($this->fileInput, 'name'));
-
-        // Generate a new file name.
-        $generatedName   = StringHelper::generateRandomString($this->options->get('filename_length', 16)) .'.' . \JFile::getExt($filename);
-
-        // Concatenate temporary folder and the new file name.
-        $tmpFile         = \JPath::clean($this->rootFolder .'/'. $generatedName);
-
-        // Copy the file to temporary folder.
-        if (!\JFile::upload($sourceFile, $tmpFile)) {
-            throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_CANNOT_COPY_FILE_S', $filename . ' ('.$sourceFile.')', $tmpFile));
-        }
-
-        $this->file = $tmpFile;
-
-        // Prepare meta data about the file.
-        $fileData = array(
-            'filename' => $generatedName,
-            'filepath' => $tmpFile,
-            'type'     => 'image'
-        );
-        $fileData = array_merge($fileData, $this->prepareImageProperties($this->file));
-
-        return $fileData;
+        $this->file = $file;
     }
 
     /**
      * Resize the temporary file to new one.
      *
      * <code>
-     * $image = $this->input->files->get('media', array(), 'array');
-     * $rootFolder = "/root/joomla/tmp";
+     * $file = $this->input->files->get('media', array(), 'array');
+     * $destinationFolder = "/root/joomla/tmp";
      *
      * $resizeOptions = array(
      *    'width'  => $options['thumb_width'],
      *    'height' => $options['thumb_height'],
-     *    'scale'  => $options['thumb_scale']
+     *    'scale'  => \JImage::SCALE_INSIDE
      * );
      *
-     * $file = new Prism\File\Image($image, $rootFolder);
+     * $file = new Prism\File\Image($file['tmp_path']);
      *
-     * $file->upload();
-     * $fileData = $file->resize($resize);
+     * $fileData = $file->resize($destinationFolder, $resizeOptions);
      * </code>
      *
-     * @param array $options
-     * @param bool $replace Replace the original file with the new one.
-     * @param string $prefix Filename prefix.
+     * @param  string $destinationFolder The folder where the file will be stored.
+     * @param  Registry $options
      *
      * @throws \RuntimeException
+     * @throws \LogicException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
      *
      * @return array
      */
-    public function resize(array $options, $replace = false, $prefix = '')
+    public function resize($destinationFolder, Registry $options)
     {
         if (!$this->file) {
             throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_FILE_NOT_FOUND_S', $this->file));
+        }
+
+        if (!\JFolder::exists($destinationFolder) and !\JFolder::create($destinationFolder)) {
+            throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_CANNOT_CREATE_FOLDER_S', $destinationFolder));
         }
 
         // Resize image.
         $image = new \JImage();
         $image->loadFile($this->file);
         if (!$image->isLoaded()) {
-            throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_FILE_NOT_FOUND_S', $this->file));
+            throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_FILE_NOT_IMAGE', $this->file));
         }
 
         // Resize to general size.
-        $width  = ArrayHelper::getValue($options, 'width', 640);
-        $width  = ($width < 50) ? 50 : $width;
-        $height = ArrayHelper::getValue($options, 'height', 480);
-        $height = ($height < 50) ? 50 : $height;
-        $scale  = ArrayHelper::getValue($options, 'scale', \JImage::SCALE_INSIDE);
-        $image->resize($width, $height, false, $scale);
+        $width      = $options->get('width', 640);
+        $width      = ($width < 50) ? 50 : $width;
+        $height     = $options->get('height', 480);
+        $height     = ($height < 50) ? 50 : $height;
+        $scale      = $options->get('scale', \JImage::SCALE_INSIDE);
+        $createNew  = (bool)$options->get('create_new', Constants::NO);
 
-        // Generate new name.
-        $generatedName = StringHelper::generateRandomString($this->options->get('filename_length', 16)) .'.png';
-        if (is_string($prefix) and $prefix !== '') {
-            $generatedName = $prefix.$generatedName;
-        }
-        $file    = \JPath::clean($this->rootFolder .'/'. $generatedName);
-
-        // Store to file.
-        $image->toFile($file, IMAGETYPE_PNG);
-
-        if ($replace) {
-            \JFile::delete($this->file);
-            $this->file = $file;
+        if ($createNew) {
+            $image = $image->resize($width, $height, $createNew, $scale);
+        } else {
+            $image->resize($width, $height, $createNew, $scale);
         }
 
-        // Prepare meta data about the file.
-        $fileData = array(
-            'filename' => $generatedName,
-            'filepath' => $file,
-            'type'     => 'image'
-        );
-        $fileData = array_merge($fileData, $this->prepareImageProperties($this->file));
-
-        return $fileData;
-    }
-
-    protected function prepareImageProperties($file)
-    {
-        $imageProperties = \JImage::getImageFileProperties($file);
-
-        $properties = array(
-            'width'    => $imageProperties->width,
-            'height'   => $imageProperties->height,
-            'mime'     => $imageProperties->mime,
-            'filesize' => $imageProperties->filesize
-        );
-
-        return $properties;
+        return $this->saveFile($image, $destinationFolder, $options);
     }
 
     /**
-     * Return error message.
+     * Crop an image.
      *
      * <code>
-     * $image = $this->input->files->get('media', array(), 'array');
-     * $rootFolder = "/root/joomla/tmp";
+     * $file = $this->input->files->get('media', array(), 'array');
+     * $destinationFolder = "/root/joomla/tmp";
      *
-     * $validator = new Prism\File\Validator\Image();
+     * $resizeOptions = array(
+     *    'width'  => $options['thumb_width'],
+     *    'height' => $options['thumb_height'],
+     *    'x'  => 100,
+     *    'y'  => 100,
+     * );
      *
-     * $file = new Prism\File\Image($myFile, $rootFolder);
-     * $file->addValidator($validator);
+     * $file = new Prism\File\Image($file['tmp_path']);
      *
-     * if (!$file->isValid()) {
-     *     echo $file->getError();
-     * }
+     * $fileData = $file->crop($destinationFolder, $resizeOptions);
      * </code>
      *
-     * @return string
-     */
-    public function getError()
-    {
-        return end($this->errors);
-    }
-
-    /**
-     * Delete the record from database and reset the object.
-     *
-     * <code>
-     * $image = $this->input->files->get('media', array(), 'array');
-     * $rootFolder = "/root/joomla/tmp";
-     *
-     * $file = new Prism\File\Image($image, $rootFolder);
-     *
-     * $fileData = $file->upload();
-     *
-     * $file->remove();
-     * </code>
-     *
-     * @return self
+     * @param  string $destinationFolder The folder where the file will be stored.
+     * @param  Registry $options
      *
      * @throws \RuntimeException
-     */
-    public function remove()
-    {
-        if (!$this->file) {
-            throw new \RuntimeException(\JText::_('LIB_PRISM_ERROR_INVALID_FILE'));
-        }
-
-        // Remove the thumbnail from the filesystem.
-        if (\JFile::exists($this->file)) {
-            \JFile::delete($this->file);
-        }
-
-        $this->file = null;
-        $this->errors = array();
-
-        return $this;
-    }
-
-    /**
-     * Return all error messages.
-     *
-     * <code>
-     * $myFile   = "/tmp/myfile.jpg";
-     *
-     * $validator = new Prism\File\Validator\Image();
-     *
-     * $file = new Prism\File\Image($myFile);
-     * $file->addValidator($validator);
-     *
-     * if (!$file->isValid()) {
-     *     $errors = $file->getErrors();
-     * )
-     * </code>
+     * @throws \LogicException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
      *
      * @return array
      */
-    public function getErrors()
+    public function crop($destinationFolder, Registry $options)
     {
-        return $this->errors;
+        if (!$this->file) {
+            throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_FILE_NOT_FOUND_S', $this->file));
+        }
+
+        if (!\JFolder::exists($destinationFolder) and !\JFolder::create($destinationFolder)) {
+            throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_CANNOT_CREATE_FOLDER_S', $destinationFolder));
+        }
+
+        // Resize image.
+        $image = new \JImage();
+        $image->loadFile($this->file);
+        if (!$image->isLoaded()) {
+            throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_FILE_NOT_IMAGE', $this->file));
+        }
+
+        // Resize to general size.
+        $width      = $options->get('width', 200);
+        $width      = ($width < 50) ? 50 : $width;
+        $height     = $options->get('height', 200);
+        $height     = ($height < 50) ? 50 : $height;
+        $left       = (int)abs($options->get('x', 0));
+        $top        = (int)abs($options->get('y', 0));
+        $createNew  = (bool)$options->get('create_new', Constants::NO);
+
+        if ($createNew) {
+            $image = $image->crop($width, $height, $left, $top, $createNew);
+        } else {
+            $image->crop($width, $height, $left, $top, $createNew);
+        }
+
+        return $this->saveFile($image, $destinationFolder, $options);
+    }
+
+    protected function saveFile(\JImage $image, $destinationFolder, Registry $options)
+    {
+        $filename = \JFile::makeSafe(basename($this->file));
+        $ext      = \JFile::getExt($filename);
+
+        // Generate new name.
+        $newFilename   = \JFile::makeSafe(basename($options->get('filename')));
+        $generatedName = $newFilename;
+        if (!$newFilename) {
+            $generatedName = StringHelper::generateRandomString($options->get('filename_length', 16));
+        }
+
+        // Set prefix
+        $prefix  = \JFile::makeSafe($options->get('prefix'));
+        if (is_string($prefix) and $prefix !== '') {
+            $generatedName = $prefix.$generatedName;
+        }
+
+        // Set suffix
+        $suffix  = \JFile::makeSafe($options->get('suffix'));
+        if (is_string($suffix) and $suffix !== '') {
+            $generatedName .= $suffix;
+        }
+
+        // Add the extension to the file.
+        $generatedName  .= '.'.$ext;
+        $destinationFile = \JPath::clean($destinationFolder .'/'. $generatedName, '/');
+
+        // Resize the image.
+        switch ($ext) {
+            case 'png':
+                $quality    = (int)$options->get('quality', Constants::QUALITY_HIGH);
+                $optimizationOptions = array();
+                if ($quality > 0) {
+                    if ($quality > 9) {
+                        $quality /= 10;
+                    }
+
+                    $optimizationOptions = array('quality' => $quality);
+                }
+
+                $image->toFile($destinationFile, IMAGETYPE_PNG, $optimizationOptions);
+                break;
+
+            case 'jpg':
+            case 'jpeg':
+                $quality    = (int)$options->get('quality', Constants::QUALITY_HIGH);
+                $optimizationOptions = array();
+                if ($quality > 0) {
+                    $optimizationOptions = array('quality' => $quality);
+                }
+
+                $image->toFile($destinationFile, IMAGETYPE_JPEG, $optimizationOptions);
+                break;
+
+            case 'gif':
+                $image->toFile($destinationFile, IMAGETYPE_GIF);
+                break;
+        }
+
+        // Prepare meta data about the file.
+        $file     = new File($destinationFile);
+        $fileData = $file->extractFileData();
+        $fileData['filepath'] = $destinationFile;
+
+        return $fileData;
     }
 }
