@@ -76,8 +76,8 @@ class Points extends Table
      *
      * <code>
      * $data = array(
-     *        'title'    => 'Points',
-     *        'abbr'    => 'P',
+     *        'title'     => 'Points',
+     *        'abbr'      => 'P',
      *        'published' => 1,
      *        'group_id'  => 4
      * );

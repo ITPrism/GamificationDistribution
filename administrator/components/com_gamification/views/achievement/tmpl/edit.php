@@ -21,6 +21,7 @@ defined('_JEXEC') or die; ?>
                 <?php echo $this->form->renderField('title'); ?>
                 <?php echo $this->form->renderField('group_id'); ?>
                 <?php echo $this->form->renderField('image'); ?>
+                <?php echo $this->form->renderField('resize_image'); ?>
                 <?php echo $this->form->renderField('description'); ?>
                 <?php echo $this->form->renderField('published'); ?>
                 <?php echo $this->form->renderField('id'); ?>

@@ -8,6 +8,13 @@
         <field name="image_small_height" type="text" default="100" label="COM_GAMIFICATION_IMAGE_SMALL_HEIGHT" description="COM_GAMIFICATION_IMAGE_SMALL_HEIGHT_DESC"/>
         <field name="image_square_width" type="text" default="50" label="COM_GAMIFICATION_SQUARE_WIDTH" description="COM_GAMIFICATION_IMAGE_SQUARE_WIDTH_DESC"/>
         <field name="image_square_height" type="text" default="50" label="COM_GAMIFICATION_SQUARE_HEIGHT" description="COM_GAMIFICATION_IMAGE_SQUARE_HEIGHT_DESC"/>
+        <field name="image_quality" type="list" default="80" label="COM_GAMIFICATION_IMAGE_QUALITY" description="COM_GAMIFICATION_IMAGE_QUALITY_DESC" class="btn-group">
+            <option value="10">COM_GAMIFICATION_LOW</option>
+            <option value="30">COM_GAMIFICATION_MEDIUM</option>
+            <option value="60">COM_GAMIFICATION_HIGH</option>
+            <option value="80">COM_GAMIFICATION_VERY_HIGH</option>
+            <option value="100">COM_GAMIFICATION_MAXIMUM</option>
+        </field>
         <field name="image_resizing_scale" type="list" default="2" label="COM_GAMIFICATION_IMAGES_SCALE" description="COM_GAMIFICATION_IMAGES_SCALE_DESC" class="btn-group">
             <option value="1">COM_GAMIFICATION_FILL</option>
             <option value="2">COM_GAMIFICATION_INSIDE</option>

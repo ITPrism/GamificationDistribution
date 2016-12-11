@@ -19,6 +19,11 @@
                filter="trim"
                 />
 
+        <field name="resize_image" type="checkbox"
+               label="COM_GAMIFICATION_RESIZE_IMAGE"
+               description="COM_GAMIFICATION_FIELD_RESIZE_IMAGE_DESC"
+        />
+
         <field name="group_id" type="gfygroups"
                label="COM_GAMIFICATION_GROUP"
                description="COM_GAMIFICATION_FIELD_GROUP_DESC"

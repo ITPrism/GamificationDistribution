@@ -63,7 +63,6 @@ class GamificationControllerReward extends Backend
         // Check for errors
         if ($validData === false) {
             $this->displayNotice($form->getErrors(), $redirectOptions);
-
             return;
         }
 

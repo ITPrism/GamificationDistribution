@@ -193,7 +193,7 @@ class GamificationModelBadge extends JModelAdmin
                 $filesystemHelper   = new Prism\Filesystem\Helper($params);
                 $mediaFolder        = $filesystemHelper->getMediaFolder();
 
-                $file = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder .DIRECTORY_SEPARATOR. $table->get('image'));
+                $file = JPath::clean(JPATH_ROOT .'/'. $mediaFolder .'/'. $table->get('image'));
 
                 if (JFile::exists($file)) {
                     JFile::delete($file);
@@ -216,7 +216,7 @@ class GamificationModelBadge extends JModelAdmin
             $filesystemHelper   = new Prism\Filesystem\Helper($params);
             $mediaFolder        = $filesystemHelper->getMediaFolder();
 
-            $file = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder .DIRECTORY_SEPARATOR. $row->get('image'));
+            $file = JPath::clean(JPATH_ROOT .'/'. $mediaFolder .'/'. $row->get('image'));
 
             if (JFile::exists($file)) {
                 JFile::delete($file);
@@ -230,7 +230,7 @@ class GamificationModelBadge extends JModelAdmin
     /**
      * Store the file in a folder of the extension.
      *
-     * @param array $image
+     * @param array $uploadedFileData
      *
      * @throws \InvalidArgumentException
      * @throws \Exception
@@ -239,32 +239,30 @@ class GamificationModelBadge extends JModelAdmin
      *
      * @return string
      */
-    public function uploadImage($image)
+    public function uploadImage(array $uploadedFileData)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $uploadedFile = ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = ArrayHelper::getValue($image, 'name');
-        $errorCode    = ArrayHelper::getValue($image, 'error');
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
-        $params     = JComponentHelper::getParams($this->option);
+        $params       = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
 
         $filesystemHelper   = new Prism\Filesystem\Helper($params);
         $mediaFolder        = $filesystemHelper->getMediaFolder();
 
-        $destinationFolder = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder);
+        $destinationFolder = JPath::clean(JPATH_ROOT .'/'. $mediaFolder);
 
         // Joomla! media extension parameters
         $mediaParams = JComponentHelper::getParams('com_media');
         /** @var $mediaParams Joomla\Registry\Registry */
 
-        $file = new Prism\File\File();
-
         // Prepare size validator.
-        $KB            = 1024 * 1024;
-        $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
+        $KB            = pow(1024, 2);
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         // Prepare file validators.
@@ -280,6 +278,7 @@ class GamificationModelBadge extends JModelAdmin
         $imageExtensions = explode(',', $mediaParams->get('image_extensions'));
         $imageValidator->setImageExtensions($imageExtensions);
 
+        $file = new Prism\File\File($uploadedFile);
         $file
             ->addValidator($sizeValidator)
             ->addValidator($serverValidator)
@@ -291,25 +290,16 @@ class GamificationModelBadge extends JModelAdmin
         }
 
         // Generate temporary file name
-        $ext = strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
+        $filename = Prism\Utilities\StringHelper::generateRandomString(16). '_badge';
 
-        $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
+        // Upload the file.
+        $filesystemOptions = new Registry;
+        $filesystemOptions->set('filename', $filename);
 
-        $imageName   = $generatedName . '_badge.' . $ext;
-        $destination = JPath::clean($destinationFolder .DIRECTORY_SEPARATOR. $imageName);
+        $filesystemLocal = new Prism\Filesystem\Adapter\Local($destinationFolder);
+        $sourceFile      = $filesystemLocal->upload($uploadedFileData, $filesystemOptions);
 
-        // Prepare uploader object.
-        $uploader = new Prism\File\Uploader\Local($uploadedFile);
-        $uploader->setDestination($destination);
-
-        // Upload temporary file
-        $file->setUploader($uploader);
-
-        $file->upload();
-
-        $source = $file->getFile();
-
-        return basename($source);
+        return basename($sourceFile);
     }
 
     /**

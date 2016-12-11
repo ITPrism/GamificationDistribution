@@ -34,7 +34,7 @@
 
         <field name="description" type="textarea" class="input-xxlarge"
                label="COM_GAMIFICATION_DESCRIPTION"
-               description="COM_GAMIFICATION_FIELD_DESCRIPTION_DESC"
+               description="COM_GAMIFICATION_FIELD_BADGE_DESCRIPTION_DESC"
                filter="trim"
                />
 

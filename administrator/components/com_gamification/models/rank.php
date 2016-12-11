@@ -8,6 +8,7 @@
  */
 
 use Joomla\Utilities\ArrayHelper;
+use Joomla\Registry\Registry;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -189,7 +190,7 @@ class GamificationModelRank extends JModelAdmin
     /**
      * Store the file in a folder of the extension.
      *
-     * @param array $image
+     * @param array $uploadedFileData
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
@@ -198,14 +199,11 @@ class GamificationModelRank extends JModelAdmin
      *
      * @return string
      */
-    public function uploadImage($image)
+    public function uploadImage(array $uploadedFileData)
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
-        $uploadedFile = ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = ArrayHelper::getValue($image, 'name');
-        $errorCode    = ArrayHelper::getValue($image, 'error');
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
         $params     = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
@@ -218,11 +216,9 @@ class GamificationModelRank extends JModelAdmin
         // Joomla! media extension parameters
         $mediaParams = JComponentHelper::getParams('com_media');
 
-        $file = new Prism\File\File();
-
         // Prepare size validator.
-        $KB            = 1024 * 1024;
-        $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
+        $KB            = pow(1024, 2);
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         // Prepare file validators.
@@ -238,6 +234,7 @@ class GamificationModelRank extends JModelAdmin
         $imageExtensions = explode(',', $mediaParams->get('image_extensions'));
         $imageValidator->setImageExtensions($imageExtensions);
 
+        $file = new Prism\File\File($uploadedFile);
         $file
             ->addValidator($sizeValidator)
             ->addValidator($serverValidator)
@@ -249,24 +246,15 @@ class GamificationModelRank extends JModelAdmin
         }
 
         // Generate temporary file name
-        $ext = strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
+        $filename = Prism\Utilities\StringHelper::generateRandomString(16). '_rank';
 
-        $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
+        // Upload the file.
+        $filesystemOptions = new Registry;
+        $filesystemOptions->set('filename', $filename);
 
-        $imageName   = $generatedName . '_rank.' . $ext;
-        $destination = JPath::clean($destinationFolder .DIRECTORY_SEPARATOR. $imageName);
+        $filesystemLocal = new Prism\Filesystem\Adapter\Local($destinationFolder);
+        $sourceFile      = $filesystemLocal->upload($uploadedFileData, $filesystemOptions);
 
-        // Prepare uploader object.
-        $uploader = new Prism\File\Uploader\Local($uploadedFile);
-        $uploader->setDestination($destination);
-
-        // Upload temporary file
-        $file->setUploader($uploader);
-
-        $file->upload();
-
-        $source = $file->getFile();
-
-        return basename($source);
+        return basename($sourceFile);
     }
 }

@@ -73,7 +73,9 @@ class GamificationControllerAchievement extends Backend
 
             // Upload picture
             if (!empty($file['name'])) {
-                $images = $model->uploadImage($file);
+                $resizeImage = ArrayHelper::getValue($data, 'resize_image', false, 'bool');
+
+                $images = $model->uploadImage($file, $resizeImage);
                 if (count($images) > 0 and $images['image'] !== '') {
                     $validData = array_merge($validData, $images);
                 }

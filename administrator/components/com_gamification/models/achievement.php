@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -37,7 +39,7 @@ class GamificationModelAchievement extends JModelAdmin
      * @param   array   $data     An optional array of data for the form to interrogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return  JForm   A JForm object on success, false on failure
+     * @return  JForm|bool   A JForm object on success, false on failure
      * @since   1.6
      */
     public function getForm($data = array(), $loadData = true)
@@ -237,7 +239,8 @@ class GamificationModelAchievement extends JModelAdmin
     /**
      * Store the file in a folder of the extension.
      *
-     * @param array $image
+     * @param array $uploadedFileData
+     * @param bool $resizeImage
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
@@ -246,14 +249,14 @@ class GamificationModelAchievement extends JModelAdmin
      *
      * @return array
      */
-    public function uploadImage($image)
+    public function uploadImage(array $uploadedFileData, $resizeImage)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($image, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($image, 'error');
+        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'error');
 
         $params     = JComponentHelper::getParams('com_gamification');
         /** @var  $params Joomla\Registry\Registry */
@@ -261,18 +264,15 @@ class GamificationModelAchievement extends JModelAdmin
         $filesystemHelper   = new Prism\Filesystem\Helper($params);
         $mediaFolder        = $filesystemHelper->getMediaFolder();
 
-        $destinationFolder  = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $mediaFolder);
-        $temporaryFolder    = $app->get('tmp_path');
+        $destinationFolder  = JPath::clean(JPATH_ROOT .'/'. $mediaFolder, '/');
 
         // Joomla! media extension parameters
         $mediaParams = JComponentHelper::getParams('com_media');
         /** @var $mediaParams Joomla\Registry\Registry */
 
-        $file = new Prism\File\File();
-
         // Prepare size validator.
-        $KB            = 1024 * 1024;
-        $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
+        $KB            = pow(1024, 2);
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         // Prepare file validators.
@@ -288,6 +288,7 @@ class GamificationModelAchievement extends JModelAdmin
         $imageExtensions = explode(',', $mediaParams->get('image_extensions'));
         $imageValidator->setImageExtensions($imageExtensions);
 
+        $file = new Prism\File\File($uploadedFile);
         $file
             ->addValidator($sizeValidator)
             ->addValidator($serverValidator)
@@ -298,71 +299,59 @@ class GamificationModelAchievement extends JModelAdmin
             throw new RuntimeException($file->getError());
         }
 
-        // Generate temporary file name
-        $ext = strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
+        // Upload the file in temporary folder.
+        $temporaryFolder = JPath::clean($app->get('tmp_path'), '/');
+        $filesystemLocal = new Prism\Filesystem\Adapter\Local($temporaryFolder);
+        $sourceFile      = $filesystemLocal->upload($uploadedFileData);
 
-        $generatedName = Prism\Utilities\StringHelper::generateRandomString();
-
-        $temporaryFile = $generatedName.'_achievement.'. $ext;
-        $temporaryDestination = JPath::clean($temporaryFolder .DIRECTORY_SEPARATOR. $temporaryFile);
-
-        // Prepare uploader object.
-        $uploader = new Prism\File\Uploader\Local($uploadedFile);
-        $uploader->setDestination($temporaryDestination);
-
-        // Upload temporary file
-        $file->setUploader($uploader);
-        $file->upload();
-
-        $temporaryFile = $file->getFile();
-        if (!is_file($temporaryFile)) {
+        if (!JFile::exists($sourceFile)) {
             throw new RuntimeException('COM_GAMIFICATION_ERROR_FILE_CANT_BE_UPLOADED');
         }
 
-        // Resize image
-        $image = new JImage();
-        $image->loadFile($temporaryFile);
-        if (!$image->isLoaded()) {
-            throw new RuntimeException(JText::sprintf('COM_GAMIFICATION_ERROR_FILE_NOT_FOUND', $temporaryDestination));
-        }
-
-        $imageName  = $generatedName . '_image.png';
-        $smallName  = $generatedName . '_small.png';
-        $squareName = $generatedName . '_square.png';
-
-        $imageFile  = $destinationFolder .DIRECTORY_SEPARATOR. $imageName;
-        $smallFile  = $destinationFolder .DIRECTORY_SEPARATOR. $smallName;
-        $squareFile = $destinationFolder .DIRECTORY_SEPARATOR. $squareName;
-
-        $scaleOption = $params->get('image_resizing_scale', JImage::SCALE_INSIDE);
-
-        // Create main image
-        $width  = $params->get('image_width', 200);
-        $height = $params->get('image_height', 200);
-        $image->resize($width, $height, false, $scaleOption);
-        $image->toFile($imageFile, IMAGETYPE_PNG);
-
-        // Create small image
-        $width  = $params->get('image_small_width', 100);
-        $height = $params->get('image_small_height', 100);
-        $image->resize($width, $height, false, $scaleOption);
-        $image->toFile($smallFile, IMAGETYPE_PNG);
-
-        // Create square image
-        $width  = $params->get('image_square_width', 50);
-        $height = $params->get('image_square_height', 50);
-        $image->resize($width, $height, false, $scaleOption);
-        $image->toFile($squareFile, IMAGETYPE_PNG);
-
         $names = array(
-            'image'        => $imageName,
-            'image_small'  => $smallName,
-            'image_square' => $squareName
+            'image'        => '',
+            'image_small'  => '',
+            'image_square' => ''
         );
 
+        // Create main image
+        $options = new Joomla\Registry\Registry();
+        $options->set('filename_length', 16);
+        $options->set('suffix', '_achievement_image');
+        $options->set('scale', $params->get('image_resizing_scale', \JImage::SCALE_INSIDE));
+        $options->set('quality', $params->get('image_quality', Prism\Constants::QUALITY_HIGH));
+
+        $image   = new Prism\File\Image($sourceFile);
+
+        // Create main image
+        if (!$resizeImage) {
+            $result  = $image->toFile($destinationFolder, $options);
+            $names['image'] = $result['filename'];
+        } else {
+            $options->set('width', $params->get('image_width', 200));
+            $options->set('height', $params->get('image_height', 200));
+
+            $result  = $image->resize($destinationFolder, $options);
+            $names['image'] = $result['filename'];
+        }
+
+        // Create small image
+        $options->set('width', $params->get('image_small_width', 100));
+        $options->set('height', $params->get('image_small_height', 100));
+        $options->set('suffix', '_achievement_small');
+        $result  = $image->resize($destinationFolder, $options);
+        $names['image_small'] = $result['filename'];
+
+        // Create square image
+        $options->set('width', $params->get('image_square_width', 50));
+        $options->set('height', $params->get('image_square_height', 50));
+        $options->set('suffix', '_achievement_square');
+        $result  = $image->resize($destinationFolder, $options);
+        $names['image_square'] = $result['filename'];
+
         // Remove the temporary file.
-        if (JFile::exists($temporaryFile)) {
-            JFile::delete($temporaryFile);
+        if (JFile::exists($sourceFile)) {
+            JFile::delete($sourceFile);
         }
 
         return $names;

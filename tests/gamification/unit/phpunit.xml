@@ -1,0 +1,8 @@
+<phpunit bootstrap="bootstrap.php">
+    <testsuites>
+        <testsuite name="points">
+            <file>suites/library/Points/PointsTest.php</file>
+            <file>suites/library/Points/PointsDatabaseTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
