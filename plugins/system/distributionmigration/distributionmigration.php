@@ -1,10 +1,10 @@
 <?php
 /**
- * @package      GamificationPlatformDistribution
+ * @package      ITPrism Plugins
  * @subpackage   Plugins
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      GNU General Public License version 3 or later; see LICENSE.txt
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPLv3
  */
 
 // no direct access
@@ -12,6 +12,13 @@ defined('_JEXEC') or die;
 
 class plgSystemDistributionMigration extends JPlugin
 {
+    /**
+     * After initialise.
+     *
+     * @return  void
+     *
+     * @since   1.6
+     */
     public function onAfterInitialise()
     {
         $app = JFactory::getApplication();
@@ -32,66 +39,185 @@ class plgSystemDistributionMigration extends JPlugin
         $option = $app->input->getCmd('option');
         $view   = $app->input->getCmd('view');
 
-        if (strcmp($option, 'com_installer') !== 0 and strcmp($view, 'database') !== 0) {
-            return;
+        if (strcmp($option, 'com_installer') === 0 and strcmp($view, 'database') === 0 and JComponentHelper::isInstalled('com_gamification')) {
+            $this->loadLanguage();
+            $this->updateSchemas();
         }
-
-        $this->loadLanguage();
-        $this->updateSchemas();
-
-        // Check component enabled
-        /*if (!JComponentHelper::isInstalled('com_gamification', true)) {
-            return;
-        }*/
     }
 
     protected function updateSchemas()
     {
         $db = JFactory::getDbo();
 
+        // Crowdfunding Platform
         $query = $db->getQuery(true);
-
         $query
-            ->select('a.extension_id, a.element, b.version_id')
+            ->select('a.extension_id, a.element, a.manifest_cache, b.version_id')
             ->from($db->quoteName('#__extensions', 'a'))
             ->leftJoin($db->quoteName('#__schemas', 'b') . ' ON a.extension_id = b.extension_id')
             ->where('a.element = ' . $db->quote('com_gamification'));
 
         $db->setQuery($query);
-        $results = $db->loadAssocList('element');
+        $result = (array)$db->loadAssoc();
 
-        if (array_key_exists('com_gamification', $results)) {
-            $this->updateGamificationPlatform($results, $db);
+        if (count($result) > 0) {
+            $this->updateGamification($result, $db);
         }
+
+        // Clear updates cache.
+        $db->setQuery('TRUNCATE TABLE #__updates');
+        $db->execute();
     }
 
     /**
-     * Update schemas of com_gamification.
+     * Update schemas.
      *
-     * @param array $results
+     * @param array $result
      * @param JDatabaseDriver $db
      *
      * @throws Exception
      */
-    protected function updateGamificationPlatform($results, $db)
+    protected function updateGamification($result, $db)
     {
-        $extensions = 'com_gamification';
+        JLoader::register('Gamification\\Version', JPATH_LIBRARIES . '/Gamification/Version.php');
 
-        JLoader::import('Gamification.Version');
-        $version = new Gamification\Version();
+        $extension = 'com_gamification';
+        $version   = new Gamification\Version();
 
-        if (version_compare($results[$extensions]['version_id'], $version->getShortVersion(), '<')) {
+        $manifestCache = new \Joomla\Registry\Registry($result['manifest_cache']);
+        $manifestVersion = $manifestCache->get('version');
+
+        if (version_compare($result['version_id'], $version->getShortVersion(), '<') or version_compare($manifestVersion, $version->getShortVersion(), '<')) {
+            // Migrate schemas
+            if ($this->params->get('migrate_schemas', false)) {
+                $this->migrateSchemas($extension, $result['version_id']);
+            }
+
+            // Update the version of the component.
+            $this->updateComponentVersion($db, $result['extension_id'], $version->getShortVersion());
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $result['extension_id'], $result['version_id'], $version->getShortVersion());
+            JFactory::getApplication()->enqueueMessage($msg);
+
+            // Update the version of the package.
+            $this->updatePackageVersion($db, $version->getShortVersion(), 'pkg_gamification');
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_MANIFEST_CACHE_S', $extension, $result['extension_id'], $manifestVersion, $version->getShortVersion());
+            JFactory::getApplication()->enqueueMessage($msg);
+        }
+    }
+
+    protected function updateComponentVersion(JDatabaseDriver $db, $componentId, $version)
+    {
+        // Update the version in schemas.
+        $query = $db->getQuery(true);
+        $query
+            ->update($db->quoteName('#__schemas'))
+            ->set($db->quoteName('version_id') .'='. $db->quote($version))
+            ->where($db->quoteName('extension_id') .'='. (int)$componentId);
+
+        $db->setQuery($query);
+        $db->execute();
+
+        // Update the version in manifest cache.
+        $query = $db->getQuery(true);
+        $query
+            ->select('a.manifest_cache')
+            ->from($db->quoteName('#__extensions', 'a'))
+            ->where($db->quoteName('extension_id') .'='. (int)$componentId);
+
+        $db->setQuery($query);
+        $resultManifestCache = $db->loadResult();
+
+        if ($resultManifestCache !== null) {
+            $manifestCache = new Joomla\Registry\Registry($resultManifestCache);
+            $manifestCache->set('version', $version);
+
+            // Store changed manifest cache.
             $query = $db->getQuery(true);
             $query
-                ->update($db->quoteName('#__schemas'))
-                ->set($db->quoteName('version_id') . '='. $db->quote($version->getShortVersion()))
-                ->where($db->quoteName('extension_id') .' = ' . $db->quote($results[$extensions]['extension_id']));
+                ->update($db->quoteName('#__extensions', 'a'))
+                ->set($db->quoteName('manifest_cache') . '=' . $db->quote($manifestCache->toString()))
+                ->where($db->quoteName('extension_id') . '=' . (int)$componentId);
 
             $db->setQuery($query);
             $db->execute();
+        }
+    }
 
-            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extensions, $results[$extensions]['extension_id'], $results[$extensions]['version_id'], $version->getShortVersion());
-            JFactory::getApplication()->enqueueMessage($msg);
+    protected function updatePackageVersion(JDatabaseDriver $db, $version, $extension)
+    {
+        $query = $db->getQuery(true);
+        $query
+            ->select('a.extension_id, a.manifest_cache')
+            ->from($db->quoteName('#__extensions', 'a'))
+            ->where($db->quoteName('element') .'='. $db->quote($extension))
+            ->where($db->quoteName('type') .'='. $db->quote('package'));
+
+        $db->setQuery($query);
+        $resultManifestCache = $db->loadObject();
+
+        if ($resultManifestCache !== null) {
+            $manifestCache = new Joomla\Registry\Registry($resultManifestCache->manifest_cache);
+            $manifestCache->set('version', $version);
+
+            // Store changed manifest cache.
+            $query = $db->getQuery(true);
+            $query
+                ->update($db->quoteName('#__extensions', 'a'))
+                ->set($db->quoteName('manifest_cache') . '=' . $db->quote($manifestCache->toString()))
+                ->where($db->quoteName('extension_id') . '=' . (int)$resultManifestCache->extension_id);
+
+            $db->setQuery($query);
+            $db->execute();
+        }
+    }
+
+    protected function migrateSchemas($extension, $currentVersion)
+    {
+        jimport('joomla.filesystem.file');
+        jimport('joomla.filesystem.folder');
+        jimport('joomla.filesystem.path');
+
+        $versions = array();
+        $releases = array();
+        $folder   = JPath::clean(JPATH_ADMINISTRATOR . '/components/'.$extension.'/sql/updates', '/');
+
+        $files    = JFolder::files($folder, '\.sql$', false, false, array('.svn', 'CVS', '.DS_Store', '__MACOSX'), array('^\..*', '.*~'), true);
+
+        // Prepare the version of files that I have to execute.
+        foreach ($files as $file) {
+            $filename   = basename($file);
+            $version    = JFile::stripExt($filename);
+            if (version_compare($version, $currentVersion, '>')) {
+                $versions[] = $version;
+                sort($versions);
+            }
+        }
+
+        // Prepare path to the update files.
+        foreach ($versions as $version) {
+            $releases[] = JPath::clean($folder .'/'. $version. '.sql', '/');
+        }
+
+        // Execute update queries.
+        if (count($releases) > 0) {
+            $db    = JFactory::getDbo();
+
+            foreach ($releases as $file) {
+                $content = file_get_contents($file);
+                $queries = explode(';', $content);
+                $queries = array_map('trim', $queries);
+                $queries = array_filter($queries);
+
+                if (count($queries) > 0) {
+                    foreach ($queries as $sql) {
+                        $db->setQuery($sql);
+                        $db->execute();
+                    }
+
+                    $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_EXECUTED_QUERIES_S', $file);
+                    JFactory::getApplication()->enqueueMessage($msg);
+                }
+            }
         }
     }
 }
