@@ -29,9 +29,6 @@
 // TEMPLATES OPTIONS FORM
 // ------------------------------
 .com_config #templates-form {
-  legend {
-  }
-
   .tip {
     background: @well-bg;
     padding: (@padding-base-vertical * 2) @padding-base-horizontal;
@@ -195,6 +192,106 @@
 
 }
 
+// Extrafield
+// -----------------------
+.edit.item-page,
+.profile-edit {
+  #jform_com_fields_checkboxs {
+    label.checkbox {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    input[type="checkbox"] {
+      margin-left: 0;
+      margin-top: -2px;
+      position: relative;
+      vertical-align: middle;
+      width: auto;
+    }
+  }
+
+  .minicolors-input {
+    height: 28px;
+    width: auto;
+  }
+}
+
+// Edit profile
+// -----------------------
+.profile-edit {
+  #jform_com_fields_user_checkbox {
+    label.checkbox {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    input {
+      position: relative;
+      margin-left: 0;
+      margin-right: 5px;
+      width: auto;
+    }
+  }
+
+  .minicolors-input {
+    height: 28px;
+    width: auto;
+  }
+
+  #jform_com_fields_user_image_chzn {
+    .chzn-search {
+      box-sizing: border-box;
+    }
+
+    ul.chzn-results {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+  }
+
+  #jform_com_fields_user_calendar {
+    float: left;
+  }
+
+  .chzn-container-single,
+  .chzn-container {
+    float: left;
+    margin-right: 10px;
+
+    @media screen and (max-width: 360px) {
+      width: 100% !important;
+    }
+
+    .chzn-drop {
+      box-sizing: border-box !important;
+    }
+  }
+}
+
+
+// User profile
+// ----------------------
+.profile {
+  #users-profile-core {
+    width: 100%;
+  }
+
+  .dl-horizontal {
+    dd {
+      margin-bottom: 10px;
+      border-bottom: 1px dashed #ddd;
+      padding-bottom: 10px;
+
+      img {
+        max-width: 100%;
+      }
+    }
+  }
+}
+
 
 // Tabs
 // -----------------------
@@ -350,6 +447,14 @@
 
     .pull-right {
       margin-right: @grid-gutter-width;
+    }
+
+    .well {
+      &:after {
+        display: table;
+        content: "";
+        clear: both;
+      }
     }
 
   }
@@ -558,7 +663,8 @@ fieldset.radio.btn-group {
 // Frontend Edit Insert module
 // ---------------------------------------
 .window.view-modules,
-.window.view-articles {
+.window.view-articles,
+.window.view-contacts {
   .js-stools {
     margin-bottom: 20px;
 
@@ -634,6 +740,30 @@ fieldset.radio.btn-group {
 .icon-cancel:before {
   content:"\f00d";
   font-family: "FontAwesome";
+}
+
+.icon-publish {
+  &:before {
+    content: "\f00c";
+  }
+}
+
+.icon-unpublish {
+  &:before {
+    content: "\f00d";
+  }
+}
+
+.icon-featured {
+  &:before {
+    content: "\f005";
+  }
+}
+
+.icon-unfeatured {
+  &:before {
+    content: "\f005";
+  }
 }
 
 

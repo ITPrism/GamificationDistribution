@@ -93,7 +93,7 @@ class T3Template extends ObjectExtendable
 			$fconfig = T3Path::getPath('etc/layout/' . $layout . '.ini');
 			if (is_file($fconfig)) {
 				jimport('joomla.filesystem.file');
-				$this->_layoutsettings->loadString(JFile::read($fconfig), 'INI', array('processSections' => true));
+				$this->_layoutsettings->loadString(file_get_contents($fconfig), 'INI', array('processSections' => true));
 			}
 		}
 
@@ -620,8 +620,29 @@ class T3Template extends ObjectExtendable
 	 */
 	function countModules($positions)
 	{
+		if (!$this->_tpl || !method_exists($this->_tpl, 'countModules')) return 0;
+
+		// get real post name
 		$pos = $this->getPosname($positions);
-		return $this->_tpl && method_exists($this->_tpl, 'countModules') ? $this->_tpl->countModules($pos) : 0;
+
+		// support only and, or - back compatibility
+		if (preg_match ('/ or /i', $pos)) {
+			$arr = preg_split('/ or /i', $pos);
+			$result = 0;
+			foreach ($arr as $p) {
+				$result = $result || $this->_tpl->countModules($p);
+			}		
+			return $result;
+		} else if (preg_match ('/ and /i', $pos)) {
+			$arr = preg_split('/ and /i', $pos);
+			$result = 1;
+			foreach ($arr as $p) {
+				$result = $result && $this->_tpl->countModules($p);
+			}		
+			return $result;
+		} 
+
+		return $this->_tpl->countModules($pos);
 	}
 
 
@@ -634,6 +655,8 @@ class T3Template extends ObjectExtendable
 	 */
 	function checkSpotlight($name, $positions)
 	{
+		if (!$this->_tpl || !method_exists($this->_tpl, 'countModules')) return 0;
+
 		$poss = array();
 
 		for ($i = 1; $i <= $this->maxgrid; $i++) {
@@ -650,7 +673,14 @@ class T3Template extends ObjectExtendable
 			$poss = preg_split('/\s*,\s*/', $positions);
 		}
 
-		return $this->_tpl && method_exists($this->_tpl, 'countModules') ? $this->_tpl->countModules(implode(' or ', $poss)) : 0;
+		// fix deprecated error: using expression in HtmlDocument::countModules()
+		foreach ($poss as $pos) {
+			if ($this->_tpl->countModules($pos)) return 1;
+		}
+
+		return 0;
+
+		//return $this->_tpl && method_exists($this->_tpl, 'countModules') ? $this->_tpl->countModules(implode(' or ', $poss)) : 0;
 	}
 
 
@@ -1117,7 +1147,7 @@ class T3Template extends ObjectExtendable
 		foreach ($afiles as $afile) {
 			if (is_file($afile)) {
 				//load xml
-				$axml = JFactory::getXML($afile);
+				$axml = simplexml_load_file($afile);
 
 				//process if exist
 				if ($axml) {
@@ -1152,14 +1182,22 @@ class T3Template extends ObjectExtendable
 
 								if ($url) {
 									if ($node == 'stylesheets') {
-										$type = $file['type'] ? (string) $file['type'] : 'text/css';
-										$media = $file['media'] ? (string) $file['media'] : null;
-										$this->addStylesheet($url, $type, $media);
+										if(version_compare(JVERSION, '3.7', 'lt')) {
+											$type = $file['type'] ? (string) $file['type'] : 'text/css';
+											$media = $file['media'] ? (string) $file['media'] : null;
+											$this->addStylesheet($url, $type, $media);
+										} else {
+											$this->addStylesheet($url, array(), current($file->attributes()));
+										}
 									} else {
-										$type = $file['type'] ? (string) $file['type'] : 'text/javascript';
-										$defer = $file['defer'] ? (bool) $file['defer'] : false;
-										$async = $file['async'] ? (bool) $file['async'] : false;
-										$this->addScript($url, $type, $defer, $async);
+										if(version_compare(JVERSION, '3.7', 'lt')) {
+											$type = $file['type'] ? (string) $file['type'] : 'text/javascript';
+											$defer = $file['defer'] ? (bool) $file['defer'] : false;
+											$async = $file['async'] ? (bool) $file['async'] : false;
+											$this->addScript($url, $type, $defer, $async);
+										} else {
+											$this->addScript($url, array(), current($file->attributes()));
+										}
 									}
 								}
 							}
